@@ -36,28 +36,25 @@
             overflow-x: hidden;
             width: 100%;
             position: relative;
-            padding-top: 80px; /* নেভিগেশন বারের উচ্চতা সমান প্যাডিং */
+            padding-top: 80px;
         }
 
-        /* Smooth Scrolling */
         html {
             scroll-behavior: smooth;
-            scroll-padding-top: 90px; /* নেভিগেশন বারের জন্য স্ক্রোল প্যাডিং */
+            scroll-padding-top: 90px;
             overflow-x: hidden;
         }
 
-        /* নেভিগেশন বার ফিক্সড - সবসময় দৃশ্যমান */
         nav {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             z-index: 1000;
-            transition: none; /* ট্রানজিশন রিমুভ করা হয়েছে */
-            transform: none; /* ট্রান্সফর্ম রিমুভ করা হয়েছে */
+            transition: none;
+            transform: none;
         }
 
-        /* কন্টেইনার */
         .container-custom {
             max-width: 1280px;
             margin-left: auto;
@@ -68,7 +65,6 @@
             overflow-x: hidden;
         }
 
-        /* নেভিগেশন লিংক স্টাইল */
         .nav-link {
             position: relative;
             transition: all 0.3s ease;
@@ -95,7 +91,6 @@
             transform: translateY(-2px);
         }
 
-        /* WhatsApp Float Button */
         .whatsapp-float {
             position: fixed;
             bottom: 30px;
@@ -129,7 +124,6 @@
             100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
         }
 
-        /* স্লাইডার স্টাইল */
         .slide {
             transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
             position: absolute;
@@ -159,7 +153,6 @@
             background: var(--primary-blue);
         }
 
-        /* ক্যাটাগরি ট্যাব */
         .category-tab {
             position: relative;
             padding: 0.75rem 1.5rem;
@@ -188,7 +181,6 @@
             margin-right: 0.5rem;
         }
 
-        /* প্রোডাক্ট কার্ড */
         .product-card {
             background: white;
             border-radius: 1.5rem;
@@ -220,7 +212,6 @@
             animation: pulse 2s infinite;
         }
 
-        /* প্রোডাক্ট গ্যালারি */
         .product-gallery {
             position: relative;
             width: 100%;
@@ -301,7 +292,6 @@
             box-shadow: 0 0 10px var(--primary-blue);
         }
 
-        /* অর্ডার বাটন */
         .order-btn {
             background: linear-gradient(145deg, var(--deep-blue), var(--primary-dark));
             color: white;
@@ -325,7 +315,6 @@
             border-color: white;
         }
 
-        /* কার্ট আইটেম */
         .cart-item {
             background: #f8fafc;
             border-radius: 1rem;
@@ -372,7 +361,6 @@
             transform: scale(1.2);
         }
 
-        /* রিভিউ কার্ড */
         .review-card {
             background: #f8fafc;
             border-radius: 1rem;
@@ -387,7 +375,6 @@
             box-shadow: 0 5px 15px rgba(0,174,239,0.1);
         }
 
-        /* ফর্ম ইনপুট */
         .form-input {
             width: 100%;
             border: 2px solid var(--silver);
@@ -417,7 +404,6 @@
             color: var(--primary-blue);
         }
 
-        /* লোডিং স্পিনার */
         .loading {
             display: inline-block;
             width: 50px;
@@ -432,7 +418,6 @@
             to { transform: rotate(360deg); }
         }
 
-        /* পপআপ মডাল */
         .popup-overlay {
             position: fixed;
             top: 0;
@@ -479,7 +464,6 @@
             border-top: 8px solid #ef4444;
         }
 
-        /* ডেলিভারি চার্জ ব্যাজ */
         .delivery-badge {
             background: linear-gradient(145deg, #f59e0b, #d97706);
             color: white;
@@ -492,7 +476,6 @@
             gap: 0.25rem;
         }
 
-        /* অ্যানিমেশন */
         @keyframes fadeInUp {
             from {
                 opacity: 0;
@@ -508,7 +491,6 @@
             animation: fadeInUp 0.6s ease forwards;
         }
 
-        /* আপডেটেড মোবাইল মেনু স্টাইল */
         .mobile-menu {
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             max-height: 0;
@@ -607,7 +589,6 @@
             transform: scale(1.1);
         }
 
-        /* স্ক্রলবার */
         ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
@@ -627,14 +608,12 @@
             background: var(--primary-blue);
         }
 
-        /* সংক্ষিপ্ত ফুটার স্টাইল */
         .footer-minimal {
             background: #000B29;
             color: white;
             border-top: 4px solid #00AEEF;
         }
 
-        /* রেস্পন্সিভ */
         @media (max-width: 640px) {
             body {
                 padding-top: 70px;
@@ -693,7 +672,6 @@
             }
         }
 
-        /* নেভিগেশন বার সবসময় ফিক্সড - কোন ট্রান্সফর্ম নেই */
         nav {
             transform: none !important;
         }
@@ -718,7 +696,7 @@
         </div>
     </div>
 
-    <!-- ==================== ফিক্সড নেভিগেশন (সবসময় দৃশ্যমান) ==================== -->
+    <!-- ==================== ফিক্সড নেভিগেশন ==================== -->
     <nav class="bg-[#000B29] text-white shadow-2xl" id="mainNav">
         <div class="container-custom">
             <div class="flex justify-between items-center h-20">
@@ -1158,7 +1136,7 @@
 
             // উইন্ডো রিসাইজ হ্যান্ডলার
             window.addEventListener('resize', () => {
-                if (window.innerWidth >= 768) { // md ব্রেকপয়েন্ট
+                if (window.innerWidth >= 768) {
                     if (mobileMenu) {
                         mobileMenu.classList.remove('open');
                         const icon = mobileMenuBtn.querySelector('i');
@@ -1407,7 +1385,8 @@
             }
             
             // ইন্ডিকেটর আপডেট
-            document.querySelectorAll(`.indicator-${productId}`).forEach((ind, idx) => {
+            const indicators = document.querySelectorAll(`.indicator-${productId}`);
+            indicators.forEach((ind, idx) => {
                 if (idx === gallery.currentIndex) {
                     ind.classList.add('active');
                 } else {
@@ -1439,21 +1418,25 @@
         function renderProducts(productsToRender) {
             const grid = document.getElementById('productsGrid');
             
-            grid.innerHTML = productsToRender.map(p => `
+            grid.innerHTML = productsToRender.map(p => {
+                // ইমেজ অ্যারে কে JSON স্ট্রিং এ কনভার্ট করার সময় সঠিকভাবে এস্কেপ করা
+                const imagesJson = JSON.stringify(p.images).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                
+                return `
                 <div class="product-card fade-in-up">
                     <span class="product-badge">
                         <i class="fas fa-tag"></i> ${p.discount}% ছাড়
                     </span>
                     
                     <div class="product-gallery">
-                        <img id="gallery-img-${p.id}" src="${p.images[0]}" alt="${p.name}" class="gallery-image">
+                        <img id="gallery-img-${p.id}" src="${p.images[0]}" alt="${p.name}" class="gallery-image" onerror="this.src='https://via.placeholder.com/400'">
                         
                         ${p.images.length > 1 ? `
                             <div class="gallery-controls">
-                                <button class="gallery-btn" onclick="changeImage('${p.id}', -1, ${JSON.stringify(p.images)}, event)">
+                                <button class="gallery-btn" onclick="changeImage('${p.id}', -1, ${imagesJson}, event)">
                                     <i class="fas fa-chevron-left"></i>
                                 </button>
-                                <button class="gallery-btn" onclick="changeImage('${p.id}', 1, ${JSON.stringify(p.images)}, event)">
+                                <button class="gallery-btn" onclick="changeImage('${p.id}', 1, ${imagesJson}, event)">
                                     <i class="fas fa-chevron-right"></i>
                                 </button>
                             </div>
@@ -1480,13 +1463,13 @@
                             <span><i class="fas fa-shopping-cart mr-1"></i>বিক্রি: ${p.sold || 0}</span>
                         </div>
                         
-                        <button class="order-btn" onclick="addToCart('${p.id}', '${p.name.replace(/'/g, "\\'")}', ${p.price}, '${p.images[0]}')">
+                        <button class="order-btn" onclick='addToCart("${p.id}", "${p.name.replace(/'/g, "\\'")}", ${p.price}, "${p.images[0]}")'>
                             <i class="fas fa-cart-plus"></i>
                             অর্ডার করুন
                         </button>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
             
             // গ্যালারি ইনিশিয়ালাইজ
             productsToRender.forEach(p => {
