@@ -2,96 +2,215 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title id="siteTitle">Jahid Gadgets · আধুনিক প্রযুক্তির ঠিকানা</title>
+    
+    <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
     <style>
-        * { font-family: 'Hind Siliguri', sans-serif; }
+        * {
+            font-family: 'Hind Siliguri', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         :root {
             --primary-dark: #000B29;
             --primary-blue: #00AEEF;
             --silver: #C0C0C2;
-            --white: #FFFFFF;
             --deep-blue: #003366;
+            --whatsapp-green: #25D366;
         }
-        body { background-color: var(--silver); color: var(--primary-dark); }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+            min-height: 100vh;
+        }
+
+        /* Smooth Scrolling */
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 80px;
+        }
+
+        /* Custom Container */
         .container-custom {
-            max-width: 1200px;
+            max-width: 1280px;
             margin-left: auto;
             margin-right: auto;
             padding-left: 1rem;
             padding-right: 1rem;
         }
-        .slide { transition: opacity 0.6s ease-in-out; }
-        .fade-up { animation: fadeUp 0.7s ease forwards; }
-        @keyframes fadeUp {
-            0% { opacity: 0; transform: translateY(15px); }
-            100% { opacity: 1; transform: translateY(0); }
-        }
-        .card-hover { transition: all 0.2s ease; }
-        .card-hover:hover { transform: scale(1.02); box-shadow: 0 15px 25px -10px rgba(0,174,239,0.2); }
-        .badge-soft { background: linear-gradient(145deg, #ef4444, #dc2626); }
-        .dot-active { background-color: var(--primary-blue); width: 28px; }
-        .category-tab { 
-            transition: all 0.2s; 
-            cursor: pointer; 
-            border-bottom: 3px solid transparent;
+
+        /* Navigation Styles */
+        .nav-link {
             position: relative;
-            text-decoration: none;
-            color: #003366;
+            transition: all 0.3s ease;
+            padding: 0.5rem 0;
         }
-        .category-tab.active { 
-            border-bottom-color: var(--primary-blue); 
-            font-weight: 600; 
-            color: var(--primary-blue); 
-        }
-        .category-tab:hover {
-            color: var(--primary-blue);
-        }
-        .category-tab:hover::after {
+
+        .nav-link::after {
             content: '';
             position: absolute;
-            bottom: -3px;
+            bottom: 0;
             left: 0;
-            width: 100%;
+            width: 0;
             height: 2px;
-            background-color: var(--primary-blue);
-            opacity: 0.5;
+            background: var(--primary-blue);
+            transition: width 0.3s ease;
         }
-        .product-name {
-            color: #000B29;
-            font-size: 1.25rem;
-            font-weight: 700;
-        }
-        .order-btn-link {
-            transition: all 0.2s;
-            display: block;
+
+        .nav-link:hover::after {
             width: 100%;
-            text-align: center;
-            background-color: #003366;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-blue);
+            transform: translateY(-2px);
+        }
+
+        /* WhatsApp Float Button */
+        .whatsapp-float {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(145deg, #25D366, #128C7E);
             color: white;
-            font-weight: 600;
-            padding: 0.75rem 0;
-            border-radius: 0.75rem;
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 35px;
+            box-shadow: 0 8px 20px rgba(37, 211, 102, 0.4);
+            z-index: 1000;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: pulse 2.5s infinite;
             text-decoration: none;
-            border: none;
+            border: 3px solid white;
+        }
+
+        .whatsapp-float:hover {
+            transform: scale(1.15) rotate(5deg);
+            background: linear-gradient(145deg, #128C7E, #25D366);
+            box-shadow: 0 15px 30px rgba(37, 211, 102, 0.6);
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(37, 211, 102, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+        }
+
+        /* Slider Styles */
+        .slide {
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            position: absolute;
+            inset: 0;
+        }
+
+        .slide-content {
+            transform: translateY(30px);
+            opacity: 0;
+            animation: slideUp 0.8s ease forwards;
+        }
+
+        @keyframes slideUp {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .dot {
+            transition: all 0.3s ease;
             cursor: pointer;
         }
-        .order-btn-link:hover {
-            background-color: #00AEEF;
-            transform: scale(1.02);
-            box-shadow: 0 10px 15px -3px rgba(0,174,239,0.3);
+
+        .dot-active {
+            width: 2rem;
+            background: var(--primary-blue);
         }
+
+        /* Category Tabs */
+        .category-tab {
+            position: relative;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            color: var(--deep-blue);
+            transition: all 0.3s ease;
+            border-radius: 9999px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid transparent;
+        }
+
+        .category-tab:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0,174,239,0.15);
+            border-color: var(--primary-blue);
+        }
+
+        .category-tab.active {
+            background: var(--primary-blue);
+            color: white;
+            box-shadow: 0 8px 20px rgba(0,174,239,0.3);
+        }
+
+        .category-tab i {
+            margin-right: 0.5rem;
+        }
+
+        /* Product Card */
+        .product-card {
+            background: white;
+            border-radius: 1.5rem;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(192,192,194,0.3);
+            position: relative;
+        }
+
+        .product-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 25px 40px rgba(0,174,239,0.2);
+            border-color: var(--primary-blue);
+        }
+
+        .product-badge {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: linear-gradient(145deg, #ef4444, #dc2626);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            z-index: 20;
+            box-shadow: 0 4px 10px rgba(239,68,68,0.3);
+            animation: pulse 2s infinite;
+        }
+
+        /* Product Gallery */
         .product-gallery {
             position: relative;
             width: 100%;
-            height: 180px;
+            height: 240px;
             overflow: hidden;
+            background: #f8fafc;
         }
+
         .gallery-image {
             position: absolute;
             top: 0;
@@ -99,93 +218,209 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.4s ease;
         }
+
         .gallery-controls {
             position: absolute;
-            bottom: 10px;
-            right: 10px;
+            bottom: 15px;
+            right: 15px;
             display: flex;
-            gap: 5px;
-            z-index: 10;
+            gap: 8px;
+            z-index: 20;
+            opacity: 0;
+            transform: translateX(20px);
+            transition: all 0.3s ease;
         }
+
+        .product-card:hover .gallery-controls {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
         .gallery-btn {
-            width: 30px;
-            height: 30px;
+            width: 35px;
+            height: 35px;
             border-radius: 50%;
-            background-color: rgba(0,0,0,0.5);
-            color: white;
+            background: rgba(255,255,255,0.9);
+            color: var(--primary-dark);
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             border: none;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            font-size: 14px;
         }
+
         .gallery-btn:hover {
-            background-color: var(--primary-blue);
+            background: var(--primary-blue);
+            color: white;
+            transform: scale(1.1);
         }
+
         .image-indicator {
             position: absolute;
-            bottom: 10px;
-            left: 10px;
+            bottom: 15px;
+            left: 15px;
             display: flex;
-            gap: 5px;
-            z-index: 10;
+            gap: 8px;
+            z-index: 20;
         }
+
         .indicator-dot {
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background-color: rgba(255,255,255,0.5);
-            transition: all 0.2s;
+            background: rgba(255,255,255,0.6);
+            transition: all 0.3s ease;
         }
+
         .indicator-dot.active {
-            background-color: var(--primary-blue);
-            transform: scale(1.2);
+            background: var(--primary-blue);
+            transform: scale(1.4);
+            box-shadow: 0 0 10px var(--primary-blue);
         }
-        .nav-link { transition: all 0.2s; position: relative; text-decoration: none; color: white; }
-        .nav-link:hover { color: var(--primary-blue); }
-        .nav-link:hover::after {
-            content: '';
-            position: absolute;
-            bottom: -4px;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background-color: var(--primary-blue);
-        }
-        .whatsapp-float {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background-color: #25D366;
+
+        /* Order Button */
+        .order-btn {
+            background: linear-gradient(145deg, var(--deep-blue), var(--primary-dark));
             color: white;
-            width: 60px;
-            height: 60px;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            border: 1px solid transparent;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .order-btn:hover {
+            background: linear-gradient(145deg, var(--primary-blue), var(--deep-blue));
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,174,239,0.3);
+            border-color: white;
+        }
+
+        /* Cart Item */
+        .cart-item {
+            background: #f8fafc;
+            border-radius: 1rem;
+            padding: 0.75rem;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .cart-item:hover {
+            background: white;
+            border-color: var(--primary-blue);
+            box-shadow: 0 5px 15px rgba(0,174,239,0.1);
+            transform: translateX(5px);
+        }
+
+        .qty-btn {
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
+            background: white;
+            border: 1px solid var(--silver);
+            color: var(--primary-dark);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 30px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            z-index: 100;
-            transition: all 0.3s ease;
-            animation: pulse 2s infinite;
-            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
         }
-        .whatsapp-float:hover {
+
+        .qty-btn:hover {
+            background: var(--primary-blue);
+            color: white;
+            border-color: var(--primary-blue);
             transform: scale(1.1);
-            background-color: #20B038;
         }
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); }
-            70% { box-shadow: 0 0 0 15px rgba(37, 211, 102, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+
+        .remove-btn {
+            color: #ef4444;
+            transition: all 0.2s ease;
         }
+
+        .remove-btn:hover {
+            color: #dc2626;
+            transform: scale(1.2);
+        }
+
+        /* Review Card */
+        .review-card {
+            background: #f8fafc;
+            border-radius: 1rem;
+            padding: 1rem;
+            transition: all 0.3s ease;
+            border-left: 3px solid var(--primary-blue);
+        }
+
+        .review-card:hover {
+            background: white;
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,174,239,0.1);
+        }
+
+        /* Form Inputs */
+        .form-input {
+            width: 100%;
+            border: 2px solid var(--silver);
+            border-radius: 1rem;
+            padding: 0.75rem 1rem;
+            padding-left: 2.5rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 4px rgba(0,174,239,0.1);
+            outline: none;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--silver);
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus + .input-icon {
+            color: var(--primary-blue);
+        }
+
+        /* Loading Spinner */
+        .loading {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(0,174,239,0.2);
+            border-radius: 50%;
+            border-top-color: var(--primary-blue);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Popup Modal */
         .popup-overlay {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             background: rgba(0,0,0,0.5);
             display: flex;
             align-items: center;
@@ -194,67 +429,145 @@
             opacity: 0;
             visibility: hidden;
             transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
         }
+
         .popup-overlay.active {
             opacity: 1;
             visibility: visible;
         }
+
         .popup-content {
             background: white;
             padding: 2rem;
-            border-radius: 1.5rem;
+            border-radius: 2rem;
             max-width: 400px;
             width: 90%;
             text-align: center;
             transform: scale(0.7);
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
         }
+
         .popup-overlay.active .popup-content {
             transform: scale(1);
         }
-        .popup-success { border-top: 8px solid #10b981; }
-        .popup-error { border-top: 8px solid #ef4444; }
-        @media (max-width: 640px) {
-            .slide-content { padding: 1rem !important; }
-            .slide-title { font-size: 1.5rem !important; line-height: 1.2 !important; }
-            .slide-subtitle { font-size: 1rem !important; }
-            .product-gallery { height: 150px; }
+
+        .popup-success {
+            border-top: 8px solid #10b981;
         }
-        #order, [id^="product-"] { scroll-margin-top: 80px; }
-        .loading { display: inline-block; width: 40px; height: 40px; border: 4px solid rgba(0,174,239,.3); border-radius: 50%; border-top-color: #00AEEF; animation: spin 1s ease-in-out infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes shimmer { 100% { transform: translateX(100%); } }
-        .animate-shimmer { animation: shimmer 2s infinite; }
+
+        .popup-error {
+            border-top: 8px solid #ef4444;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        /* Mobile Menu */
+        .mobile-menu {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+
+        .mobile-menu.open {
+            max-height: 300px;
+            opacity: 1;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--silver);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-blue);
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .product-gallery {
+                height: 200px;
+            }
+            
+            .category-tab {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+            
+            .whatsapp-float {
+                width: 55px;
+                height: 55px;
+                font-size: 30px;
+                bottom: 20px;
+                right: 20px;
+            }
+        }
     </style>
 </head>
-<body class="bg-gray-50">
+<body class="antialiased">
 
+    <!-- ==================== WHATSAPP FLOATING BUTTON ==================== -->
     <a href="#" id="whatsappLink" class="whatsapp-float" target="_blank" title="WhatsApp এ অর্ডার করুন">
         <i class="fab fa-whatsapp"></i>
     </a>
 
+    <!-- ==================== POPUP MODAL ==================== -->
     <div id="popup" class="popup-overlay">
         <div id="popupContent" class="popup-content">
-            <div id="popupIcon" class="text-6xl mb-4">✅</div>
-            <h3 id="popupTitle" class="text-2xl font-bold mb-2">সফল!</h3>
-            <p id="popupMessage" class="text-gray-600 mb-6">আপনার অর্ডার গৃহীত হয়েছে</p>
-            <button onclick="closePopup()" class="bg-blue-600 text-white px-8 py-3 rounded-full font-semibold hover:bg-blue-700 transition-all">ঠিক আছে</button>
+            <div id="popupIcon" class="text-6xl mb-4"></div>
+            <h3 id="popupTitle" class="text-2xl font-bold mb-2 text-[#000B29]"></h3>
+            <p id="popupMessage" class="text-gray-600 mb-6"></p>
+            <button onclick="closePopup()" class="bg-[#00AEEF] text-white px-8 py-3 rounded-full font-semibold hover:bg-[#003366] transition-all transform hover:scale-105">
+                ঠিক আছে
+            </button>
         </div>
     </div>
 
-    <nav class="bg-[#000B29] text-white sticky top-0 z-40 shadow-lg">
+    <!-- ==================== NAVIGATION ==================== -->
+    <nav class="bg-[#000B29] text-white sticky top-0 z-50 shadow-2xl">
         <div class="container-custom">
-            <div class="flex justify-between items-center h-16">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo -->
                 <div class="flex items-center gap-3">
                     <img src="images/Jahid gadgets.png" alt="Jahid Gadgets" 
-                         class="h-12 w-auto object-contain rounded-lg border-2 border-[#00AEEF] shadow-md hover:shadow-xl hover:scale-105 transition-all duration-300" 
+                         class="h-14 w-auto object-contain rounded-xl border-2 border-[#00AEEF] shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300"
                          onerror="this.style.display='none'">
-                    <span id="siteNameDisplay" class="text-xl md:text-2xl font-bold bg-gradient-to-r from-[#00AEEF] to-[#003366] bg-clip-text text-transparent relative">
-                        Jahid Gadgets
-                        <span class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full animate-shimmer"></span>
-                    </span>
+                    <div>
+                        <span id="siteNameDisplay" class="text-2xl font-bold bg-gradient-to-r from-[#00AEEF] to-white bg-clip-text text-transparent">
+                            Jahid Gadgets
+                        </span>
+                        <p class="text-xs text-[#C0C0C2] hidden md:block">আধুনিক প্রযুক্তির ঠিকানা</p>
+                    </div>
                 </div>
 
+                <!-- Desktop Menu -->
                 <div class="hidden md:flex items-center space-x-8">
                     <a href="#" class="nav-link"><i class="fas fa-home mr-1"></i>হোম</a>
                     <a href="#products" class="nav-link"><i class="fas fa-box mr-1"></i>পণ্য</a>
@@ -263,24 +576,37 @@
                     <a href="#contact" class="nav-link"><i class="fas fa-phone mr-1"></i>যোগাযোগ</a>
                 </div>
 
-                <a href="tel:" id="phoneLink" class="hidden md:flex items-center gap-2 bg-[#00AEEF] text-white px-4 py-2 rounded-full hover:bg-[#003366] transition-all">
-                    <i class="fas fa-phone-alt"></i>
-                    <span>কল করুন</span>
+                <!-- Call Button -->
+                <a href="tel:" id="phoneLink" class="hidden md:flex items-center gap-2 bg-[#00AEEF] text-white px-6 py-3 rounded-full hover:bg-[#003366] transition-all transform hover:scale-105 shadow-lg">
+                    <i class="fas fa-phone-alt animate-pulse"></i>
+                    <span class="font-semibold">কল করুন</span>
                 </a>
 
-                <button id="mobileMenuBtn" class="md:hidden text-[#00AEEF] text-2xl">
+                <!-- Mobile Menu Button -->
+                <button id="mobileMenuBtn" class="md:hidden text-[#00AEEF] text-3xl hover:text-white transition-colors">
                     <i class="fas fa-bars"></i>
                 </button>
             </div>
 
-            <div id="mobileMenu" class="md:hidden hidden pb-4">
-                <div class="flex flex-col space-y-3">
-                    <a href="#" class="nav-link py-2"><i class="fas fa-home mr-2"></i>হোম</a>
-                    <a href="#products" class="nav-link py-2"><i class="fas fa-box mr-2"></i>পণ্য</a>
-                    <a href="#order" class="nav-link py-2"><i class="fas fa-shopping-cart mr-2"></i>অর্ডার</a>
-                    <a href="#reviews" class="nav-link py-2"><i class="fas fa-star mr-2"></i>রিভিউ</a>
-                    <a href="#contact" class="nav-link py-2"><i class="fas fa-phone mr-2"></i>যোগাযোগ</a>
-                    <a href="tel:" id="mobilePhoneLink" class="bg-[#00AEEF] text-white py-2 rounded-full text-center mt-2">
+            <!-- Mobile Menu -->
+            <div id="mobileMenu" class="mobile-menu md:hidden">
+                <div class="flex flex-col space-y-3 pb-4">
+                    <a href="#" class="nav-link py-2 px-4 hover:bg-[#003366] rounded-lg transition-all">
+                        <i class="fas fa-home mr-2"></i>হোম
+                    </a>
+                    <a href="#products" class="nav-link py-2 px-4 hover:bg-[#003366] rounded-lg transition-all">
+                        <i class="fas fa-box mr-2"></i>পণ্য
+                    </a>
+                    <a href="#order" class="nav-link py-2 px-4 hover:bg-[#003366] rounded-lg transition-all">
+                        <i class="fas fa-shopping-cart mr-2"></i>অর্ডার
+                    </a>
+                    <a href="#reviews" class="nav-link py-2 px-4 hover:bg-[#003366] rounded-lg transition-all">
+                        <i class="fas fa-star mr-2"></i>রিভিউ
+                    </a>
+                    <a href="#contact" class="nav-link py-2 px-4 hover:bg-[#003366] rounded-lg transition-all">
+                        <i class="fas fa-phone mr-2"></i>যোগাযোগ
+                    </a>
+                    <a href="tel:" id="mobilePhoneLink" class="bg-[#00AEEF] text-white py-3 rounded-full text-center mt-2 hover:bg-[#003366] transition-all">
                         <i class="fas fa-phone-alt mr-2"></i>কল করুন
                     </a>
                 </div>
@@ -288,165 +614,287 @@
         </div>
     </nav>
 
+    <!-- ==================== SLIDER SECTION ==================== -->
     <section class="container-custom pt-6">
-        <div class="relative rounded-2xl overflow-hidden shadow-xl h-56 md:h-80 lg:h-96" style="background-color: #000B29;">
+        <div class="relative rounded-3xl overflow-hidden shadow-2xl h-64 md:h-96 lg:h-[500px] group">
             <div id="sliderContainer" class="relative w-full h-full">
                 <!-- Slides will be loaded dynamically -->
             </div>
-            <div id="sliderDots" class="absolute bottom-3 left-0 right-0 flex justify-center gap-2 z-20"></div>
-            <button id="prevSlide" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-[#00AEEF] text-white p-2 rounded-full w-8 h-8 md:w-10 md:h-10 text-base md:text-xl flex items-center justify-center backdrop-blur-sm transition-all">
+            
+            <!-- Dots -->
+            <div id="sliderDots" class="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-30"></div>
+            
+            <!-- Navigation Buttons -->
+            <button id="prevSlide" class="absolute left-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-[#00AEEF] text-white p-3 rounded-full w-10 h-10 md:w-12 md:h-12 flex items-center justify-center backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 z-30">
                 <i class="fas fa-chevron-left"></i>
             </button>
-            <button id="nextSlide" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-[#00AEEF] text-white p-2 rounded-full w-8 h-8 md:w-10 md:h-10 text-base md:text-xl flex items-center justify-center backdrop-blur-sm transition-all">
+            <button id="nextSlide" class="absolute right-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-[#00AEEF] text-white p-3 rounded-full w-10 h-10 md:w-12 md:h-12 flex items-center justify-center backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 z-30">
                 <i class="fas fa-chevron-right"></i>
             </button>
         </div>
     </section>
 
+    <!-- ==================== PRODUCTS SECTION ==================== -->
     <section id="products" class="container-custom py-12">
-        <h2 class="text-3xl font-bold text-center mb-2" style="color: #000B29;"><i class="fas fa-store text-[#00AEEF] mr-2"></i>আমাদের কালেকশন</h2>
-        <p class="text-center mb-6" style="color: #003366;">৪টি ক্যাটাগরিতে অসংখ্য গ্যাজেট</p>
+        <div class="text-center mb-10">
+            <h2 class="text-4xl md:text-5xl font-bold text-[#000B29] mb-2">
+                <i class="fas fa-store text-[#00AEEF] mr-2"></i>আমাদের কালেকশন
+            </h2>
+            <p class="text-lg text-[#003366]">৪টি ক্যাটাগরিতে ১০০+ আধুনিক গ্যাজেট</p>
+            <div class="w-24 h-1 bg-[#00AEEF] mx-auto mt-4 rounded-full"></div>
+        </div>
         
-        <div class="flex flex-wrap justify-center gap-4 md:gap-8 mb-8 border-b border-[#C0C0C2]">
-            <a href="#all-products" class="category-tab active px-2 py-2 text-lg font-medium" data-cat="all"><i class="fas fa-th-large mr-1"></i>সবগুলো</a>
-            <a href="#watch-products" class="category-tab px-2 py-2 text-lg font-medium" data-cat="watch"><i class="fas fa-clock mr-1"></i>স্মার্ট ওয়াচ</a>
-            <a href="#earbud-products" class="category-tab px-2 py-2 text-lg font-medium" data-cat="earbud"><i class="fas fa-headphones mr-1"></i>ইয়ারবাড</a>
-            <a href="#power-products" class="category-tab px-2 py-2 text-lg font-medium" data-cat="power"><i class="fas fa-battery-full mr-1"></i>পাওয়ার ব্যাংক</a>
-            <a href="#speaker-products" class="category-tab px-2 py-2 text-lg font-medium" data-cat="speaker"><i class="fas fa-volume-up mr-1"></i>স্পিকার</a>
+        <!-- Category Tabs -->
+        <div class="flex flex-wrap justify-center gap-3 mb-10">
+            <button class="category-tab active" data-cat="all">
+                <i class="fas fa-th-large"></i>সবগুলো
+            </button>
+            <button class="category-tab" data-cat="watch">
+                <i class="fas fa-clock"></i>স্মার্ট ওয়াচ
+            </button>
+            <button class="category-tab" data-cat="earbud">
+                <i class="fas fa-headphones"></i>ইয়ারবাড
+            </button>
+            <button class="category-tab" data-cat="power">
+                <i class="fas fa-battery-full"></i>পাওয়ার ব্যাংক
+            </button>
+            <button class="category-tab" data-cat="speaker">
+                <i class="fas fa-volume-up"></i>স্পিকার
+            </button>
         </div>
 
+        <!-- Products Grid -->
         <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            <div class="col-span-full text-center py-12">
+            <!-- Products will be loaded here -->
+            <div class="col-span-full text-center py-20">
                 <div class="loading mx-auto"></div>
-                <p class="mt-4 text-gray-600">পণ্য লোড হচ্ছে...</p>
+                <p class="mt-4 text-gray-600 text-lg">পণ্য লোড হচ্ছে...</p>
             </div>
         </div>
     </section>
 
-    <section id="order" class="container-custom pb-12 grid lg:grid-cols-2 gap-8">
-        <div class="p-6 md:p-8 rounded-3xl shadow-xl border fade-up" style="background-color: #FFFFFF; border-color: #C0C0C2;">
-            <h3 class="text-2xl font-bold flex items-center gap-2" style="color: #000B29;"><i class="fas fa-shopping-bag text-[#00AEEF]"></i>আপনার অর্ডার</h3>
-            <p class="mb-4" style="color: #003366;">নিচের ফর্মটি পূরণ করে অর্ডার সম্পন্ন করুন</p>
-            
-            <div id="cartItems" class="space-y-3 max-h-80 overflow-y-auto pr-2 mb-4 border-b pb-4" style="border-color: #C0C0C2;"></div>
-
-            <div class="flex justify-between items-center mb-4 text-lg font-semibold">
-                <span style="color: #000B29;">মোট মূল্য:</span>
-                <span id="totalPrice" style="color: #00AEEF;">০৳</span>
-            </div>
-
-            <form id="orderForm" class="space-y-4">
-                <div class="relative">
-                    <i class="fas fa-user absolute left-3 top-1/2 -translate-y-1/2 text-[#C0C0C2]"></i>
-                    <input type="text" id="name" placeholder="আপনার নাম *" required 
-                           class="w-full border rounded-xl pl-10 pr-5 py-3 focus:ring-2 focus:ring-[#00AEEF] outline-none" 
-                           style="border-color: #C0C0C2;">
-                </div>
-                <div class="relative">
-                    <i class="fas fa-phone absolute left-3 top-1/2 -translate-y-1/2 text-[#C0C0C2]"></i>
-                    <input type="tel" id="number" placeholder="মোবাইল নম্বর (বৈধ ১১ সংখ্যা) *" required 
-                           class="w-full border rounded-xl pl-10 pr-5 py-3 focus:ring-2 focus:ring-[#00AEEF] outline-none" 
-                           style="border-color: #C0C0C2;">
-                </div>
-                <div class="relative">
-                    <i class="fas fa-map-marker-alt absolute left-3 top-3 text-[#C0C0C2]"></i>
-                    <textarea id="address" rows="2" placeholder="ঠিকানা (এলাকা, জেলা) *" required 
-                              class="w-full border rounded-xl pl-10 pr-5 py-3 focus:ring-2 focus:ring-[#00AEEF] outline-none" 
-                              style="border-color: #C0C0C2;"></textarea>
-                </div>
-                <input type="hidden" id="orderSummaryInput">
-                <button type="submit" class="w-full text-white font-bold py-4 rounded-xl text-lg hover:scale-[1.02] transition-all shadow-lg flex items-center justify-center gap-2" style="background: linear-gradient(145deg, #00AEEF, #003366);">
-                    <i class="fas fa-check-circle"></i> অর্ডার নিশ্চিত করুন
-                </button>
-            </form>
-        </div>
-
-        <div id="reviews" class="space-y-6">
-            <div class="p-5 rounded-2xl shadow-md border fade-up" style="background-color: #FFFFFF; border-color: #C0C0C2;">
-                <h3 class="text-xl font-bold flex items-center gap-1" style="color: #000B29;"><i class="fas fa-star text-yellow-500"></i> গ্রাহক রিভিউ</h3>
-                <div class="mt-3 space-y-4" id="reviewList"></div>
-            </div>
-            <div class="p-5 rounded-2xl shadow-md border fade-up" style="background-color: #FFFFFF; border-color: #C0C0C2;">
-                <h4 class="font-bold text-lg" style="color: #000B29;"><i class="fas fa-pen-alt text-[#00AEEF] mr-1"></i>আপনার মতামত দিন</h4>
-                <form id="reviewForm" class="mt-3 flex flex-col gap-3">
-                    <div class="relative">
-                        <i class="fas fa-user absolute left-3 top-1/2 -translate-y-1/2 text-[#C0C0C2]"></i>
-                        <input type="text" id="reviewerName" placeholder="আপনার নাম" 
-                               class="border rounded-lg pl-10 pr-4 py-2 text-sm w-full focus:ring-2 focus:ring-[#00AEEF] outline-none" 
-                               style="border-color: #C0C0C2;">
+    <!-- ==================== ORDER & REVIEWS SECTION ==================== -->
+    <section id="order" class="container-custom pb-12">
+        <div class="grid lg:grid-cols-2 gap-8">
+            <!-- Order Form -->
+            <div class="bg-white rounded-3xl shadow-2xl p-6 md:p-8 border border-[#C0C0C2] fade-in-up">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-12 h-12 bg-[#00AEEF] rounded-full flex items-center justify-center text-white text-2xl">
+                        <i class="fas fa-shopping-bag"></i>
                     </div>
-                    <div class="relative">
-                        <i class="fas fa-map-marker-alt absolute left-3 top-1/2 -translate-y-1/2 text-[#C0C0C2]"></i>
-                        <input type="text" id="reviewerAddress" placeholder="আপনার ঠিকানা (ঐচ্ছিক)" 
-                               class="border rounded-lg pl-10 pr-4 py-2 text-sm w-full focus:ring-2 focus:ring-[#00AEEF] outline-none" 
-                               style="border-color: #C0C0C2;">
+                    <div>
+                        <h3 class="text-2xl font-bold text-[#000B29]">আপনার অর্ডার</h3>
+                        <p class="text-sm text-[#003366]">নিচের ফর্মটি পূরণ করে অর্ডার সম্পন্ন করুন</p>
                     </div>
+                </div>
+                
+                <!-- Cart Items -->
+                <div id="cartItems" class="space-y-3 max-h-80 overflow-y-auto pr-2 mb-6 border-b border-[#C0C0C2] pb-4"></div>
+
+                <!-- Total Price -->
+                <div class="flex justify-between items-center mb-6 text-xl font-bold">
+                    <span class="text-[#000B29]">মোট মূল্য:</span>
+                    <span id="totalPrice" class="text-[#00AEEF]">০৳</span>
+                </div>
+
+                <!-- Order Form -->
+                <form id="orderForm" class="space-y-4">
                     <div class="relative">
-                        <i class="fas fa-comment absolute left-3 top-3 text-[#C0C0C2]"></i>
-                        <textarea id="reviewText" rows="2" placeholder="রিভিউ লিখুন..." 
-                                  class="border rounded-lg pl-10 pr-4 py-2 text-sm w-full focus:ring-2 focus:ring-[#00AEEF] outline-none" 
-                                  style="border-color: #C0C0C2;"></textarea>
+                        <i class="fas fa-user input-icon"></i>
+                        <input type="text" id="name" placeholder="আপনার নাম *" required 
+                               class="form-input pl-10">
                     </div>
-                    <button type="submit" class="text-white py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 hover:bg-[#00AEEF] transition-colors" style="background-color: #003366;">
-                        <i class="fas fa-paper-plane"></i> আপনার মতামত দিন
+                    
+                    <div class="relative">
+                        <i class="fas fa-phone input-icon"></i>
+                        <input type="tel" id="number" placeholder="মোবাইল নম্বর (০১৭XXXXXXXX) *" required 
+                               class="form-input pl-10">
+                    </div>
+                    
+                    <div class="relative">
+                        <i class="fas fa-map-marker-alt input-icon" style="top: 1.2rem; transform: none;"></i>
+                        <textarea id="address" rows="3" placeholder="ঠিকানা (এলাকা, জেলা, বিস্তারিত) *" required 
+                                  class="form-input pl-10 pt-3"></textarea>
+                    </div>
+                    
+                    <input type="hidden" id="orderSummaryInput">
+                    
+                    <button type="submit" class="order-btn text-lg py-4">
+                        <i class="fas fa-check-circle"></i>
+                        অর্ডার নিশ্চিত করুন
                     </button>
                 </form>
-                <p class="text-xs text-center mt-2" style="color: #C0C0C2;"><i class="fas fa-info-circle"></i> আপনার রিভিউ এডমিন অনুমোদনের পর প্রকাশিত হবে</p>
+
+                <!-- Payment Info -->
+                <div class="mt-4 p-3 bg-gray-50 rounded-xl text-sm text-gray-600">
+                    <i class="fas fa-info-circle text-[#00AEEF] mr-1"></i>
+                    পেমেন্ট: ক্যাশ অন ডেলিভারি (হোম ডেলিভারি)
+                </div>
+            </div>
+
+            <!-- Reviews Section -->
+            <div id="reviews" class="space-y-6">
+                <!-- Reviews List -->
+                <div class="bg-white rounded-3xl shadow-2xl p-6 md:p-8 border border-[#C0C0C2] fade-in-up">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center text-white text-2xl">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-[#000B29]">গ্রাহক রিভিউ</h3>
+                            <p class="text-sm text-[#003366]">আমাদের সন্তুষ্ট গ্রাহকদের মতামত</p>
+                        </div>
+                    </div>
+                    
+                    <div id="reviewList" class="space-y-4 max-h-96 overflow-y-auto pr-2">
+                        <!-- Reviews will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Add Review Form -->
+                <div class="bg-white rounded-3xl shadow-2xl p-6 md:p-8 border border-[#C0C0C2] fade-in-up">
+                    <h4 class="text-xl font-bold text-[#000B29] mb-4">
+                        <i class="fas fa-pen-alt text-[#00AEEF] mr-2"></i>
+                        আপনার মতামত দিন
+                    </h4>
+                    
+                    <form id="reviewForm" class="space-y-4">
+                        <div class="relative">
+                            <i class="fas fa-user input-icon"></i>
+                            <input type="text" id="reviewerName" placeholder="আপনার নাম *" 
+                                   class="form-input pl-10">
+                        </div>
+                        
+                        <div class="relative">
+                            <i class="fas fa-map-marker-alt input-icon"></i>
+                            <input type="text" id="reviewerAddress" placeholder="আপনার ঠিকানা (ঐচ্ছিক)" 
+                                   class="form-input pl-10">
+                        </div>
+                        
+                        <div class="relative">
+                            <i class="fas fa-comment input-icon" style="top: 1.2rem; transform: none;"></i>
+                            <textarea id="reviewText" rows="3" placeholder="আপনার রিভিউ লিখুন *" 
+                                      class="form-input pl-10 pt-3"></textarea>
+                        </div>
+                        
+                        <button type="submit" class="w-full bg-[#003366] text-white py-3 rounded-xl font-semibold hover:bg-[#00AEEF] transition-all transform hover:scale-[1.02]">
+                            <i class="fas fa-paper-plane mr-2"></i>
+                            মতামত জমা দিন
+                        </button>
+                    </form>
+                    
+                    <p class="text-xs text-center mt-4 text-[#C0C0C2]">
+                        <i class="fas fa-info-circle"></i>
+                        আপনার রিভিউ এডমিন অনুমোদনের পর প্রকাশিত হবে
+                    </p>
+                </div>
             </div>
         </div>
     </section>
 
-    <footer id="contact" class="text-white mt-8" style="background-color: #000B29;">
-        <div class="container-custom py-8 grid sm:grid-cols-3 gap-6 text-sm">
-            <div>
-                <h4 class="font-bold text-lg flex items-center gap-2" style="color: #00AEEF;"><i class="fas fa-store"></i>Jahid Gadgets</h4>
-                <p class="text-[#C0C0C2] flex items-start gap-2 mt-2">
-                    <i class="fas fa-map-marker-alt mt-1"></i>
-                    <span id="footerAddress">প্রিমিয়াম গ্যাজেটের সেরা সংগ্রহ। সারাদেশে ডেলিভারি।</span>
+    <!-- ==================== FOOTER ==================== -->
+    <footer id="contact" class="bg-[#000B29] text-white mt-8 border-t-4 border-[#00AEEF]">
+        <div class="container-custom py-12">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- About -->
+                <div>
+                    <div class="flex items-center gap-3 mb-4">
+                        <img src="images/Jahid gadgets.png" alt="Jahid Gadgets" class="h-12 w-auto" onerror="this.style.display='none'">
+                        <h4 class="text-xl font-bold text-[#00AEEF]">Jahid Gadgets</h4>
+                    </div>
+                    <p id="footerAddress" class="text-[#C0C0C2] leading-relaxed">
+                        প্রিমিয়াম গ্যাজেটের সেরা সংগ্রহ। সারাদেশে হোম ডেলিভারি।
+                    </p>
+                    <div class="flex gap-4 mt-4">
+                        <a href="#" class="w-10 h-10 bg-[#003366] rounded-full flex items-center justify-center hover:bg-[#00AEEF] transition-all">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-[#003366] rounded-full flex items-center justify-center hover:bg-[#00AEEF] transition-all">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-[#003366] rounded-full flex items-center justify-center hover:bg-[#00AEEF] transition-all">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div>
+                    <h4 class="text-lg font-bold text-[#00AEEF] mb-4">দ্রুত লিঙ্ক</h4>
+                    <ul class="space-y-3 text-[#C0C0C2]">
+                        <li><a href="#" class="hover:text-[#00AEEF] transition-colors flex items-center gap-2"><i class="fas fa-chevron-right text-xs"></i>হোম</a></li>
+                        <li><a href="#products" class="hover:text-[#00AEEF] transition-colors flex items-center gap-2"><i class="fas fa-chevron-right text-xs"></i>পণ্য</a></li>
+                        <li><a href="#order" class="hover:text-[#00AEEF] transition-colors flex items-center gap-2"><i class="fas fa-chevron-right text-xs"></i>অর্ডার</a></li>
+                        <li><a href="#reviews" class="hover:text-[#00AEEF] transition-colors flex items-center gap-2"><i class="fas fa-chevron-right text-xs"></i>রিভিউ</a></li>
+                    </ul>
+                </div>
+
+                <!-- Categories -->
+                <div>
+                    <h4 class="text-lg font-bold text-[#00AEEF] mb-4">ক্যাটাগরি</h4>
+                    <ul class="space-y-3 text-[#C0C0C2]">
+                        <li><a href="#products" class="hover:text-[#00AEEF] transition-colors flex items-center gap-2" data-cat="watch"><i class="fas fa-clock"></i>স্মার্ট ওয়াচ</a></li>
+                        <li><a href="#products" class="hover:text-[#00AEEF] transition-colors flex items-center gap-2" data-cat="earbud"><i class="fas fa-headphones"></i>ইয়ারবাড</a></li>
+                        <li><a href="#products" class="hover:text-[#00AEEF] transition-colors flex items-center gap-2" data-cat="power"><i class="fas fa-battery-full"></i>পাওয়ার ব্যাংক</a></li>
+                        <li><a href="#products" class="hover:text-[#00AEEF] transition-colors flex items-center gap-2" data-cat="speaker"><i class="fas fa-volume-up"></i>স্পিকার</a></li>
+                    </ul>
+                </div>
+
+                <!-- Contact Info -->
+                <div>
+                    <h4 class="text-lg font-bold text-[#00AEEF] mb-4">যোগাযোগ</h4>
+                    <ul class="space-y-3 text-[#C0C0C2]">
+                        <li class="flex items-start gap-3">
+                            <i class="fas fa-map-marker-alt mt-1 text-[#00AEEF]"></i>
+                            <span id="footerFullAddress">রংপুর, বোদা, পঞ্চগড় সদর</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i class="fas fa-phone text-[#00AEEF]"></i>
+                            <a href="tel:" id="footerPhone" class="hover:text-[#00AEEF] transition-colors">+৮৮০ ১৭০৯-৩৬৩৯৮৩</a>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i class="fab fa-whatsapp text-[#00AEEF]"></i>
+                            <a href="#" id="footerWhatsapp" class="hover:text-[#00AEEF] transition-colors" target="_blank">WhatsApp</a>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i class="fas fa-envelope text-[#00AEEF]"></i>
+                            <a href="mailto:info@jahidgadgets.com" class="hover:text-[#00AEEF] transition-colors">info@jahidgadgets.com</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Copyright -->
+            <div class="border-t border-[#003366] mt-8 pt-8 text-center text-[#C0C0C2] text-sm">
+                <p>
+                    <i class="far fa-copyright mr-1"></i>
+                    ২০২৫ <span id="footerSiteName">Jahid Gadgets</span> · সর্বস্বত্ব সংরক্ষিত
+                </p>
+                <p class="mt-2 text-xs">
+                    ডিজাইন ও ডেভেলপমেন্ট: <span class="text-[#00AEEF]">Jahid Gadgets টিম</span>
                 </p>
             </div>
-            <div>
-                <h4 class="font-semibold flex items-center gap-2" style="color: #00AEEF;"><i class="fas fa-link"></i>লিঙ্ক</h4>
-                <ul class="text-[#C0C0C2] space-y-2 mt-2">
-                    <li><a href="#" class="hover:text-[#00AEEF] flex items-center gap-2"><i class="fas fa-chevron-right text-xs"></i>হোম</a></li>
-                    <li><a href="#products" class="hover:text-[#00AEEF] flex items-center gap-2"><i class="fas fa-chevron-right text-xs"></i>পণ্য</a></li>
-                    <li><a href="#order" class="hover:text-[#00AEEF] flex items-center gap-2"><i class="fas fa-chevron-right text-xs"></i>অর্ডার</a></li>
-                </ul>
-            </div>
-            <div>
-                <h4 class="font-semibold flex items-center gap-2" style="color: #00AEEF;"><i class="fas fa-phone-alt"></i>যোগাযোগ</h4>
-                <p class="text-[#C0C0C2] mt-2 space-y-2">
-                    <span class="flex items-start gap-2">
-                        <i class="fas fa-map-marker-alt mt-1"></i>
-                        <span id="footerFullAddress">রংপুর, বোদা, পঞ্চগড় সদর</span>
-                    </span>
-                    <span class="flex items-center gap-2">
-                        <i class="fas fa-phone"></i>
-                        <a href="tel:" id="footerPhone" class="hover:text-[#00AEEF]">+880 1709-363983</a>
-                    </span>
-                    <span class="flex items-center gap-2">
-                        <i class="fab fa-whatsapp"></i>
-                        <a href="#" id="footerWhatsapp" class="hover:text-[#00AEEF]" target="_blank">WhatsApp</a>
-                    </span>
-                </p>
-            </div>
-        </div>
-        <div class="border-t py-4 text-center text-xs" style="border-color: #003366; color: #C0C0C2;">
-            <i class="far fa-copyright mr-1"></i> ২০২৫ <span id="footerSiteName">Jahid Gadgets</span> · সর্বস্বত্ব সংরক্ষিত
         </div>
     </footer>
 
+    <!-- ==================== JAVASCRIPT ==================== -->
     <script>
-        const API_URL = window.location.hostname === 'localhost' 
-            ? 'http://localhost:5000/api' 
+        // API Configuration
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname.includes('127.0.0.1')
+            ? 'http://localhost:5000/api'
             : 'https://jahid-gadgets-backend.onrender.com/api';
 
+        // Global Variables
         let cart = [];
         let products = [];
         let slides = [];
         let settings = {};
+        let currentSlideIndex = 0;
+        let slideInterval;
 
-        // Popup functions
+        // ==================== UTILITY FUNCTIONS ====================
+
+        // Show Popup
         function showPopup(type, title, message) {
             const popup = document.getElementById('popup');
             const popupContent = document.getElementById('popupContent');
@@ -461,6 +909,7 @@
                 icon.innerHTML = '<i class="fas fa-times-circle text-red-500 text-6xl"></i>';
                 popupContent.className = 'popup-content popup-error';
             }
+            
             titleEl.textContent = title;
             msgEl.textContent = message;
             popup.classList.add('active');
@@ -474,39 +923,75 @@
             if (e.target === this) closePopup();
         });
 
-        // Mobile menu toggle
+        // Show Notification
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white transform transition-all duration-500 translate-x-full ${
+                type === 'success' ? 'bg-green-500' : 
+                type === 'error' ? 'bg-red-500' : 
+                'bg-blue-500'
+            }`;
+            notification.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+            }, 100);
+            
+            setTimeout(() => {
+                notification.classList.add('translate-x-full');
+                setTimeout(() => {
+                    notification.remove();
+                }, 500);
+            }, 3000);
+        }
+
+        // Mobile Menu Toggle
         document.getElementById('mobileMenuBtn').addEventListener('click', () => {
-            document.getElementById('mobileMenu').classList.toggle('hidden');
+            document.getElementById('mobileMenu').classList.toggle('open');
         });
 
-        // Load settings
+        // ==================== LOAD SETTINGS ====================
+
         async function loadSettings() {
             try {
                 const res = await fetch(`${API_URL}/settings`);
                 settings = await res.json();
                 
-                document.title = settings.siteTitle || 'Jahid Gadgets';
+                // Update site title
+                document.title = settings.siteTitle || 'Jahid Gadgets · আধুনিক প্রযুক্তির ঠিকানা';
                 document.getElementById('siteNameDisplay').textContent = settings.siteName || 'Jahid Gadgets';
                 document.getElementById('footerSiteName').textContent = settings.siteName || 'Jahid Gadgets';
-                document.getElementById('footerAddress').textContent = settings.address || 'প্রিমিয়াম গ্যাজেটের সেরা সংগ্রহ। সারাদেশে ডেলিভারি।';
+                document.getElementById('footerAddress').textContent = settings.address || 'প্রিমিয়াম গ্যাজেটের সেরা সংগ্রহ';
                 document.getElementById('footerFullAddress').textContent = settings.address || 'রংপুর, বোদা, পঞ্চগড় সদর';
                 
+                // Update phone numbers
                 const phone = settings.phone || '+8801709363983';
                 document.getElementById('phoneLink').href = `tel:${phone}`;
                 document.getElementById('mobilePhoneLink').href = `tel:${phone}`;
                 document.getElementById('footerPhone').href = `tel:${phone}`;
                 document.getElementById('footerPhone').textContent = phone;
                 
+                // Update WhatsApp link
                 const whatsapp = settings.whatsapp || '+8801709363983';
-                const whatsappText = encodeURIComponent(`👋 আসসালামু আলাইকুম,\n\n📱 আমি Jahid Gadgets এর পণ্য সম্পর্কে আগ্রহী।\n\n⌚️ আমার পছন্দের পণ্য: (এখানে পণ্যের নাম লিখুন)\n📍 ঠিকানা: (এখানে আপনার ঠিকানা লিখুন)\n📦 পরিমাণ: (কয়টি চান)\n\n✅ অনুগ্রহ করে দ্রুত যোগাযোগ করবেন। ধন্যবাদ!\n\n✨ জাজাকাল্লাহু খাইরান।`);
+                const whatsappText = encodeURIComponent(
+                    `👋 আসসালামু আলাইকুম,\n\n📱 আমি Jahid Gadgets এর পণ্য সম্পর্কে জানতে চাই।\n\n🔍 পণ্যের নাম: \n📍 আমার ঠিকানা: \n📦 পরিমাণ: \n\n✅ অনুগ্রহ করে দ্রুত যোগাযোগ করবেন। ধন্যবাদ!`
+                );
                 document.getElementById('whatsappLink').href = `https://wa.me/${whatsapp.replace(/\D/g,'')}?text=${whatsappText}`;
                 document.getElementById('footerWhatsapp').href = `https://wa.me/${whatsapp.replace(/\D/g,'')}?text=${whatsappText}`;
+                
             } catch (error) {
                 console.error('Error loading settings:', error);
             }
         }
 
-        // Load slides
+        // ==================== SLIDER FUNCTIONS ====================
+
         async function loadSlides() {
             try {
                 const res = await fetch(`${API_URL}/slides`);
@@ -516,44 +1001,49 @@
                 const dotsContainer = document.getElementById('sliderDots');
                 
                 if (slides.length === 0) {
-                    container.innerHTML = `
-                        <div class="slide absolute inset-0 opacity-100">
-                            <img src="https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=1200&h=600&fit=crop" alt="স্মার্ট ওয়াচ" class="w-full h-full object-cover">
-                            <div class="absolute inset-0 bg-gradient-to-r from-[#000B29] to-transparent"></div>
-                            <div class="absolute inset-0 flex items-center justify-start px-4 md:px-16 text-white">
-                                <div class="fade-up max-w-xl">
-                                    <span class="bg-[#00AEEF] text-white text-sm font-semibold px-4 py-1 rounded-full inline-flex items-center gap-1">
-                                        <i class="fas fa-clock"></i> স্মার্ট ওয়াচ
-                                    </span>
-                                    <h2 class="slide-title text-2xl md:text-5xl font-bold mt-3">অভিজ্ঞতা নতুন উচ্চতায়</h2>
-                                    <p class="slide-subtitle text-base md:text-xl mt-2 opacity-90">৪০% ছাড় + ১ বছর ওয়ারেন্টি</p>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    return;
+                    // Default slides
+                    slides = [
+                        {
+                            image: 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=1200',
+                            title: 'স্মার্ট ওয়াচ',
+                            subtitle: 'আধুনিক প্রযুক্তির অভিজ্ঞতা',
+                            badge: '৪০% ছাড়'
+                        },
+                        {
+                            image: 'https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf4?w=1200',
+                            title: 'ওয়্যারলেস ইয়ারবাড',
+                            subtitle: 'ক্রিস্টাল ক্লিয়ার সাউন্ড',
+                            badge: 'নতুন অ্যারাইভাল'
+                        },
+                        {
+                            image: 'https://images.unsplash.com/photo-1593640408182-31c70c8268f5?w=1200',
+                            title: 'পাওয়ার ব্যাংক',
+                            subtitle: '২০০০০mAh দীর্ঘস্থায়ী ব্যাটারি',
+                            badge: 'বেস্ট সেলার'
+                        }
+                    ];
                 }
                 
                 container.innerHTML = slides.map((slide, index) => `
-                    <div class="slide absolute inset-0 ${index === 0 ? 'opacity-100' : 'opacity-0'} transition-opacity duration-700">
+                    <div class="slide ${index === 0 ? 'opacity-100' : 'opacity-0'}" style="z-index: ${index === 0 ? 10 : 1};">
                         <img src="${slide.image}" alt="${slide.title}" class="w-full h-full object-cover">
-                        <div class="absolute inset-0 bg-gradient-to-r from-[#000B29] to-transparent"></div>
-                        <div class="absolute inset-0 flex items-center justify-start px-4 md:px-16 text-white slide-content">
-                            <div class="fade-up max-w-xl">
+                        <div class="absolute inset-0 bg-gradient-to-r from-[#000B29] via-[#000B29]/80 to-transparent"></div>
+                        <div class="absolute inset-0 flex items-center justify-start px-6 md:px-16 text-white slide-content">
+                            <div class="max-w-xl">
                                 ${slide.badge ? `
-                                    <span class="bg-[#00AEEF] text-white text-sm font-semibold px-4 py-1 rounded-full inline-flex items-center gap-1">
-                                        <i class="fas fa-tag"></i> ${slide.badge}
+                                    <span class="inline-block bg-[#00AEEF] text-white text-sm md:text-base font-semibold px-4 py-2 rounded-full mb-4">
+                                        <i class="fas fa-tag mr-1"></i>${slide.badge}
                                     </span>
                                 ` : ''}
-                                <h2 class="slide-title text-2xl md:text-5xl font-bold mt-3">${slide.title}</h2>
-                                ${slide.subtitle ? `<p class="slide-subtitle text-base md:text-xl mt-2 opacity-90">${slide.subtitle}</p>` : ''}
+                                <h2 class="text-3xl md:text-5xl lg:text-6xl font-bold mb-3">${slide.title}</h2>
+                                ${slide.subtitle ? `<p class="text-lg md:text-xl text-[#C0C0C2]">${slide.subtitle}</p>` : ''}
                             </div>
                         </div>
                     </div>
                 `).join('');
                 
                 dotsContainer.innerHTML = slides.map((_, index) => `
-                    <button class="dot w-3 h-3 rounded-full ${index === 0 ? 'bg-[#00AEEF] dot-active w-7' : 'bg-white bg-opacity-60'} transition-all" data-index="${index}"></button>
+                    <button class="dot w-3 h-3 rounded-full ${index === 0 ? 'dot-active' : 'bg-white/50'}" data-index="${index}"></button>
                 `).join('');
                 
                 initSlider();
@@ -562,117 +1052,92 @@
             }
         }
 
-        // Load products
-        async function loadProducts(category = 'all') {
-            try {
-                const url = category === 'all' ? `${API_URL}/products` : `${API_URL}/products?category=${category}`;
-                const res = await fetch(url);
-                products = await res.json();
-                
-                renderProducts(products);
-            } catch (error) {
-                console.error('Error loading products:', error);
-                document.getElementById('productsGrid').innerHTML = '<div class="col-span-full text-center text-red-500">পণ্য লোড করতে সমস্যা হয়েছে</div>';
-            }
-        }
-
-        // Load reviews
-        async function loadReviews() {
-            try {
-                const res = await fetch(`${API_URL}/reviews`);
-                const reviews = await res.json();
-                
-                const reviewList = document.getElementById('reviewList');
-                
-                if (reviews.length === 0) {
-                    reviewList.innerHTML = '<p class="text-gray-500 text-center">কোন রিভিউ নেই</p>';
-                    return;
-                }
-                
-                reviewList.innerHTML = reviews.map(review => `
-                    <div class="flex gap-3 border-b pb-3 last:border-0">
-                        <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-white flex-shrink-0" style="background-color: #00AEEF;">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <div>
-                            <p class="font-semibold" style="color: #000B29;">${review.name}</p>
-                            <p class="text-sm" style="color: #003366;">“${review.text}”</p>
-                            ${review.address ? `<p class="text-xs" style="color: #C0C0C2;"><i class="fas fa-map-marker-alt mr-1"></i>${review.address}</p>` : ''}
-                        </div>
-                    </div>
-                `).join('');
-            } catch (error) {
-                console.error('Error loading reviews:', error);
-            }
-        }
-
-        // Render products
-        function renderProducts(productsToRender) {
-            const grid = document.getElementById('productsGrid');
+        function initSlider() {
+            const slides = document.querySelectorAll('#sliderContainer .slide');
+            const dots = document.querySelectorAll('.dot');
+            const prevBtn = document.getElementById('prevSlide');
+            const nextBtn = document.getElementById('nextSlide');
             
-            if (productsToRender.length === 0) {
-                grid.innerHTML = '<div class="col-span-full text-center text-gray-500">কোন পণ্য পাওয়া যায়নি</div>';
-                return;
+            function showSlide(index) {
+                if (index < 0) index = slides.length - 1;
+                if (index >= slides.length) index = 0;
+                
+                slides.forEach((slide, i) => {
+                    slide.style.opacity = i === index ? '1' : '0';
+                    slide.style.zIndex = i === index ? '10' : '1';
+                });
+                
+                dots.forEach((dot, i) => {
+                    if (i === index) {
+                        dot.classList.add('dot-active');
+                        dot.classList.remove('bg-white/50');
+                    } else {
+                        dot.classList.remove('dot-active');
+                        dot.classList.add('bg-white/50');
+                    }
+                });
+                
+                currentSlideIndex = index;
             }
             
-            grid.innerHTML = productsToRender.map(p => `
-                <div id="product-${p.id}" class="rounded-2xl shadow-lg overflow-hidden border card-hover fade-up relative" style="background-color: #FFFFFF; border-color: #C0C0C2;">
-                    <span class="badge-soft absolute top-3 left-3 text-white text-sm font-bold px-3 py-1 rounded-full z-20 flex items-center gap-1">
-                        <i class="fas fa-tag"></i> ${p.discount}% ছাড়
-                    </span>
-                    
-                    <div class="product-gallery">
-                        <img id="gallery-img-${p.id}" src="${p.images[0]}" alt="${p.name}" class="gallery-image">
-                        
-                        <div class="gallery-controls">
-                            <button class="gallery-btn" onclick="changeImage('${p.id}', -1, ${JSON.stringify(p.images)}); event.stopPropagation();">
-                                <i class="fas fa-chevron-left"></i>
-                            </button>
-                            <button class="gallery-btn" onclick="changeImage('${p.id}', 1, ${JSON.stringify(p.images)}); event.stopPropagation();">
-                                <i class="fas fa-chevron-right"></i>
-                            </button>
-                        </div>
-                        
-                        <div class="image-indicator">
-                            ${p.images.map((_, idx) => `
-                                <span class="indicator-dot indicator-${p.id} ${idx === 0 ? 'active' : ''}"></span>
-                            `).join('')}
-                        </div>
-                    </div>
-                    
-                    <div class="p-4 pt-3">
-                        <div class="product-name">${p.name}</div>
-                        <p class="text-sm mt-1" style="color: #003366;">${p.desc}</p>
-                        <div class="flex items-baseline gap-2 mt-2">
-                            <span class="text-gray-400 line-through text-sm">${p.oldPrice}৳</span>
-                            <span class="text-2xl font-bold" style="color: #00AEEF;">${p.price}৳</span>
-                        </div>
-                        <div class="order-btn-container mt-4">
-                            <button class="order-btn-link" onclick="addToCart('${p.id}', '${p.name}', ${p.price}, '${p.images[0]}'); return false;">
-                                <i class="fas fa-cart-plus"></i> অর্ডার করুন
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // Image gallery
-        window.imageGalleries = {};
-
-        window.changeImage = function(productId, direction, images) {
-            if (!window.imageGalleries[productId]) {
-                window.imageGalleries[productId] = { currentIndex: 0 };
+            function nextSlide() { showSlide(currentSlideIndex + 1); }
+            function prevSlide() { showSlide(currentSlideIndex - 1); }
+            
+            function startAutoSlide() {
+                slideInterval = setInterval(nextSlide, 5000);
             }
             
-            const gallery = window.imageGalleries[productId];
+            function resetAutoSlide() {
+                clearInterval(slideInterval);
+                startAutoSlide();
+            }
+            
+            // Event listeners
+            dots.forEach((dot, idx) => {
+                dot.addEventListener('click', () => {
+                    showSlide(idx);
+                    resetAutoSlide();
+                });
+            });
+            
+            if (prevBtn) prevBtn.addEventListener('click', () => {
+                prevSlide();
+                resetAutoSlide();
+            });
+            
+            if (nextBtn) nextBtn.addEventListener('click', () => {
+                nextSlide();
+                resetAutoSlide();
+            });
+            
+            showSlide(0);
+            startAutoSlide();
+        }
+
+        // ==================== PRODUCT FUNCTIONS ====================
+
+        // Image Gallery State
+        window.productGalleries = {};
+
+        window.changeImage = function(productId, direction, images, event) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            if (!window.productGalleries[productId]) {
+                window.productGalleries[productId] = { currentIndex: 0 };
+            }
+            
+            const gallery = window.productGalleries[productId];
             gallery.currentIndex = (gallery.currentIndex + direction + images.length) % images.length;
             
             const mainImg = document.getElementById(`gallery-img-${productId}`);
             if (mainImg) {
                 mainImg.src = images[gallery.currentIndex];
+                mainImg.style.opacity = '0.5';
+                setTimeout(() => { mainImg.style.opacity = '1'; }, 100);
             }
             
+            // Update indicators
             document.querySelectorAll(`.indicator-${productId}`).forEach((ind, idx) => {
                 if (idx === gallery.currentIndex) {
                     ind.classList.add('active');
@@ -682,26 +1147,135 @@
             });
         };
 
-        // Category tabs
+        async function loadProducts(category = 'all') {
+            const grid = document.getElementById('productsGrid');
+            
+            try {
+                const url = category === 'all' ? `${API_URL}/products` : `${API_URL}/products?category=${category}`;
+                const res = await fetch(url);
+                products = await res.json();
+                
+                if (products.length === 0) {
+                    grid.innerHTML = '<div class="col-span-full text-center py-12 text-gray-500">কোন পণ্য পাওয়া যায়নি</div>';
+                    return;
+                }
+                
+                renderProducts(products);
+            } catch (error) {
+                console.error('Error loading products:', error);
+                grid.innerHTML = '<div class="col-span-full text-center py-12 text-red-500">পণ্য লোড করতে সমস্যা হয়েছে</div>';
+            }
+        }
+
+        function renderProducts(productsToRender) {
+            const grid = document.getElementById('productsGrid');
+            
+            grid.innerHTML = productsToRender.map(p => `
+                <div class="product-card fade-in-up">
+                    <span class="product-badge">
+                        <i class="fas fa-tag"></i> ${p.discount}% ছাড়
+                    </span>
+                    
+                    <div class="product-gallery">
+                        <img id="gallery-img-${p.id}" src="${p.images[0]}" alt="${p.name}" class="gallery-image">
+                        
+                        ${p.images.length > 1 ? `
+                            <div class="gallery-controls">
+                                <button class="gallery-btn" onclick="changeImage('${p.id}', -1, ${JSON.stringify(p.images)}, event)">
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                                <button class="gallery-btn" onclick="changeImage('${p.id}', 1, ${JSON.stringify(p.images)}, event)">
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="image-indicator">
+                                ${p.images.map((_, idx) => `
+                                    <span class="indicator-dot indicator-${p.id} ${idx === 0 ? 'active' : ''}"></span>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                    
+                    <div class="p-4">
+                        <h3 class="text-lg font-bold text-[#000B29] mb-1 line-clamp-1">${p.name}</h3>
+                        <p class="text-sm text-[#003366] mb-2 line-clamp-2">${p.desc}</p>
+                        
+                        <div class="flex items-baseline gap-2 mb-3">
+                            <span class="text-gray-400 line-through text-sm">${p.oldPrice}৳</span>
+                            <span class="text-2xl font-bold text-[#00AEEF]">${p.price}৳</span>
+                        </div>
+                        
+                        <div class="flex items-center justify-between text-sm text-gray-600 mb-3">
+                            <span><i class="fas fa-box mr-1"></i>স্টক: ${p.stock}</span>
+                            <span><i class="fas fa-shopping-cart mr-1"></i>বিক্রি: ${p.sold || 0}</span>
+                        </div>
+                        
+                        <button class="order-btn" onclick="addToCart('${p.id}', '${p.name.replace(/'/g, "\\'")}', ${p.price}, '${p.images[0]}')">
+                            <i class="fas fa-cart-plus"></i>
+                            অর্ডার করুন
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Initialize galleries
+            productsToRender.forEach(p => {
+                if (!window.productGalleries[p.id]) {
+                    window.productGalleries[p.id] = { currentIndex: 0 };
+                }
+            });
+        }
+
+        // ==================== CATEGORY TABS ====================
+
         document.querySelectorAll('.category-tab').forEach(tab => {
             tab.addEventListener('click', (e) => {
                 e.preventDefault();
+                
+                // Update active state
                 document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
                 tab.classList.add('active');
-                if (tab.dataset.cat) {
-                    loadProducts(tab.dataset.cat);
-                }
+                
+                // Load products
+                const category = tab.dataset.cat;
+                loadProducts(category);
+                
+                // Scroll to products section
+                document.getElementById('products').scrollIntoView({ behavior: 'smooth' });
             });
         });
 
-        // Cart functions
+        // Category links in footer
+        document.querySelectorAll('footer a[data-cat]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const category = link.dataset.cat;
+                
+                // Activate corresponding tab
+                document.querySelectorAll('.category-tab').forEach(tab => {
+                    if (tab.dataset.cat === category) {
+                        tab.click();
+                    }
+                });
+            });
+        });
+
+        // ==================== CART FUNCTIONS ====================
+
         function renderCart() {
             const cartContainer = document.getElementById('cartItems');
             const totalSpan = document.getElementById('totalPrice');
             const orderSummaryInput = document.getElementById('orderSummaryInput');
             
             if (cart.length === 0) {
-                cartContainer.innerHTML = `<div class="text-center py-4" style="color: #C0C0C2;"><i class="fas fa-shopping-cart text-4xl mb-2"></i><br>আপনি এখনো কোনো পণ্য নির্বাচন করেননি</div>`;
+                cartContainer.innerHTML = `
+                    <div class="text-center py-8 text-[#C0C0C2]">
+                        <i class="fas fa-shopping-cart text-5xl mb-3"></i>
+                        <p>আপনার কার্ট খালি</p>
+                        <p class="text-sm mt-2">পণ্য সিলেক্ট করে অর্ডার করুন</p>
+                    </div>
+                `;
                 if (totalSpan) totalSpan.innerText = '০৳';
                 if (orderSummaryInput) orderSummaryInput.value = '';
                 return;
@@ -709,116 +1283,124 @@
             
             let html = '';
             let total = 0;
+            
             cart.forEach((item, index) => {
                 const itemTotal = item.price * item.quantity;
                 total += itemTotal;
+                
                 html += `
-                    <div class="flex items-center gap-3 border-b pb-2 cart-item" style="border-color: #C0C0C2;">
-                        <img src="${item.image}" class="w-12 h-12 object-cover rounded-lg border" alt="${item.name}">
-                        <div class="flex-1">
-                            <p class="font-medium text-sm" style="color: #000B29;">${item.name}</p>
-                            <p class="text-xs" style="color: #003366;">${item.price}৳ × ${item.quantity}</p>
-                            <p class="text-xs font-bold" style="color: #00AEEF;">=${itemTotal}৳</p>
-                        </div>
-                        <div class="flex items-center gap-1">
-                            <button class="qty-down w-6 h-6 rounded-full flex items-center justify-center" style="background-color: #C0C0C2;" data-index="${index}"><i class="fas fa-minus text-xs"></i></button>
-                            <span class="w-6 text-center" style="color: #000B29;">${item.quantity}</span>
-                            <button class="qty-up w-6 h-6 rounded-full flex items-center justify-center" style="background-color: #C0C0C2;" data-index="${index}"><i class="fas fa-plus text-xs"></i></button>
-                            <button class="removeItem text-red-500 text-xl font-bold ml-2" data-index="${index}"><i class="fas fa-trash-alt"></i></button>
+                    <div class="cart-item">
+                        <div class="flex gap-3">
+                            <img src="${item.image}" class="w-16 h-16 object-cover rounded-lg border-2 border-[#00AEEF]" onerror="this.src='https://via.placeholder.com/64'">
+                            <div class="flex-1">
+                                <h4 class="font-medium text-[#000B29]">${item.name}</h4>
+                                <p class="text-sm text-[#003366]">${item.price}৳ × ${item.quantity}</p>
+                                <p class="text-sm font-bold text-[#00AEEF]">= ${itemTotal}৳</p>
+                            </div>
+                            <div class="flex flex-col items-end gap-2">
+                                <div class="flex items-center gap-1">
+                                    <button class="qty-btn" onclick="updateQuantity(${index}, -1)">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                    <span class="w-8 text-center font-bold">${item.quantity}</span>
+                                    <button class="qty-btn" onclick="updateQuantity(${index}, 1)">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                                <button class="remove-btn" onclick="removeFromCart(${index})">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 `;
             });
             
             cartContainer.innerHTML = html;
-            if (totalSpan) totalSpan.innerText = total + '৳';
-            if (orderSummaryInput) orderSummaryInput.value = cart.map(i => `${i.name} (${i.quantity}টি)`).join(', ');
-
-            document.querySelectorAll('.qty-up').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const idx = e.currentTarget.dataset.index;
-                    if (idx !== undefined && cart[idx]) {
-                        cart[idx].quantity += 1;
-                        renderCart();
-                    }
-                });
-            });
-            
-            document.querySelectorAll('.qty-down').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const idx = e.currentTarget.dataset.index;
-                    if (idx !== undefined && cart[idx]) {
-                        if (cart[idx].quantity > 1) {
-                            cart[idx].quantity -= 1;
-                        } else {
-                            cart.splice(idx, 1);
-                        }
-                        renderCart();
-                    }
-                });
-            });
-            
-            document.querySelectorAll('.removeItem').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const idx = e.currentTarget.dataset.index;
-                    if (idx !== undefined) {
-                        cart.splice(idx, 1);
-                        renderCart();
-                    }
-                });
-            });
+            totalSpan.innerText = total + '৳';
+            orderSummaryInput.value = cart.map(i => `${i.name} (${i.quantity}টি)`).join(', ');
         }
+
+        window.updateQuantity = function(index, change) {
+            if (index >= 0 && index < cart.length) {
+                if (change > 0) {
+                    cart[index].quantity += 1;
+                } else {
+                    if (cart[index].quantity > 1) {
+                        cart[index].quantity -= 1;
+                    } else {
+                        cart.splice(index, 1);
+                    }
+                }
+                renderCart();
+            }
+        };
+
+        window.removeFromCart = function(index) {
+            if (index >= 0 && index < cart.length) {
+                cart.splice(index, 1);
+                renderCart();
+                showNotification('পণ্য কার্ট থেকে সরানো হয়েছে', 'info');
+            }
+        };
 
         window.addToCart = function(id, name, price, image) {
             const existing = cart.find(item => item.id === id);
             if (existing) {
                 existing.quantity += 1;
+                showNotification(`${name} - আরেকটি যোগ করা হয়েছে`, 'success');
             } else {
                 cart.push({ id, name, price, image, quantity: 1 });
+                showNotification(`${name} - কার্টে যোগ হয়েছে`, 'success');
             }
             renderCart();
             
-            const orderSection = document.getElementById('order');
-            if (orderSection) {
-                orderSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                
-                const form = document.getElementById('orderForm');
-                if (form) {
-                    form.style.transition = 'box-shadow 0.3s ease';
-                    form.style.boxShadow = '0 0 0 3px #00AEEF';
-                    setTimeout(() => {
-                        form.style.boxShadow = 'none';
-                    }, 1500);
-                }
-            }
+            // Scroll to order section
+            document.getElementById('order').scrollIntoView({ behavior: 'smooth' });
+            
+            // Highlight cart
+            const cartSection = document.getElementById('cartItems');
+            cartSection.style.transition = 'box-shadow 0.3s';
+            cartSection.style.boxShadow = '0 0 0 3px #00AEEF';
+            setTimeout(() => {
+                cartSection.style.boxShadow = 'none';
+            }, 1500);
         };
 
-        // Order form
+        // ==================== ORDER FORM ====================
+
         function isValidBangladeshNumber(num) {
-            const cleaned = num.replace(/\s+/g, '');
+            const cleaned = num.replace(/\s+/g, '').replace(/^88/, '');
             return /^(01[3-9]\d{8})$/.test(cleaned);
         }
 
         document.getElementById('orderForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            
             const name = document.getElementById('name').value.trim();
             const number = document.getElementById('number').value.trim();
             const address = document.getElementById('address').value.trim();
+            const submitBtn = e.target.querySelector('button[type="submit"]');
 
             if (!name || !number || !address) {
                 showPopup('error', 'ত্রুটি!', 'সব ঘর পূরণ করুন');
                 return;
             }
+            
             if (!isValidBangladeshNumber(number)) {
-                showPopup('error', 'ত্রুটি!', 'বৈধ বাংলাদেশী মোবাইল নম্বর দিন');
+                showPopup('error', 'ত্রুটি!', 'বৈধ বাংলাদেশী মোবাইল নম্বর দিন (যেমন: 017XXXXXXXX)');
                 return;
             }
+            
             if (cart.length === 0) {
                 showPopup('error', 'ত্রুটি!', 'কমপক্ষে একটি পণ্য অর্ডার করুন');
                 return;
             }
 
             try {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>অর্ডার প্রসেসিং...';
+
                 const orderData = {
                     customerName: name,
                     customerPhone: number,
@@ -842,27 +1424,87 @@
 
                 if (res.ok) {
                     const productList = cart.map(i => `${i.name} (${i.quantity}টি)`).join(', ');
-                    showPopup('success', 'অর্ডার সফল!', `আপনার অর্ডার গৃহীত হয়েছে: ${productList}`);
+                    showPopup('success', 'অর্ডার সফল! 🎉', 
+                        `আপনার অর্ডার গৃহীত হয়েছে। অর্ডার আইডি: ${data.orderId}\nপণ্য: ${productList}\n\nআমরা খুব শীঘ্রই আপনার সাথে যোগাযোগ করব।`
+                    );
 
+                    // Clear cart and form
                     cart = [];
                     renderCart();
                     document.getElementById('orderForm').reset();
+                    
+                    // Send WhatsApp notification to admin (optional)
+                    const adminWhatsapp = settings.whatsapp || '+8801709363983';
+                    const message = encodeURIComponent(
+                        `🆕 নতুন অর্ডার!\n\n👤 নাম: ${name}\n📞 ফোন: ${number}\n📍 ঠিকানা: ${address}\n📦 পণ্য: ${productList}\n💰 মোট: ${cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)}৳\n\nঅর্ডার আইডি: ${data.orderId}`
+                    );
+                    // window.open(`https://wa.me/${adminWhatsapp.replace(/\D/g,'')}?text=${message}`, '_blank');
+                    
                 } else {
                     showPopup('error', 'ত্রুটি!', data.error || 'অর্ডার নিতে সমস্যা হয়েছে');
                 }
             } catch (error) {
-                showPopup('error', 'ত্রুটি!', 'সার্ভারে সংযোগ করা যায়নি');
+                console.error('Order error:', error);
+                showPopup('error', 'ত্রুটি!', 'সার্ভারে সংযোগ করা যায়নি। আবার চেষ্টা করুন।');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-check-circle"></i>অর্ডার নিশ্চিত করুন';
             }
         });
 
-        // Review form
+        // ==================== REVIEW FUNCTIONS ====================
+
+        async function loadReviews() {
+            try {
+                const res = await fetch(`${API_URL}/reviews`);
+                const reviews = await res.json();
+                
+                const reviewList = document.getElementById('reviewList');
+                
+                if (reviews.length === 0) {
+                    reviewList.innerHTML = '<p class="text-center text-gray-500 py-4">কোন রিভিউ নেই</p>';
+                    return;
+                }
+                
+                reviewList.innerHTML = reviews.map(review => `
+                    <div class="review-card">
+                        <div class="flex gap-3">
+                            <div class="w-10 h-10 bg-[#00AEEF] rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <h5 class="font-bold text-[#000B29]">${review.name}</h5>
+                                    <span class="text-xs text-[#00AEEF]">
+                                        <i class="fas fa-star"></i> ${review.rating || 5}.0
+                                    </span>
+                                </div>
+                                <p class="text-sm text-[#003366] mt-1">"${review.text}"</p>
+                                ${review.address ? `
+                                    <p class="text-xs text-[#C0C0C2] mt-1">
+                                        <i class="fas fa-map-marker-alt mr-1"></i>${review.address}
+                                    </p>
+                                ` : ''}
+                                <p class="text-xs text-gray-400 mt-1">
+                                    ${new Date(review.createdAt).toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric' })}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading reviews:', error);
+            }
+        }
+
         document.getElementById('reviewForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const rName = document.getElementById('reviewerName').value.trim() || 'anonymous';
-            const rAddr = document.getElementById('reviewerAddress').value.trim();
-            const rText = document.getElementById('reviewText').value.trim();
             
-            if (!rText) {
+            const name = document.getElementById('reviewerName').value.trim() || 'অতিথি';
+            const address = document.getElementById('reviewerAddress').value.trim();
+            const text = document.getElementById('reviewText').value.trim();
+            
+            if (!text) {
                 showPopup('error', 'ত্রুটি!', 'দয়া করে একটি রিভিউ লিখুন');
                 return;
             }
@@ -871,74 +1513,47 @@
                 const res = await fetch(`${API_URL}/reviews`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        name: rName,
-                        address: rAddr,
-                        text: rText
-                    })
+                    body: JSON.stringify({ name, address, text })
                 });
 
                 if (res.ok) {
-                    showPopup('success', 'রিভিউ জমা হয়েছে!', 'আপনার রিভিউ এডমিন অনুমোদনের পর প্রকাশিত হবে। ধন্যবাদ!');
+                    showPopup('success', 'রিভিউ জমা হয়েছে! ✨', 
+                        'আপনার রিভিউ এডমিন অনুমোদনের পর প্রকাশিত হবে। ধন্যবাদ!'
+                    );
                     document.getElementById('reviewForm').reset();
+                    
+                    // Reload reviews after 2 seconds
+                    setTimeout(() => {
+                        loadReviews();
+                    }, 2000);
                 }
             } catch (error) {
                 showPopup('error', 'ত্রুটি!', 'রিভিউ জমা দিতে সমস্যা হয়েছে');
             }
         });
 
-        // Slider functions
-        function initSlider() {
-            const slides = document.querySelectorAll('#sliderContainer .slide');
-            const dots = document.querySelectorAll('.dot');
-            const prevBtn = document.getElementById('prevSlide');
-            const nextBtn = document.getElementById('nextSlide');
-            let currentSlide = 0;
-            let autoTimer;
+        // ==================== INITIALIZATION ====================
 
-            function showSlide(index) {
-                if (index < 0) index = slides.length - 1;
-                if (index >= slides.length) index = 0;
-                slides.forEach((s, i) => s.style.opacity = i === index ? '1' : '0');
-                dots.forEach((d, i) => {
-                    if (i === index) {
-                        d.classList.add('dot-active', 'bg-[#00AEEF]', 'w-7');
-                        d.classList.remove('bg-white', 'bg-opacity-60');
-                    } else {
-                        d.classList.remove('dot-active', 'bg-[#00AEEF]', 'w-7');
-                        d.classList.add('bg-white', 'bg-opacity-60');
-                    }
-                });
-                currentSlide = index;
-            }
-            
-            function nextSlide() { showSlide(currentSlide + 1); }
-            function prevSlide() { showSlide(currentSlide - 1); }
-            function startAuto() { autoTimer = setInterval(nextSlide, 5000); }
-            function resetAuto() { clearInterval(autoTimer); startAuto(); }
-
-            dots.forEach((dot, idx) => {
-                dot.addEventListener('click', () => { 
-                    showSlide(idx); 
-                    resetAuto(); 
-                });
-            });
-            
-            if (prevBtn) prevBtn.addEventListener('click', () => { prevSlide(); resetAuto(); });
-            if (nextBtn) nextBtn.addEventListener('click', () => { nextSlide(); resetAuto(); });
-            
-            showSlide(0);
-            startAuto();
-        }
-
-        // Initialize
         async function init() {
+            // Show loading state
+            document.getElementById('productsGrid').innerHTML = `
+                <div class="col-span-full text-center py-20">
+                    <div class="loading mx-auto"></div>
+                    <p class="mt-4 text-gray-600">পণ্য লোড হচ্ছে...</p>
+                </div>
+            `;
+            
+            // Load all data
             await loadSettings();
             await loadSlides();
             await loadProducts();
             await loadReviews();
+            
+            // Initialize cart
+            renderCart();
         }
 
+        // Start the app
         init();
     </script>
 </body>

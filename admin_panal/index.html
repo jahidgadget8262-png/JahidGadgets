@@ -2,8 +2,8 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jahid Gadgets - অ্যাডমিন প্যানেল</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Jahid Gadgets · অ্যাডমিন প্যানেল</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -11,94 +11,436 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         * { font-family: 'Hind Siliguri', sans-serif; }
-        .sidebar { transition: all 0.3s; }
-        .menu-item.active { background: #00AEEF; color: white; }
-        .menu-item:hover:not(.active) { background: #e5e7eb; }
-        .loading { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(0,174,239,.3); border-radius: 50%; border-top-color: #00AEEF; animation: spin 1s ease-in-out infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .image-preview { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; border: 2px solid #C0C0C2; }
-        .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        :root {
+            --primary-dark: #000B29;
+            --primary-blue: #00AEEF;
+            --silver: #C0C0C2;
+            --deep-blue: #003366;
+        }
+        
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Sidebar transitions */
+        .sidebar {
+            transition: transform 0.3s ease-in-out;
+            z-index: 50;
+        }
+        
+        @media (max-width: 1023px) {
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                transform: translateX(-100%);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+        }
+        
+        /* Menu item styles */
+        .menu-item {
+            transition: all 0.2s;
+            cursor: pointer;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .menu-item i {
+            width: 1.5rem;
+            text-align: center;
+        }
+        
+        .menu-item.active {
+            background: var(--primary-blue);
+            color: white;
+        }
+        
+        .menu-item:hover:not(.active) {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        /* Loading spinner */
+        .loading {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0,174,239,.3);
+            border-radius: 50%;
+            border-top-color: var(--primary-blue);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Image preview */
+        .image-preview {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 0.5rem;
+            border: 2px solid var(--silver);
+            transition: transform 0.2s;
+        }
+        
+        .image-preview:hover {
+            transform: scale(1.05);
+        }
+        
+        /* Status badges */
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
         .status-pending { background: #fef3c7; color: #92400e; }
         .status-confirmed { background: #dbeafe; color: #1e40af; }
         .status-processing { background: #e0e7ff; color: #3730a3; }
         .status-shipped { background: #cffafe; color: #155e75; }
         .status-delivered { background: #d1fae5; color: #065f46; }
         .status-cancelled { background: #fee2e2; color: #991b1b; }
+        
+        /* Tables */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 1rem;
+            max-width: 90%;
+            max-height: 90%;
+            overflow-y: auto;
+            transform: scale(0.7);
+            transition: all 0.3s;
+        }
+        
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+        
+        /* Form elements */
+        input, select, textarea {
+            transition: all 0.2s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(0,174,239,0.2);
+        }
+        
+        /* Drop zone */
+        .drop-zone {
+            border: 2px dashed var(--silver);
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: var(--primary-blue);
+            background: rgba(0,174,239,0.05);
+        }
+        
+        /* Card hover */
+        .card-hover {
+            transition: all 0.3s;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        /* Image gallery in product card */
+        .product-gallery {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+        }
+        
+        .gallery-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.3s;
+        }
+        
+        .gallery-controls {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+            z-index: 10;
+        }
+        
+        .gallery-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.5);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        
+        .gallery-btn:hover {
+            background: var(--primary-blue);
+        }
+        
+        .image-indicator {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            display: flex;
+            gap: 5px;
+            z-index: 10;
+        }
+        
+        .indicator-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+            transition: all 0.2s;
+        }
+        
+        .indicator-dot.active {
+            background: var(--primary-blue);
+            transform: scale(1.2);
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--silver);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-blue);
+        }
     </style>
 </head>
 <body class="bg-gray-100">
 
-<div id="loginContainer" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#000B29] to-[#003366]">
-    <div class="bg-white p-8 rounded-2xl shadow-2xl w-96">
+<!-- Login Container -->
+<div id="loginContainer" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#000B29] to-[#003366] p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 fade-in">
         <div class="text-center mb-8">
-            <img src="../frontend/images/Jahid gadgets.png" alt="Jahid Gadgets" class="h-16 mx-auto mb-4" onerror="this.style.display='none'">
-            <h2 class="text-2xl font-bold text-[#000B29]">অ্যাডমিন লগইন</h2>
-            <p class="text-gray-600">Jahid Gadgets প্যানেল</p>
+            <img src="images/Jahid gadgets.png" alt="Jahid Gadgets" class="h-20 mx-auto mb-4 object-contain" onerror="this.style.display='none'">
+            <h2 class="text-3xl font-bold text-[#000B29]">অ্যাডমিন লগইন</h2>
+            <p class="text-gray-600 mt-2">Jahid Gadgets প্যানেল</p>
         </div>
-        <form id="loginForm" class="space-y-4">
+        
+        <form id="loginForm" class="space-y-5">
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">ইউজারনেম</label>
-                <input type="text" id="username" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] focus:border-transparent outline-none">
+                <label class="block text-sm font-medium text-gray-700 mb-2">ইউজারনেম</label>
+                <div class="relative">
+                    <i class="fas fa-user absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" id="username" required 
+                           class="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-3 focus:ring-2 focus:ring-[#00AEEF] focus:border-transparent outline-none">
+                </div>
             </div>
+            
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">পাসওয়ার্ড</label>
-                <input type="password" id="password" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] focus:border-transparent outline-none">
+                <label class="block text-sm font-medium text-gray-700 mb-2">পাসওয়ার্ড</label>
+                <div class="relative">
+                    <i class="fas fa-lock absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    <input type="password" id="password" required 
+                           class="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-3 focus:ring-2 focus:ring-[#00AEEF] focus:border-transparent outline-none">
+                </div>
             </div>
-            <button type="submit" class="w-full bg-[#00AEEF] text-white font-bold py-2 rounded-lg hover:bg-[#003366] transition-all">
-                লগইন করুন
+            
+            <button type="submit" class="w-full bg-[#00AEEF] text-white font-bold py-3 rounded-lg hover:bg-[#003366] transition-all transform hover:scale-[1.02]">
+                লগইন করুন <i class="fas fa-arrow-right ml-2"></i>
             </button>
         </form>
+        
         <div id="loginError" class="mt-4 text-red-500 text-sm text-center hidden"></div>
     </div>
 </div>
 
+<!-- Admin Panel -->
 <div id="adminPanel" class="hidden min-h-screen bg-gray-100">
     <div class="flex h-screen">
+        <!-- Sidebar Overlay (Mobile) -->
+        <div id="sidebarOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden lg:hidden" onclick="closeSidebar()"></div>
+        
         <!-- Sidebar -->
-        <div class="sidebar w-64 bg-[#000B29] text-white overflow-y-auto">
-            <div class="p-4 border-b border-[#003366]">
-                <img src="../frontend/images/Jahid gadgets.png" alt="Jahid Gadgets" class="h-12 mx-auto mb-2" onerror="this.style.display='none'">
-                <h3 class="text-center font-bold">Jahid Gadgets</h3>
-                <p class="text-center text-xs text-[#C0C0C2]">অ্যাডমিন প্যানেল</p>
+        <div class="sidebar w-64 lg:w-64 bg-[#000B29] text-white flex flex-col fixed lg:relative h-full z-50">
+            <!-- Logo Area -->
+            <div class="p-4 border-b border-[#003366] flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <img src="images/Jahid gadgets.png" alt="Jahid Gadgets" class="h-10 w-10 object-contain rounded-lg border border-[#00AEEF]" onerror="this.style.display='none'">
+                    <div>
+                        <h3 class="font-bold text-sm">Jahid Gadgets</h3>
+                        <p class="text-xs text-[#C0C0C2]">অ্যাডমিন প্যানেল</p>
+                    </div>
+                </div>
+                <button id="closeSidebarBtn" class="lg:hidden text-[#C0C0C2] hover:text-white text-xl">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
-            <div class="p-2">
-                <div class="menu-item active p-3 rounded-lg mb-1 cursor-pointer flex items-center gap-3" data-page="dashboard">
-                    <i class="fas fa-tachometer-alt w-6"></i> ড্যাশবোর্ড
+            
+            <!-- Admin Info -->
+            <div class="p-4 border-b border-[#003366] bg-[#001433]">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-[#00AEEF] rounded-full flex items-center justify-center text-xl">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <div>
+                        <p class="font-medium" id="sidebarAdminName">Admin</p>
+                        <p class="text-xs text-[#C0C0C2]">সুপার অ্যাডমিন</p>
+                    </div>
                 </div>
-                <div class="menu-item p-3 rounded-lg mb-1 cursor-pointer flex items-center gap-3" data-page="products">
-                    <i class="fas fa-box w-6"></i> পণ্য ব্যবস্থাপনা
+            </div>
+            
+            <!-- Menu Items -->
+            <div class="flex-1 overflow-y-auto p-2">
+                <div class="menu-item active" data-page="dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>ড্যাশবোর্ড</span>
                 </div>
-                <div class="menu-item p-3 rounded-lg mb-1 cursor-pointer flex items-center gap-3" data-page="orders">
-                    <i class="fas fa-shopping-cart w-6"></i> অর্ডারসমূহ
+                
+                <div class="menu-item" data-page="products">
+                    <i class="fas fa-box"></i>
+                    <span>পণ্য ব্যবস্থাপনা</span>
+                    <span class="ml-auto bg-[#00AEEF] text-xs px-2 py-1 rounded-full" id="productCount">0</span>
                 </div>
-                <div class="menu-item p-3 rounded-lg mb-1 cursor-pointer flex items-center gap-3" data-page="reviews">
-                    <i class="fas fa-star w-6"></i> রিভিউ
+                
+                <div class="menu-item" data-page="orders">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>অর্ডারসমূহ</span>
+                    <span class="ml-auto bg-yellow-500 text-xs px-2 py-1 rounded-full" id="pendingOrderCount">0</span>
                 </div>
-                <div class="menu-item p-3 rounded-lg mb-1 cursor-pointer flex items-center gap-3" data-page="slides">
-                    <i class="fas fa-images w-6"></i> স্লাইডার
+                
+                <div class="menu-item" data-page="reviews">
+                    <i class="fas fa-star"></i>
+                    <span>রিভিউ</span>
+                    <span class="ml-auto bg-purple-500 text-xs px-2 py-1 rounded-full" id="pendingReviewCount">0</span>
                 </div>
-                <div class="menu-item p-3 rounded-lg mb-1 cursor-pointer flex items-center gap-3" data-page="settings">
-                    <i class="fas fa-cog w-6"></i> সেটিংস
+                
+                <div class="menu-item" data-page="slides">
+                    <i class="fas fa-images"></i>
+                    <span>স্লাইডার</span>
                 </div>
-                <div class="menu-item p-3 rounded-lg mb-1 cursor-pointer flex items-center gap-3 text-red-400" id="logoutBtn">
-                    <i class="fas fa-sign-out-alt w-6"></i> লগআউট
+                
+                <div class="menu-item" data-page="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>সেটিংস</span>
                 </div>
+                
+                <div class="menu-item text-red-400" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>লগআউট</span>
+                </div>
+            </div>
+            
+            <!-- Version Info -->
+            <div class="p-3 text-center text-xs text-[#C0C0C2] border-t border-[#003366]">
+                v2.0.0 · প্রো প্যানেল
             </div>
         </div>
 
         <!-- Main Content -->
-        <div class="flex-1 overflow-y-auto bg-gray-100">
-            <div class="bg-white shadow-md p-4 flex justify-between items-center sticky top-0 z-10">
-                <h2 id="pageTitle" class="text-xl font-bold text-[#000B29]">ড্যাশবোর্ড</h2>
+        <div class="flex-1 flex flex-col h-full overflow-hidden">
+            <!-- Top Bar -->
+            <div class="bg-white shadow-md px-4 py-3 flex justify-between items-center sticky top-0 z-30">
                 <div class="flex items-center gap-3">
-                    <span class="text-sm text-gray-600" id="adminUsername"></span>
-                    <button id="mobileMenuToggle" class="lg:hidden text-[#00AEEF] text-xl">
+                    <button id="menuToggle" class="lg:hidden text-[#00AEEF] text-2xl">
                         <i class="fas fa-bars"></i>
                     </button>
+                    <h2 id="pageTitle" class="text-xl font-bold text-[#000B29]">ড্যাশবোর্ড</h2>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <div class="relative">
+                        <button id="notificationBtn" class="text-gray-600 hover:text-[#00AEEF] text-xl relative">
+                            <i class="fas fa-bell"></i>
+                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center">3</span>
+                        </button>
+                    </div>
+                    
+                    <div class="flex items-center gap-3">
+                        <div class="hidden md:block text-right">
+                            <p class="text-sm font-medium text-[#000B29]" id="adminNameDisplay"></p>
+                            <p class="text-xs text-gray-500" id="adminUsernameDisplay"></p>
+                        </div>
+                        <div class="w-10 h-10 bg-[#00AEEF] rounded-full flex items-center justify-center text-white text-lg">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="p-6" id="contentArea">
+            <!-- Content Area with Scroll -->
+            <div class="flex-1 overflow-y-auto bg-gray-100 p-4 md:p-6" id="contentArea">
                 <!-- Content will be loaded dynamically -->
             </div>
         </div>
@@ -106,34 +448,112 @@
 </div>
 
 <!-- Image Upload Modal -->
-<div id="imageModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-    <div class="bg-white rounded-2xl p-6 w-96">
-        <h3 class="text-xl font-bold mb-4">ছবি আপলোড</h3>
-        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-[#00AEEF]" id="dropZone">
-            <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-2"></i>
-            <p class="text-gray-600">ছবি নির্বাচন করুন বা এখানে ড্রপ করুন</p>
+<div id="imageModal" class="modal-overlay">
+    <div class="modal-content w-full max-w-2xl p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold text-[#000B29]">ছবি আপলোড</h3>
+            <button onclick="closeImageModal()" class="text-gray-500 hover:text-red-500 text-2xl">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="drop-zone" id="dropZone">
+            <i class="fas fa-cloud-upload-alt text-5xl text-[#00AEEF] mb-4"></i>
+            <p class="text-lg font-medium text-gray-700">ছবি নির্বাচন করুন বা এখানে ড্রপ করুন</p>
+            <p class="text-sm text-gray-500 mt-2">একসাথে একাধিক ছবি আপলোড করতে পারবেন</p>
             <input type="file" id="fileInput" multiple accept="image/*" class="hidden">
         </div>
-        <div id="previewContainer" class="grid grid-cols-3 gap-2 mt-4 max-h-60 overflow-y-auto"></div>
-        <div class="flex justify-end gap-2 mt-4">
-            <button onclick="closeImageModal()" class="px-4 py-2 bg-gray-300 rounded-lg">বাতিল</button>
-            <button onclick="uploadImages()" class="px-4 py-2 bg-[#00AEEF] text-white rounded-lg">আপলোড</button>
+        
+        <div id="previewContainer" class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 max-h-96 overflow-y-auto p-2"></div>
+        
+        <div class="flex justify-end gap-3 mt-6">
+            <button onclick="closeImageModal()" class="px-6 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 transition-colors">
+                বাতিল
+            </button>
+            <button onclick="uploadImages()" class="px-6 py-2 bg-[#00AEEF] text-white rounded-lg hover:bg-[#003366] transition-colors">
+                <i class="fas fa-upload mr-2"></i>আপলোড
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Order Details Modal -->
+<div id="orderModal" class="modal-overlay">
+    <div class="modal-content w-full max-w-4xl p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold text-[#000B29]">অর্ডারের বিবরণ</h3>
+            <button onclick="closeOrderModal()" class="text-gray-500 hover:text-red-500 text-2xl">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div id="orderDetails" class="space-y-4">
+            <!-- Order details will be loaded here -->
+        </div>
+    </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div id="confirmModal" class="modal-overlay">
+    <div class="modal-content w-full max-w-md p-6 text-center">
+        <div class="text-6xl text-yellow-500 mb-4">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3 class="text-2xl font-bold mb-2" id="confirmTitle">নিশ্চিত করুন</h3>
+        <p class="text-gray-600 mb-6" id="confirmMessage">আপনি কি এই আইটেমটি মুছে ফেলতে চান?</p>
+        <div class="flex gap-3 justify-center">
+            <button onclick="closeConfirmModal()" class="px-6 py-2 bg-gray-300 rounded-lg hover:bg-gray-400">
+                বাতিল
+            </button>
+            <button id="confirmAction" class="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
+                মুছুন
+            </button>
         </div>
     </div>
 </div>
 
 <script>
+    // ==================== CONFIGURATION ====================
     let token = localStorage.getItem('adminToken');
     let currentPage = 'dashboard';
-    const API_URL = window.location.hostname === 'localhost' 
-        ? 'http://localhost:5000/api' 
+    let currentProductId = null;
+    let productImages = [];
+    let currentSlideId = null;
+    let slideImage = '';
+    let currentOrderId = null;
+    let confirmCallback = null;
+    
+    const API_URL = window.location.hostname === 'localhost' || window.location.hostname.includes('127.0.0.1')
+        ? 'http://localhost:5000/api'
         : 'https://jahid-gadgets-backend.onrender.com/api';
 
+    // ==================== INITIALIZATION ====================
+    
     // Check login status
     if (token) {
         document.getElementById('loginContainer').classList.add('hidden');
         document.getElementById('adminPanel').classList.remove('hidden');
+        verifyToken();
         loadPage('dashboard');
+    }
+
+    // Verify token
+    async function verifyToken() {
+        try {
+            const res = await fetch(`${API_URL}/admin/verify`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            if (!res.ok) {
+                logout();
+            } else {
+                const admin = await res.json();
+                document.getElementById('adminUsernameDisplay').textContent = admin.username;
+                document.getElementById('adminNameDisplay').textContent = admin.name || admin.username;
+                document.getElementById('sidebarAdminName').textContent = admin.name || admin.username;
+            }
+        } catch (error) {
+            console.error('Token verification failed');
+        }
     }
 
     // Login form
@@ -142,8 +562,12 @@
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
         const errorDiv = document.getElementById('loginError');
+        const submitBtn = e.target.querySelector('button[type="submit"]');
 
         try {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>লগইন হচ্ছে...';
+
             const res = await fetch(`${API_URL}/admin/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -158,6 +582,7 @@
                 document.getElementById('adminUsername').textContent = data.username;
                 document.getElementById('loginContainer').classList.add('hidden');
                 document.getElementById('adminPanel').classList.remove('hidden');
+                verifyToken();
                 loadPage('dashboard');
             } else {
                 errorDiv.textContent = data.error || 'লগইন ব্যর্থ হয়েছে';
@@ -166,17 +591,35 @@
         } catch (error) {
             errorDiv.textContent = 'সার্ভারে সংযোগ করা যায়নি';
             errorDiv.classList.remove('hidden');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'লগইন করুন <i class="fas fa-arrow-right ml-2"></i>';
         }
     });
 
     // Logout
-    document.getElementById('logoutBtn').addEventListener('click', () => {
+    function logout() {
         localStorage.removeItem('adminToken');
         token = null;
         document.getElementById('adminPanel').classList.add('hidden');
         document.getElementById('loginContainer').classList.remove('hidden');
         document.getElementById('loginForm').reset();
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', logout);
+
+    // Sidebar toggle
+    document.getElementById('menuToggle').addEventListener('click', () => {
+        document.querySelector('.sidebar').classList.add('open');
+        document.getElementById('sidebarOverlay').classList.remove('hidden');
     });
+
+    document.getElementById('closeSidebarBtn').addEventListener('click', closeSidebar);
+    
+    function closeSidebar() {
+        document.querySelector('.sidebar').classList.remove('open');
+        document.getElementById('sidebarOverlay').classList.add('hidden');
+    }
 
     // Menu navigation
     document.querySelectorAll('.menu-item').forEach(item => {
@@ -186,17 +629,205 @@
                 item.classList.add('active');
                 const page = item.dataset.page;
                 currentPage = page;
+                document.getElementById('pageTitle').textContent = item.querySelector('span').textContent;
                 loadPage(page);
+                
+                // Close sidebar on mobile
+                if (window.innerWidth < 1024) {
+                    closeSidebar();
+                }
             });
         }
     });
 
-    // Mobile menu toggle
-    document.getElementById('mobileMenuToggle')?.addEventListener('click', () => {
-        document.querySelector('.sidebar').classList.toggle('-translate-x-64');
+    // ==================== MODAL FUNCTIONS ====================
+
+    // Image Modal
+    window.openImageModal = function() {
+        document.getElementById('imageModal').classList.add('active');
+    }
+
+    window.closeImageModal = function() {
+        document.getElementById('imageModal').classList.remove('active');
+        document.getElementById('fileInput').value = '';
+        document.getElementById('previewContainer').innerHTML = '';
+    }
+
+    // Order Modal
+    window.openOrderModal = function() {
+        document.getElementById('orderModal').classList.add('active');
+    }
+
+    window.closeOrderModal = function() {
+        document.getElementById('orderModal').classList.remove('active');
+    }
+
+    // Confirmation Modal
+    window.openConfirmModal = function(title, message, callback) {
+        document.getElementById('confirmTitle').textContent = title;
+        document.getElementById('confirmMessage').textContent = message;
+        confirmCallback = callback;
+        document.getElementById('confirmModal').classList.add('active');
+    }
+
+    window.closeConfirmModal = function() {
+        document.getElementById('confirmModal').classList.remove('active');
+        confirmCallback = null;
+    }
+
+    document.getElementById('confirmAction').addEventListener('click', () => {
+        if (confirmCallback) {
+            confirmCallback();
+        }
+        closeConfirmModal();
     });
 
-    // Load page content
+    // Close modals on overlay click
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                overlay.classList.remove('active');
+            }
+        });
+    });
+
+    // ==================== DROPZONE HANDLING ====================
+    
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+
+    dropZone.addEventListener('click', () => {
+        fileInput.click();
+    });
+
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        handleFiles(e.dataTransfer.files);
+    });
+
+    fileInput.addEventListener('change', (e) => {
+        handleFiles(e.target.files);
+    });
+
+    function handleFiles(files) {
+        const preview = document.getElementById('previewContainer');
+        preview.innerHTML = '';
+        
+        for (let file of files) {
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    preview.innerHTML += `
+                        <div class="relative group">
+                            <img src="${e.target.result}" class="image-preview w-full h-24 object-cover rounded-lg border-2 border-[#00AEEF]">
+                            <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                                <i class="fas fa-check text-white text-xl"></i>
+                            </div>
+                        </div>
+                    `;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    }
+
+    // ==================== IMAGE UPLOAD ====================
+
+    window.uploadImages = async function() {
+        const files = fileInput.files;
+        if (files.length === 0) {
+            alert('কমপক্ষে একটি ছবি নির্বাচন করুন');
+            return;
+        }
+
+        const formData = new FormData();
+        for (let file of files) {
+            formData.append('images', file);
+        }
+
+        try {
+            const res = await fetch(`${API_URL}/admin/products/temp`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` },
+                body: formData
+            });
+
+            const data = await res.json();
+            
+            if (res.ok) {
+                productImages = [...productImages, ...data.urls];
+                updateImagePreview();
+                closeImageModal();
+                showNotification('ছবি আপলোড সফল হয়েছে', 'success');
+            } else {
+                showNotification('ছবি আপলোড ব্যর্থ হয়েছে', 'error');
+            }
+        } catch (error) {
+            showNotification('ছবি আপলোড করতে সমস্যা হয়েছে', 'error');
+        }
+    }
+
+    function updateImagePreview() {
+        const container = document.getElementById('imagePreviewContainer');
+        if (container) {
+            container.innerHTML = productImages.map(img => `
+                <div class="relative group">
+                    <img src="${img}" class="image-preview">
+                    <button type="button" onclick="removeImage('${img}')" class="absolute -top-2 -right-2 bg-red-500 text-white w-6 h-6 rounded-full hover:bg-red-600 transition-colors">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+    }
+
+    window.removeImage = function(imageUrl) {
+        productImages = productImages.filter(img => img !== imageUrl);
+        updateImagePreview();
+    }
+
+    // ==================== NOTIFICATION ====================
+
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white transform transition-all duration-500 translate-x-full ${
+            type === 'success' ? 'bg-green-500' : 
+            type === 'error' ? 'bg-red-500' : 
+            'bg-blue-500'
+        }`;
+        notification.innerHTML = `
+            <div class="flex items-center gap-3">
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+                <span>${message}</span>
+            </div>
+        `;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.classList.remove('translate-x-full');
+        }, 100);
+        
+        setTimeout(() => {
+            notification.classList.add('translate-x-full');
+            setTimeout(() => {
+                notification.remove();
+            }, 500);
+        }, 3000);
+    }
+
+    // ==================== PAGE LOADING ====================
+
     async function loadPage(page) {
         const titles = {
             dashboard: 'ড্যাশবোর্ড',
@@ -218,10 +849,16 @@
         }
     }
 
-    // Dashboard
+    // ==================== DASHBOARD ====================
+
     async function loadDashboard() {
         const content = document.getElementById('contentArea');
-        content.innerHTML = '<div class="text-center py-8"><div class="loading mx-auto"></div> লোড হচ্ছে...</div>';
+        content.innerHTML = `
+            <div class="flex items-center justify-center py-20">
+                <div class="loading"></div>
+                <span class="ml-4 text-gray-600">ড্যাশবোর্ড লোড হচ্ছে...</span>
+            </div>
+        `;
 
         try {
             const res = await fetch(`${API_URL}/admin/stats`, {
@@ -229,140 +866,340 @@
             });
             const stats = await res.json();
 
-            content.innerHTML = `
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <div class="bg-white p-6 rounded-xl shadow-lg">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-xl">
-                                <i class="fas fa-shopping-cart"></i>
-                            </div>
-                            <div>
-                                <p class="text-gray-600 text-sm">মোট অর্ডার</p>
-                                <p class="text-2xl font-bold">${stats.totalOrders || 0}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-white p-6 rounded-xl shadow-lg">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-600 text-xl">
-                                <i class="fas fa-clock"></i>
-                            </div>
-                            <div>
-                                <p class="text-gray-600 text-sm">অপেক্ষমাণ</p>
-                                <p class="text-2xl font-bold">${stats.pendingOrders || 0}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-white p-6 rounded-xl shadow-lg">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-600 text-xl">
-                                <i class="fas fa-box"></i>
-                            </div>
-                            <div>
-                                <p class="text-gray-600 text-sm">মোট পণ্য</p>
-                                <p class="text-2xl font-bold">${stats.totalProducts || 0}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-white p-6 rounded-xl shadow-lg">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 text-xl">
-                                <i class="fas fa-taka"></i>
-                            </div>
-                            <div>
-                                <p class="text-gray-600 text-sm">মোট বিক্রয়</p>
-                                <p class="text-2xl font-bold">${stats.totalRevenue || 0}৳</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            // Update counts in sidebar
+            document.getElementById('productCount').textContent = stats.totalProducts || 0;
+            document.getElementById('pendingOrderCount').textContent = stats.pendingOrders || 0;
 
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="bg-white p-6 rounded-xl shadow-lg">
-                        <h3 class="text-lg font-bold mb-4">সাম্প্রতিক অর্ডার</h3>
-                        <div class="space-y-3">
-                            ${stats.recentOrders?.map(order => `
-                                <div class="flex justify-between items-center border-b pb-2">
-                                    <div>
-                                        <p class="font-medium">${order.customerName}</p>
-                                        <p class="text-sm text-gray-600">${order.orderSummary}</p>
-                                    </div>
-                                    <span class="status-badge status-${order.status}">${order.status}</span>
+            content.innerHTML = `
+                <div class="space-y-6">
+                    <!-- Stats Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                        <div class="bg-white p-6 rounded-xl shadow-lg card-hover">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-xl">
+                                    <i class="fas fa-shopping-cart"></i>
                                 </div>
-                            `).join('') || '<p class="text-gray-500">কোন অর্ডার নেই</p>'}
+                                <div>
+                                    <p class="text-gray-600 text-sm">মোট অর্ডার</p>
+                                    <p class="text-2xl font-bold">${stats.totalOrders || 0}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-xl shadow-lg card-hover">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-600 text-xl">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div>
+                                    <p class="text-gray-600 text-sm">অপেক্ষমাণ</p>
+                                    <p class="text-2xl font-bold">${stats.pendingOrders || 0}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-xl shadow-lg card-hover">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-600 text-xl">
+                                    <i class="fas fa-box"></i>
+                                </div>
+                                <div>
+                                    <p class="text-gray-600 text-sm">মোট পণ্য</p>
+                                    <p class="text-2xl font-bold">${stats.totalProducts || 0}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-xl shadow-lg card-hover">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 text-xl">
+                                    <i class="fas fa-taka-sign"></i>
+                                </div>
+                                <div>
+                                    <p class="text-gray-600 text-sm">মোট বিক্রয়</p>
+                                    <p class="text-2xl font-bold">${stats.totalRevenue || 0}৳</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="bg-white p-6 rounded-xl shadow-lg">
-                        <h3 class="text-lg font-bold mb-4">দ্রুত তথ্য</h3>
-                        <div class="space-y-3">
-                            <div class="flex justify-between">
-                                <span>আজকের অর্ডার</span>
-                                <span class="font-bold">${stats.todayOrders || 0}</span>
+
+                    <!-- Quick Stats -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white p-6 rounded-xl shadow-lg">
+                            <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+                                <i class="fas fa-chart-line text-[#00AEEF]"></i>
+                                দ্রুত পরিসংখ্যান
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                    <span class="text-gray-600">আজকের অর্ডার</span>
+                                    <span class="font-bold text-xl">${stats.todayOrders || 0}</span>
+                                </div>
+                                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                    <span class="text-gray-600">সপ্তাহের অর্ডার</span>
+                                    <span class="font-bold text-xl">${stats.weekOrders || 0}</span>
+                                </div>
+                                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                    <span class="text-gray-600">মাসের অর্ডার</span>
+                                    <span class="font-bold text-xl">${stats.monthOrders || 0}</span>
+                                </div>
+                                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                    <span class="text-gray-600">স্বল্প মজুদ</span>
+                                    <span class="font-bold text-xl text-red-600">${stats.lowStock || 0}</span>
+                                </div>
                             </div>
-                            <div class="flex justify-between">
-                                <span>স্বল্প মজুদ</span>
-                                <span class="font-bold text-red-600">${stats.lowStock || 0}</span>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-xl shadow-lg">
+                            <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+                                <i class="fas fa-chart-pie text-[#00AEEF]"></i>
+                                অর্ডারের অবস্থা
+                            </h3>
+                            <div class="space-y-3">
+                                ${stats.ordersByStatus?.map(item => `
+                                    <div class="flex justify-between items-center">
+                                        <span class="capitalize">${item._id}</span>
+                                        <span class="font-bold">${item.count}</span>
+                                    </div>
+                                `).join('') || '<p class="text-gray-500">কোন তথ্য নেই</p>'}
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Orders -->
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                        <div class="p-4 border-b flex justify-between items-center">
+                            <h3 class="text-lg font-bold">সাম্প্রতিক অর্ডার</h3>
+                            <button onclick="loadPage('orders')" class="text-[#00AEEF] hover:underline text-sm">
+                                সব দেখুন <i class="fas fa-arrow-right ml-1"></i>
+                            </button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="w-full">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="p-3 text-left">অর্ডার আইডি</th>
+                                        <th class="p-3 text-left">গ্রাহক</th>
+                                        <th class="p-3 text-left">মোট</th>
+                                        <th class="p-3 text-left">স্ট্যাটাস</th>
+                                        <th class="p-3 text-left">তারিখ</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${stats.recentOrders?.map(order => `
+                                        <tr class="border-b hover:bg-gray-50">
+                                            <td class="p-3 font-mono text-sm">${order.orderId || 'N/A'}</td>
+                                            <td class="p-3 font-medium">${order.customerName}</td>
+                                            <td class="p-3 font-bold">${order.grandTotal || order.totalAmount}৳</td>
+                                            <td class="p-3">
+                                                <span class="status-badge status-${order.status}">${order.status}</span>
+                                            </td>
+                                            <td class="p-3">${new Date(order.createdAt).toLocaleDateString('bn-BD')}</td>
+                                        </tr>
+                                    `).join('') || '<tr><td colspan="5" class="p-4 text-center text-gray-500">কোন অর্ডার নেই</td></tr>'}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Top Products -->
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                        <div class="p-4 border-b">
+                            <h3 class="text-lg font-bold">সর্বাধিক বিক্রিত পণ্য</h3>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="w-full">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="p-3 text-left">পণ্যের নাম</th>
+                                        <th class="p-3 text-left">বিক্রি হয়েছে</th>
+                                        <th class="p-3 text-left">স্টক</th>
+                                        <th class="p-3 text-left">দাম</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${stats.topProducts?.map(product => `
+                                        <tr class="border-b hover:bg-gray-50">
+                                            <td class="p-3 font-medium">${product.name}</td>
+                                            <td class="p-3">${product.sold || 0}টি</td>
+                                            <td class="p-3">${product.stock}</td>
+                                            <td class="p-3 font-bold">${product.price}৳</td>
+                                        </tr>
+                                    `).join('') || '<tr><td colspan="4" class="p-4 text-center text-gray-500">কোন তথ্য নেই</td></tr>'}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
             `;
         } catch (error) {
-            content.innerHTML = '<div class="text-red-500 text-center">ডেটা লোড করতে সমস্যা হয়েছে</div>';
+            content.innerHTML = `
+                <div class="text-center py-20">
+                    <i class="fas fa-exclamation-circle text-6xl text-red-500 mb-4"></i>
+                    <p class="text-xl text-red-500">ডেটা লোড করতে সমস্যা হয়েছে</p>
+                    <button onclick="loadDashboard()" class="mt-4 bg-[#00AEEF] text-white px-6 py-2 rounded-lg hover:bg-[#003366]">
+                        আবার চেষ্টা করুন
+                    </button>
+                </div>
+            `;
         }
     }
 
-    // Products Management
-    let currentProductId = null;
-    let productImages = [];
+    // ==================== PRODUCTS MANAGEMENT ====================
 
     async function loadProducts() {
         const content = document.getElementById('contentArea');
         content.innerHTML = `
-            <div class="mb-6 flex justify-between items-center">
-                <h3 class="text-lg font-bold">পণ্যের তালিকা</h3>
-                <button onclick="showProductForm()" class="bg-[#00AEEF] text-white px-4 py-2 rounded-lg hover:bg-[#003366]">
-                    <i class="fas fa-plus mr-2"></i>নতুন পণ্য
-                </button>
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold">পণ্যের তালিকা</h3>
+                <div class="flex gap-2">
+                    <button onclick="showProductForm()" class="bg-[#00AEEF] text-white px-4 py-2 rounded-lg hover:bg-[#003366] transition-colors">
+                        <i class="fas fa-plus mr-2"></i>নতুন পণ্য
+                    </button>
+                    <button onclick="loadProducts()" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
             </div>
+            
+            <div class="mb-4 flex flex-wrap gap-2">
+                <input type="text" id="productSearch" placeholder="পণ্য খুঁজুন..." 
+                       class="border rounded-lg px-4 py-2 flex-1 min-w-[200px] focus:ring-2 focus:ring-[#00AEEF] outline-none">
+                <select id="categoryFilter" class="border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] outline-none">
+                    <option value="all">সব ক্যাটাগরি</option>
+                    <option value="watch">স্মার্ট ওয়াচ</option>
+                    <option value="earbud">ইয়ারবাড</option>
+                    <option value="power">পাওয়ার ব্যাংক</option>
+                    <option value="speaker">স্পিকার</option>
+                </select>
+            </div>
+            
             <div id="productsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         `;
 
         try {
             const res = await fetch(`${API_URL}/products`);
-            const products = await res.json();
+            let products = await res.json();
 
             const list = document.getElementById('productsList');
-            list.innerHTML = products.map(p => `
-                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-                    <div class="relative h-48">
-                        <img src="${p.images[0]}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/400'">
-                        <span class="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs">
-                            ${p.discount}% ছাড়
-                        </span>
-                    </div>
-                    <div class="p-4">
-                        <h4 class="font-bold text-lg">${p.name}</h4>
-                        <p class="text-gray-600 text-sm">${p.desc}</p>
-                        <div class="flex items-baseline gap-2 mt-2">
-                            <span class="text-gray-400 line-through text-sm">${p.oldPrice}৳</span>
-                            <span class="text-[#00AEEF] font-bold text-xl">${p.price}৳</span>
+            const searchInput = document.getElementById('productSearch');
+            const categoryFilter = document.getElementById('categoryFilter');
+
+            function renderFilteredProducts() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const category = categoryFilter.value;
+                
+                const filtered = products.filter(p => {
+                    const matchesSearch = p.name.toLowerCase().includes(searchTerm) || 
+                                         p.desc.toLowerCase().includes(searchTerm) ||
+                                         p.id.toLowerCase().includes(searchTerm);
+                    const matchesCategory = category === 'all' || p.cat === category;
+                    return matchesSearch && matchesCategory;
+                });
+
+                if (filtered.length === 0) {
+                    list.innerHTML = '<div class="col-span-full text-center py-12 text-gray-500">কোন পণ্য পাওয়া যায়নি</div>';
+                    return;
+                }
+
+                list.innerHTML = filtered.map(p => `
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden card-hover">
+                        <div class="relative h-48 product-gallery">
+                            <img src="${p.images[0]}" class="gallery-image w-full h-full object-cover" id="gallery-${p.id}" onerror="this.src='https://via.placeholder.com/400'">
+                            
+                            ${p.images.length > 1 ? `
+                                <div class="gallery-controls">
+                                    <button class="gallery-btn" onclick="changeProductImage('${p.id}', ${JSON.stringify(p.images)}, -1, event)">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </button>
+                                    <button class="gallery-btn" onclick="changeProductImage('${p.id}', ${JSON.stringify(p.images)}, 1, event)">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                                <div class="image-indicator" id="indicator-${p.id}">
+                                    ${p.images.map((_, idx) => `
+                                        <span class="indicator-dot ${idx === 0 ? 'active' : ''}"></span>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+                            
+                            <span class="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs z-10">
+                                ${p.discount}% ছাড়
+                            </span>
                         </div>
-                        <div class="flex gap-2 mt-4">
-                            <button onclick="editProduct('${p.id}')" class="flex-1 bg-yellow-500 text-white py-2 rounded-lg hover:bg-yellow-600">
-                                <i class="fas fa-edit"></i> সম্পাদনা
-                            </button>
-                            <button onclick="deleteProduct('${p.id}')" class="flex-1 bg-red-500 text-white py-2 rounded-lg hover:bg-red-600">
-                                <i class="fas fa-trash"></i> মুছুন
-                            </button>
+                        
+                        <div class="p-4">
+                            <h4 class="font-bold text-lg">${p.name}</h4>
+                            <p class="text-gray-600 text-sm line-clamp-2">${p.desc}</p>
+                            
+                            <div class="flex items-baseline gap-2 mt-2">
+                                <span class="text-gray-400 line-through text-sm">${p.oldPrice}৳</span>
+                                <span class="text-[#00AEEF] font-bold text-xl">${p.price}৳</span>
+                            </div>
+                            
+                            <div class="flex items-center justify-between mt-2 text-sm">
+                                <span class="text-gray-600"><i class="fas fa-box mr-1"></i>স্টক: ${p.stock}</span>
+                                <span class="text-gray-600"><i class="fas fa-shopping-cart mr-1"></i>বিক্রি: ${p.sold || 0}</span>
+                            </div>
+                            
+                            <div class="flex gap-2 mt-4">
+                                <button onclick="editProduct('${p.id}')" class="flex-1 bg-yellow-500 text-white py-2 rounded-lg hover:bg-yellow-600 transition-colors">
+                                    <i class="fas fa-edit"></i> সম্পাদনা
+                                </button>
+                                <button onclick="confirmDeleteProduct('${p.id}')" class="flex-1 bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition-colors">
+                                    <i class="fas fa-trash"></i> মুছুন
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `).join('');
+                `).join('');
+
+                // Initialize image galleries
+                window.productGalleries = {};
+            }
+
+            searchInput.addEventListener('input', renderFilteredProducts);
+            categoryFilter.addEventListener('change', renderFilteredProducts);
+            
+            renderFilteredProducts();
         } catch (error) {
-            console.error(error);
+            document.getElementById('productsList').innerHTML = `
+                <div class="col-span-full text-center py-12">
+                    <i class="fas fa-exclamation-circle text-5xl text-red-500 mb-4"></i>
+                    <p class="text-red-500">পণ্য লোড করতে সমস্যা হয়েছে</p>
+                </div>
+            `;
         }
     }
+
+    // Product image gallery
+    window.productGalleries = {};
+
+    window.changeProductImage = function(productId, images, direction, event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        if (!window.productGalleries[productId]) {
+            window.productGalleries[productId] = { currentIndex: 0 };
+        }
+        
+        const gallery = window.productGalleries[productId];
+        gallery.currentIndex = (gallery.currentIndex + direction + images.length) % images.length;
+        
+        const mainImg = document.getElementById(`gallery-${productId}`);
+        if (mainImg) {
+            mainImg.src = images[gallery.currentIndex];
+        }
+        
+        const indicators = document.querySelectorAll(`#indicator-${productId} .indicator-dot`);
+        indicators.forEach((dot, idx) => {
+            if (idx === gallery.currentIndex) {
+                dot.classList.add('active');
+            } else {
+                dot.classList.remove('active');
+            }
+        });
+    };
 
     function showProductForm(product = null) {
         currentProductId = product?.id || null;
@@ -370,53 +1207,88 @@
 
         const content = document.getElementById('contentArea');
         content.innerHTML = `
-            <div class="bg-white rounded-xl shadow-lg p-6">
-                <h3 class="text-lg font-bold mb-4">${product ? 'পণ্য সম্পাদনা' : 'নতুন পণ্য'}</h3>
-                <form id="productForm" class="space-y-4">
+            <div class="bg-white rounded-xl shadow-lg p-4 md:p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold">${product ? 'পণ্য সম্পাদনা' : 'নতুন পণ্য'}</h3>
+                    <button onclick="loadProducts()" class="text-gray-500 hover:text-red-500 text-2xl">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <form id="productForm" class="space-y-4" enctype="multipart/form-data">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium mb-1">পণ্য ID *</label>
-                            <input type="text" id="productId" value="${product?.id || ''}" ${product ? 'readonly' : ''} class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF]" required>
+                            <input type="text" id="productId" value="${product?.id || ''}" ${product ? 'readonly' : ''} 
+                                   class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] outline-none" 
+                                   placeholder="যেমন: watch-001" required>
+                            <p class="text-xs text-gray-500 mt-1">ইউনিক আইডি, স্পেস ছাড়া লিখুন</p>
                         </div>
+                        
                         <div>
                             <label class="block text-sm font-medium mb-1">পণ্যের নাম *</label>
-                            <input type="text" id="productName" value="${product?.name || ''}" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF]" required>
+                            <input type="text" id="productName" value="${product?.name || ''}" 
+                                   class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] outline-none" required>
                         </div>
+                        
                         <div>
                             <label class="block text-sm font-medium mb-1">ক্যাটাগরি *</label>
-                            <select id="productCat" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF]" required>
+                            <select id="productCat" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] outline-none" required>
                                 <option value="watch" ${product?.cat === 'watch' ? 'selected' : ''}>স্মার্ট ওয়াচ</option>
                                 <option value="earbud" ${product?.cat === 'earbud' ? 'selected' : ''}>ইয়ারবাড</option>
                                 <option value="power" ${product?.cat === 'power' ? 'selected' : ''}>পাওয়ার ব্যাংক</option>
                                 <option value="speaker" ${product?.cat === 'speaker' ? 'selected' : ''}>স্পিকার</option>
                             </select>
                         </div>
+                        
                         <div>
                             <label class="block text-sm font-medium mb-1">মূল্য (নতুন) *</label>
-                            <input type="number" id="productPrice" value="${product?.price || ''}" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF]" required>
+                            <input type="number" id="productPrice" value="${product?.price || ''}" 
+                                   class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] outline-none" required>
                         </div>
+                        
                         <div>
                             <label class="block text-sm font-medium mb-1">পুরাতন মূল্য</label>
-                            <input type="number" id="productOldPrice" value="${product?.oldPrice || ''}" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF]">
+                            <input type="number" id="productOldPrice" value="${product?.oldPrice || ''}" 
+                                   class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] outline-none">
                         </div>
+                        
                         <div>
                             <label class="block text-sm font-medium mb-1">ছাড় (%)</label>
-                            <input type="number" id="productDiscount" value="${product?.discount || ''}" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF]">
+                            <input type="number" id="productDiscount" value="${product?.discount || ''}" 
+                                   class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] outline-none">
                         </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium mb-1">স্টক পরিমাণ</label>
+                            <input type="number" id="productStock" value="${product?.stock || 10}" 
+                                   class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] outline-none">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium mb-1">ফিচার্ড পণ্য?</label>
+                            <div class="flex items-center gap-2 mt-2">
+                                <input type="checkbox" id="productFeatured" ${product?.featured ? 'checked' : ''} class="w-5 h-5">
+                                <label class="text-sm">হোমপেজে দেখাবে</label>
+                            </div>
+                        </div>
+                        
                         <div class="md:col-span-2">
                             <label class="block text-sm font-medium mb-1">বিবরণ *</label>
-                            <textarea id="productDesc" rows="3" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF]" required>${product?.desc || ''}</textarea>
+                            <textarea id="productDesc" rows="3" 
+                                      class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] outline-none" required>${product?.desc || ''}</textarea>
                         </div>
+                        
                         <div class="md:col-span-2">
-                            <label class="block text-sm font-medium mb-1">ছবি *</label>
-                            <button type="button" onclick="openImageModal()" class="bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300">
+                            <label class="block text-sm font-medium mb-2">ছবি * (কমপক্ষে ১টি, সর্বোচ্চ ১০টি)</label>
+                            <button type="button" onclick="openImageModal()" class="bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors">
                                 <i class="fas fa-upload mr-2"></i>ছবি আপলোড করুন
                             </button>
-                            <div id="imagePreviewContainer" class="flex flex-wrap gap-2 mt-4">
+                            <div id="imagePreviewContainer" class="flex flex-wrap gap-3 mt-4">
                                 ${productImages.map(img => `
-                                    <div class="relative">
-                                        <img src="${img}" class="image-preview">
-                                        <button type="button" onclick="removeImage('${img}')" class="absolute -top-2 -right-2 bg-red-500 text-white w-6 h-6 rounded-full text-sm">
+                                    <div class="relative group">
+                                        <img src="${img}" class="image-preview w-24 h-24 object-cover rounded-lg border-2 border-[#00AEEF]">
+                                        <button type="button" onclick="removeImage('${img}')" class="absolute -top-2 -right-2 bg-red-500 text-white w-6 h-6 rounded-full hover:bg-red-600 transition-colors">
                                             <i class="fas fa-times"></i>
                                         </button>
                                     </div>
@@ -424,11 +1296,12 @@
                             </div>
                         </div>
                     </div>
-                    <div class="flex gap-3 pt-4">
-                        <button type="submit" class="bg-[#00AEEF] text-white px-6 py-2 rounded-lg hover:bg-[#003366]">
+                    
+                    <div class="flex gap-3 pt-4 border-t">
+                        <button type="submit" class="bg-[#00AEEF] text-white px-8 py-3 rounded-lg hover:bg-[#003366] transition-colors font-bold">
                             ${product ? 'আপডেট করুন' : 'সংরক্ষণ করুন'}
                         </button>
-                        <button type="button" onclick="loadProducts()" class="bg-gray-300 px-6 py-2 rounded-lg hover:bg-gray-400">
+                        <button type="button" onclick="loadProducts()" class="bg-gray-300 px-8 py-3 rounded-lg hover:bg-gray-400 transition-colors">
                             বাতিল
                         </button>
                     </div>
@@ -437,103 +1310,6 @@
         `;
 
         document.getElementById('productForm').addEventListener('submit', saveProduct);
-    }
-
-    function openImageModal() {
-        document.getElementById('imageModal').classList.add('flex');
-        document.getElementById('imageModal').classList.remove('hidden');
-    }
-
-    function closeImageModal() {
-        document.getElementById('imageModal').classList.add('hidden');
-        document.getElementById('imageModal').classList.remove('flex');
-        document.getElementById('fileInput').value = '';
-        document.getElementById('previewContainer').innerHTML = '';
-    }
-
-    document.getElementById('dropZone').addEventListener('click', () => {
-        document.getElementById('fileInput').click();
-    });
-
-    document.getElementById('fileInput').addEventListener('change', (e) => {
-        handleFiles(e.target.files);
-    });
-
-    document.getElementById('dropZone').addEventListener('dragover', (e) => {
-        e.preventDefault();
-        e.currentTarget.classList.add('border-[#00AEEF]');
-    });
-
-    document.getElementById('dropZone').addEventListener('dragleave', (e) => {
-        e.currentTarget.classList.remove('border-[#00AEEF]');
-    });
-
-    document.getElementById('dropZone').addEventListener('drop', (e) => {
-        e.preventDefault();
-        e.currentTarget.classList.remove('border-[#00AEEF]');
-        handleFiles(e.dataTransfer.files);
-    });
-
-    function handleFiles(files) {
-        const preview = document.getElementById('previewContainer');
-        preview.innerHTML = '';
-        
-        for (let file of files) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                preview.innerHTML += `<img src="${e.target.result}" class="image-preview">`;
-            };
-            reader.readAsDataURL(file);
-        }
-    }
-
-    async function uploadImages() {
-        const files = document.getElementById('fileInput').files;
-        if (files.length === 0) return;
-
-        const formData = new FormData();
-        for (let file of files) {
-            formData.append('images', file);
-        }
-
-        try {
-            const res = await fetch(`${API_URL}/admin/products/temp`, {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}` },
-                body: formData
-            });
-
-            const data = await res.json();
-            
-            if (res.ok) {
-                productImages = [...productImages, ...data.urls];
-                updateImagePreview();
-                closeImageModal();
-            } else {
-                alert('ছবি আপলোড ব্যর্থ হয়েছে');
-            }
-        } catch (error) {
-            alert('ছবি আপলোড করতে সমস্যা হয়েছে');
-        }
-    }
-
-    function updateImagePreview() {
-        const container = document.getElementById('imagePreviewContainer');
-        if (container) {
-            container.innerHTML = productImages.map(img => `
-                <div class="relative">
-                    <img src="${img}" class="image-preview">
-                    <button type="button" onclick="removeImage('${img}')" class="absolute -top-2 -right-2 bg-red-500 text-white w-6 h-6 rounded-full text-sm">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            `).join('');
-        }
-    }
-
-    function removeImage(imageUrl) {
-        productImages = productImages.filter(img => img !== imageUrl);
-        updateImagePreview();
     }
 
     async function saveProduct(e) {
@@ -553,10 +1329,25 @@
             oldPrice: parseInt(document.getElementById('productOldPrice').value) || 0,
             discount: parseInt(document.getElementById('productDiscount').value) || 0,
             desc: document.getElementById('productDesc').value,
+            stock: parseInt(document.getElementById('productStock').value) || 10,
+            featured: document.getElementById('productFeatured').checked,
             images: productImages
         };
 
+        // Calculate old price if not provided but discount exists
+        if (!productData.oldPrice && productData.discount) {
+            productData.oldPrice = Math.round(productData.price * (100 / (100 - productData.discount)));
+        }
+
         formData.append('product', JSON.stringify(productData));
+
+        // Add new images if selected via file input
+        const fileInput = document.getElementById('fileInput');
+        if (fileInput && fileInput.files.length > 0) {
+            for (let file of fileInput.files) {
+                formData.append('images', file);
+            }
+        }
 
         try {
             const url = currentProductId 
@@ -572,13 +1363,14 @@
             });
 
             if (res.ok) {
-                alert(currentProductId ? 'পণ্য আপডেট হয়েছে' : 'পণ্য সংরক্ষিত হয়েছে');
+                showNotification(currentProductId ? 'পণ্য আপডেট হয়েছে' : 'পণ্য সংরক্ষিত হয়েছে', 'success');
                 loadProducts();
             } else {
-                alert('সংরক্ষণ করতে সমস্যা হয়েছে');
+                const data = await res.json();
+                showNotification(data.error || 'সংরক্ষণ করতে সমস্যা হয়েছে', 'error');
             }
         } catch (error) {
-            alert('সংরক্ষণ করতে সমস্যা হয়েছে');
+            showNotification('সংরক্ষণ করতে সমস্যা হয়েছে', 'error');
         }
     }
 
@@ -588,13 +1380,19 @@
             const product = await res.json();
             showProductForm(product);
         } catch (error) {
-            alert('পণ্যের তথ্য লোড করতে পারেনি');
+            showNotification('পণ্যের তথ্য লোড করতে পারেনি', 'error');
         }
     }
 
-    async function deleteProduct(productId) {
-        if (!confirm('আপনি কি এই পণ্য মুছে ফেলতে চান?')) return;
+    function confirmDeleteProduct(productId) {
+        openConfirmModal(
+            'পণ্য মুছবেন?',
+            'আপনি কি এই পণ্য permanently মুছে ফেলতে চান? এই কাজ পূর্বাবস্থায় ফিরানো যাবে না।',
+            () => deleteProduct(productId)
+        );
+    }
 
+    async function deleteProduct(productId) {
         try {
             const res = await fetch(`${API_URL}/admin/products/${productId}`, {
                 method: 'DELETE',
@@ -602,20 +1400,26 @@
             });
 
             if (res.ok) {
-                alert('পণ্য মুছে ফেলা হয়েছে');
+                showNotification('পণ্য মুছে ফেলা হয়েছে', 'success');
                 loadProducts();
             } else {
-                alert('মুছতে সমস্যা হয়েছে');
+                showNotification('মুছতে সমস্যা হয়েছে', 'error');
             }
         } catch (error) {
-            alert('মুছতে সমস্যা হয়েছে');
+            showNotification('মুছতে সমস্যা হয়েছে', 'error');
         }
     }
 
-    // Orders Management
+    // ==================== ORDERS MANAGEMENT ====================
+
     async function loadOrders() {
         const content = document.getElementById('contentArea');
-        content.innerHTML = '<div class="text-center py-8"><div class="loading mx-auto"></div> লোড হচ্ছে...</div>';
+        content.innerHTML = `
+            <div class="flex items-center justify-center py-20">
+                <div class="loading"></div>
+                <span class="ml-4 text-gray-600">অর্ডার লোড হচ্ছে...</span>
+            </div>
+        `;
 
         try {
             const res = await fetch(`${API_URL}/admin/orders`, {
@@ -624,69 +1428,273 @@
             const data = await res.json();
 
             content.innerHTML = `
-                <div class="mb-4 flex gap-2">
-                    <select id="orderStatusFilter" class="border rounded-lg px-4 py-2" onchange="loadOrders()">
-                        <option value="all">সব অর্ডার</option>
-                        <option value="pending">অপেক্ষমাণ</option>
-                        <option value="confirmed">নিশ্চিত</option>
-                        <option value="processing">প্রক্রিয়াধীন</option>
-                        <option value="shipped">পাঠানো হয়েছে</option>
-                        <option value="delivered">ডেলিভারি হয়েছে</option>
-                        <option value="cancelled">বাতিল</option>
-                    </select>
-                </div>
-                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-                    <table class="w-full">
-                        <thead class="bg-gray-100">
-                            <tr>
-                                <th class="p-3 text-left">ক্রমিক</th>
-                                <th class="p-3 text-left">গ্রাহক</th>
-                                <th class="p-3 text-left">ফোন</th>
-                                <th class="p-3 text-left">পণ্য</th>
-                                <th class="p-3 text-left">মোট</th>
-                                <th class="p-3 text-left">স্ট্যাটাস</th>
-                                <th class="p-3 text-left">তারিখ</th>
-                                <th class="p-3 text-left">অ্যাকশন</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${data.orders.map((order, index) => `
-                                <tr class="border-b hover:bg-gray-50">
-                                    <td class="p-3">${index + 1}</td>
-                                    <td class="p-3 font-medium">${order.customerName}</td>
-                                    <td class="p-3">${order.customerPhone}</td>
-                                    <td class="p-3">${order.orderSummary}</td>
-                                    <td class="p-3 font-bold">${order.totalAmount}৳</td>
-                                    <td class="p-3">
-                                        <span class="status-badge status-${order.status}">${order.status}</span>
-                                    </td>
-                                    <td class="p-3">${new Date(order.createdAt).toLocaleDateString('bn-BD')}</td>
-                                    <td class="p-3">
-                                        <button onclick="showOrderDetails('${order._id}')" class="text-blue-600 hover:text-blue-800 mr-2">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        <button onclick="deleteOrder('${order._id}')" class="text-red-600 hover:text-red-800">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
+                <div class="space-y-4">
+                    <div class="flex flex-wrap gap-3 justify-between items-center">
+                        <h3 class="text-xl font-bold">অর্ডারসমূহ</h3>
+                        <div class="flex gap-2">
+                            <select id="orderStatusFilter" class="border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] outline-none">
+                                <option value="all">সব অর্ডার</option>
+                                <option value="pending">অপেক্ষমাণ</option>
+                                <option value="confirmed">নিশ্চিত</option>
+                                <option value="processing">প্রক্রিয়াধীন</option>
+                                <option value="shipped">পাঠানো হয়েছে</option>
+                                <option value="delivered">ডেলিভারি হয়েছে</option>
+                                <option value="cancelled">বাতিল</option>
+                            </select>
+                            <button onclick="loadOrders()" class="bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                        <div class="table-responsive">
+                            <table class="w-full">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th class="p-3 text-left">অর্ডার আইডি</th>
+                                        <th class="p-3 text-left">গ্রাহক</th>
+                                        <th class="p-3 text-left">ফোন</th>
+                                        <th class="p-3 text-left">পণ্য</th>
+                                        <th class="p-3 text-left">মোট</th>
+                                        <th class="p-3 text-left">স্ট্যাটাস</th>
+                                        <th class="p-3 text-left">তারিখ</th>
+                                        <th class="p-3 text-left">অ্যাকশন</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${data.orders.map((order, index) => `
+                                        <tr class="border-b hover:bg-gray-50">
+                                            <td class="p-3 font-mono text-sm">${order.orderId || 'N/A'}</td>
+                                            <td class="p-3 font-medium">${order.customerName}</td>
+                                            <td class="p-3">${order.customerPhone}</td>
+                                            <td class="p-3">
+                                                <span class="text-sm truncate max-w-[150px] block">${order.orderSummary || order.items?.map(i => i.name).join(', ')}</span>
+                                            </td>
+                                            <td class="p-3 font-bold">${order.grandTotal || order.totalAmount}৳</td>
+                                            <td class="p-3">
+                                                <span class="status-badge status-${order.status}">${order.status}</span>
+                                            </td>
+                                            <td class="p-3">${new Date(order.createdAt).toLocaleDateString('bn-BD')}</td>
+                                            <td class="p-3">
+                                                <button onclick="showOrderDetails('${order._id}')" class="text-blue-600 hover:text-blue-800 mr-2" title="বিস্তারিত">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button onclick="editOrder('${order._id}')" class="text-yellow-600 hover:text-yellow-800 mr-2" title="সম্পাদনা">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button onclick="confirmDeleteOrder('${order._id}')" class="text-red-600 hover:text-red-800" title="মুছুন">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        ${data.orders.length === 0 ? `
+                            <div class="text-center py-12 text-gray-500">
+                                <i class="fas fa-shopping-cart text-5xl mb-4"></i>
+                                <p>কোন অর্ডার পাওয়া যায়নি</p>
+                            </div>
+                        ` : ''}
+                        
+                        <!-- Pagination -->
+                        ${data.totalPages > 1 ? `
+                            <div class="p-4 border-t flex justify-center gap-2">
+                                ${Array.from({ length: data.totalPages }, (_, i) => i + 1).map(page => `
+                                    <button onclick="loadOrdersPage(${page})" class="w-8 h-8 rounded-full ${data.currentPage == page ? 'bg-[#00AEEF] text-white' : 'bg-gray-200 hover:bg-gray-300'}">
+                                        ${page}
+                                    </button>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
                 </div>
             `;
+
+            document.getElementById('orderStatusFilter').addEventListener('change', (e) => {
+                loadOrdersWithFilter(e.target.value);
+            });
+
         } catch (error) {
-            content.innerHTML = '<div class="text-red-500 text-center">ডেটা লোড করতে সমস্যা হয়েছে</div>';
+            content.innerHTML = `
+                <div class="text-center py-20">
+                    <i class="fas fa-exclamation-circle text-6xl text-red-500 mb-4"></i>
+                    <p class="text-xl text-red-500">অর্ডার লোড করতে সমস্যা হয়েছে</p>
+                    <button onclick="loadOrders()" class="mt-4 bg-[#00AEEF] text-white px-6 py-2 rounded-lg hover:bg-[#003366]">
+                        আবার চেষ্টা করুন
+                    </button>
+                </div>
+            `;
         }
     }
 
-    function showOrderDetails(orderId) {
-        // Implement order details modal
+    async function loadOrdersWithFilter(status) {
+        try {
+            const res = await fetch(`${API_URL}/admin/orders?status=${status}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            
+            // Update table body
+            const tbody = document.querySelector('tbody');
+            if (tbody) {
+                tbody.innerHTML = data.orders.map((order, index) => `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="p-3 font-mono text-sm">${order.orderId || 'N/A'}</td>
+                        <td class="p-3 font-medium">${order.customerName}</td>
+                        <td class="p-3">${order.customerPhone}</td>
+                        <td class="p-3">
+                            <span class="text-sm truncate max-w-[150px] block">${order.orderSummary || order.items?.map(i => i.name).join(', ')}</span>
+                        </td>
+                        <td class="p-3 font-bold">${order.grandTotal || order.totalAmount}৳</td>
+                        <td class="p-3">
+                            <span class="status-badge status-${order.status}">${order.status}</span>
+                        </td>
+                        <td class="p-3">${new Date(order.createdAt).toLocaleDateString('bn-BD')}</td>
+                        <td class="p-3">
+                            <button onclick="showOrderDetails('${order._id}')" class="text-blue-600 hover:text-blue-800 mr-2">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button onclick="editOrder('${order._id}')" class="text-yellow-600 hover:text-yellow-800 mr-2">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="confirmDeleteOrder('${order._id}')" class="text-red-600 hover:text-red-800">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        } catch (error) {
+            showNotification('অর্ডার লোড করতে সমস্যা হয়েছে', 'error');
+        }
+    }
+
+    async function showOrderDetails(orderId) {
+        try {
+            const res = await fetch(`${API_URL}/admin/orders/${orderId}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const order = await res.json();
+
+            const detailsDiv = document.getElementById('orderDetails');
+            detailsDiv.innerHTML = `
+                <div class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-bold mb-2">গ্রাহকের তথ্য</h4>
+                            <p><span class="text-gray-600">নাম:</span> ${order.customerName}</p>
+                            <p><span class="text-gray-600">ফোন:</span> ${order.customerPhone}</p>
+                            <p><span class="text-gray-600">ঠিকানা:</span> ${order.customerAddress}</p>
+                            ${order.customerEmail ? `<p><span class="text-gray-600">ইমেইল:</span> ${order.customerEmail}</p>` : ''}
+                        </div>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-bold mb-2">অর্ডারের তথ্য</h4>
+                            <p><span class="text-gray-600">অর্ডার আইডি:</span> ${order.orderId || 'N/A'}</p>
+                            <p><span class="text-gray-600">তারিখ:</span> ${new Date(order.createdAt).toLocaleString('bn-BD')}</p>
+                            <p><span class="text-gray-600">পেমেন্ট:</span> ${order.paymentMethod}</p>
+                            <p><span class="text-gray-600">স্ট্যাটাস:</span> <span class="status-badge status-${order.status}">${order.status}</span></p>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-bold mb-2">পণ্যের তালিকা</h4>
+                        <div class="space-y-2">
+                            ${order.items.map(item => `
+                                <div class="flex justify-between items-center border-b pb-2">
+                                    <div class="flex items-center gap-2">
+                                        <img src="${item.image}" class="w-12 h-12 object-cover rounded-lg" onerror="this.src='https://via.placeholder.com/48'">
+                                        <div>
+                                            <p class="font-medium">${item.name}</p>
+                                            <p class="text-sm text-gray-600">${item.price}৳ × ${item.quantity}</p>
+                                        </div>
+                                    </div>
+                                    <p class="font-bold">${item.price * item.quantity}৳</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                        
+                        <div class="mt-4 pt-2 border-t">
+                            <div class="flex justify-between">
+                                <span>সাবটোটাল:</span>
+                                <span class="font-bold">${order.totalAmount}৳</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>ডেলিভারি চার্জ:</span>
+                                <span class="font-bold">${order.deliveryCharge || 60}৳</span>
+                            </div>
+                            <div class="flex justify-between text-lg">
+                                <span>মোট:</span>
+                                <span class="font-bold text-[#00AEEF]">${order.grandTotal || order.totalAmount + (order.deliveryCharge || 60)}৳</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    ${order.notes ? `
+                        <div class="bg-yellow-50 p-4 rounded-lg">
+                            <h4 class="font-bold mb-2">নোট</h4>
+                            <p>${order.notes}</p>
+                        </div>
+                    ` : ''}
+
+                    <div class="flex justify-end gap-3">
+                        <select id="orderStatusUpdate" class="border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] outline-none">
+                            <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>অপেক্ষমাণ</option>
+                            <option value="confirmed" ${order.status === 'confirmed' ? 'selected' : ''}>নিশ্চিত</option>
+                            <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>প্রক্রিয়াধীন</option>
+                            <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>পাঠানো হয়েছে</option>
+                            <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>ডেলিভারি হয়েছে</option>
+                            <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>বাতিল</option>
+                        </select>
+                        <button onclick="updateOrderStatus('${order._id}')" class="bg-[#00AEEF] text-white px-4 py-2 rounded-lg hover:bg-[#003366]">
+                            আপডেট করুন
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            openOrderModal();
+        } catch (error) {
+            showNotification('অর্ডারের তথ্য লোড করতে পারেনি', 'error');
+        }
+    }
+
+    async function updateOrderStatus(orderId) {
+        const status = document.getElementById('orderStatusUpdate').value;
+        
+        try {
+            const res = await fetch(`${API_URL}/admin/orders/${orderId}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status })
+            });
+
+            if (res.ok) {
+                showNotification('অর্ডার স্ট্যাটাস আপডেট হয়েছে', 'success');
+                closeOrderModal();
+                loadOrders();
+            }
+        } catch (error) {
+            showNotification('আপডেট করতে সমস্যা হয়েছে', 'error');
+        }
+    }
+
+    function confirmDeleteOrder(orderId) {
+        openConfirmModal(
+            'অর্ডার মুছবেন?',
+            'আপনি কি এই অর্ডার permanently মুছে ফেলতে চান?',
+            () => deleteOrder(orderId)
+        );
     }
 
     async function deleteOrder(orderId) {
-        if (!confirm('অর্ডারটি মুছে ফেলতে চান?')) return;
-        
         try {
             const res = await fetch(`${API_URL}/admin/orders/${orderId}`, {
                 method: 'DELETE',
@@ -694,69 +1702,157 @@
             });
 
             if (res.ok) {
-                alert('অর্ডার মুছে ফেলা হয়েছে');
+                showNotification('অর্ডার মুছে ফেলা হয়েছে', 'success');
                 loadOrders();
             }
         } catch (error) {
-            alert('মুছতে সমস্যা হয়েছে');
+            showNotification('মুছতে সমস্যা হয়েছে', 'error');
         }
     }
 
-    // Reviews Management
+    // ==================== REVIEWS MANAGEMENT ====================
+
     async function loadReviews() {
         const content = document.getElementById('contentArea');
-        content.innerHTML = '<div class="text-center py-8"><div class="loading mx-auto"></div> লোড হচ্ছে...</div>';
+        content.innerHTML = `
+            <div class="flex items-center justify-center py-20">
+                <div class="loading"></div>
+                <span class="ml-4 text-gray-600">রিভিউ লোড হচ্ছে...</span>
+            </div>
+        `;
 
         try {
             const res = await fetch(`${API_URL}/admin/reviews`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-            const reviews = await res.json();
+            const data = await res.json();
+
+            document.getElementById('pendingReviewCount').textContent = data.reviews.filter(r => r.status === 'pending').length;
 
             content.innerHTML = `
-                <div class="mb-4 flex gap-2">
-                    <select id="reviewStatusFilter" class="border rounded-lg px-4 py-2" onchange="loadReviews()">
-                        <option value="all">সব রিভিউ</option>
-                        <option value="pending">অপেক্ষমাণ</option>
-                        <option value="approved">অনুমোদিত</option>
-                        <option value="rejected">বাতিল</option>
-                    </select>
-                </div>
-                <div class="grid grid-cols-1 gap-4">
-                    ${reviews.map(review => `
-                        <div class="bg-white rounded-xl shadow-lg p-4">
-                            <div class="flex justify-between items-start">
-                                <div class="flex gap-3">
-                                    <div class="w-10 h-10 bg-[#00AEEF] rounded-full flex items-center justify-center text-white">
-                                        <i class="fas fa-user"></i>
+                <div class="space-y-4">
+                    <div class="flex flex-wrap gap-3 justify-between items-center">
+                        <h3 class="text-xl font-bold">রিভিউ ব্যবস্থাপনা</h3>
+                        <div class="flex gap-2">
+                            <select id="reviewStatusFilter" class="border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] outline-none">
+                                <option value="all">সব রিভিউ</option>
+                                <option value="pending">অপেক্ষমাণ</option>
+                                <option value="approved">অনুমোদিত</option>
+                                <option value="rejected">বাতিল</option>
+                            </select>
+                            <button onclick="loadReviews()" class="bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-4">
+                        ${data.reviews.map(review => `
+                            <div class="bg-white rounded-xl shadow-lg p-4 card-hover">
+                                <div class="flex flex-col md:flex-row justify-between items-start gap-4">
+                                    <div class="flex gap-3 flex-1">
+                                        <div class="w-12 h-12 bg-[#00AEEF] rounded-full flex items-center justify-center text-white text-xl flex-shrink-0">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="flex items-center gap-2 flex-wrap">
+                                                <h4 class="font-bold">${review.name}</h4>
+                                                <span class="status-badge status-${review.status}">${review.status}</span>
+                                                ${review.isFeatured ? '<span class="bg-yellow-500 text-white px-2 py-1 rounded-full text-xs">ফিচার্ড</span>' : ''}
+                                            </div>
+                                            <p class="text-gray-600 text-sm">${review.address || 'ঠিকানা নেই'}</p>
+                                            <p class="mt-2 bg-gray-50 p-3 rounded-lg">"${review.text}"</p>
+                                            <p class="text-xs text-gray-500 mt-2">${new Date(review.createdAt).toLocaleString('bn-BD')}</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h4 class="font-bold">${review.name}</h4>
-                                        <p class="text-gray-600 text-sm">${review.address || 'ঠিকানা নেই'}</p>
-                                        <p class="mt-2">${review.text}</p>
+                                    <div class="flex gap-2">
+                                        <button onclick="updateReviewStatus('${review._id}', 'approved')" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">
+                                            <i class="fas fa-check"></i> অনুমোদন
+                                        </button>
+                                        <button onclick="updateReviewStatus('${review._id}', 'rejected')" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">
+                                            <i class="fas fa-times"></i> বাতিল
+                                        </button>
+                                        <button onclick="toggleReviewFeatured('${review._id}', ${review.isFeatured})" class="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600">
+                                            <i class="fas fa-star"></i>
+                                        </button>
+                                        <button onclick="confirmDeleteReview('${review._id}')" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
                                     </div>
-                                </div>
-                                <div>
-                                    <span class="status-badge status-${review.status}">${review.status}</span>
                                 </div>
                             </div>
-                            <div class="flex gap-2 mt-4">
-                                <button onclick="updateReviewStatus('${review._id}', 'approved')" class="bg-green-500 text-white px-4 py-1 rounded-lg text-sm hover:bg-green-600">
+                        `).join('')}
+                    </div>
+
+                    ${data.reviews.length === 0 ? `
+                        <div class="text-center py-12 text-gray-500">
+                            <i class="fas fa-star text-5xl mb-4"></i>
+                            <p>কোন রিভিউ পাওয়া যায়নি</p>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+
+            document.getElementById('reviewStatusFilter').addEventListener('change', (e) => {
+                loadReviewsWithFilter(e.target.value);
+            });
+
+        } catch (error) {
+            content.innerHTML = `
+                <div class="text-center py-20">
+                    <i class="fas fa-exclamation-circle text-6xl text-red-500 mb-4"></i>
+                    <p class="text-xl text-red-500">রিভিউ লোড করতে সমস্যা হয়েছে</p>
+                    <button onclick="loadReviews()" class="mt-4 bg-[#00AEEF] text-white px-6 py-2 rounded-lg hover:bg-[#003366]">
+                        আবার চেষ্টা করুন
+                    </button>
+                </div>
+            `;
+        }
+    }
+
+    async function loadReviewsWithFilter(status) {
+        try {
+            const res = await fetch(`${API_URL}/admin/reviews?status=${status}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            
+            // Update the grid
+            const grid = document.querySelector('.grid');
+            if (grid) {
+                grid.innerHTML = data.reviews.map(review => `
+                    <div class="bg-white rounded-xl shadow-lg p-4 card-hover">
+                        <div class="flex flex-col md:flex-row justify-between items-start gap-4">
+                            <div class="flex gap-3 flex-1">
+                                <div class="w-12 h-12 bg-[#00AEEF] rounded-full flex items-center justify-center text-white text-xl flex-shrink-0">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <h4 class="font-bold">${review.name}</h4>
+                                        <span class="status-badge status-${review.status}">${review.status}</span>
+                                    </div>
+                                    <p class="text-gray-600 text-sm">${review.address || 'ঠিকানা নেই'}</p>
+                                    <p class="mt-2">"${review.text}"</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="updateReviewStatus('${review._id}', 'approved')" class="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600 text-sm">
                                     অনুমোদন
                                 </button>
-                                <button onclick="updateReviewStatus('${review._id}', 'rejected')" class="bg-red-500 text-white px-4 py-1 rounded-lg text-sm hover:bg-red-600">
+                                <button onclick="updateReviewStatus('${review._id}', 'rejected')" class="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 text-sm">
                                     বাতিল
                                 </button>
-                                <button onclick="deleteReview('${review._id}')" class="bg-gray-500 text-white px-4 py-1 rounded-lg text-sm hover:bg-gray-600">
+                                <button onclick="confirmDeleteReview('${review._id}')" class="bg-gray-500 text-white px-3 py-1 rounded-lg hover:bg-gray-600 text-sm">
                                     মুছুন
                                 </button>
                             </div>
                         </div>
-                    `).join('')}
-                </div>
-            `;
+                    </div>
+                `).join('');
+            }
         } catch (error) {
-            content.innerHTML = '<div class="text-red-500 text-center">ডেটা লোড করতে সমস্যা হয়েছে</div>';
+            showNotification('রিভিউ লোড করতে সমস্যা হয়েছে', 'error');
         }
     }
 
@@ -772,16 +1868,43 @@
             });
 
             if (res.ok) {
+                showNotification('রিভিউ স্ট্যাটাস আপডেট হয়েছে', 'success');
                 loadReviews();
             }
         } catch (error) {
-            alert('স্ট্যাটাস আপডেট করতে সমস্যা হয়েছে');
+            showNotification('স্ট্যাটাস আপডেট করতে সমস্যা হয়েছে', 'error');
         }
     }
 
-    async function deleteReview(reviewId) {
-        if (!confirm('রিভিউটি মুছে ফেলতে চান?')) return;
+    async function toggleReviewFeatured(reviewId, currentValue) {
+        try {
+            const res = await fetch(`${API_URL}/admin/reviews/${reviewId}`, {
+                method: 'PUT',
+                headers: { 
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ isFeatured: !currentValue })
+            });
 
+            if (res.ok) {
+                showNotification('ফিচার্ড স্ট্যাটাস আপডেট হয়েছে', 'success');
+                loadReviews();
+            }
+        } catch (error) {
+            showNotification('আপডেট করতে সমস্যা হয়েছে', 'error');
+        }
+    }
+
+    function confirmDeleteReview(reviewId) {
+        openConfirmModal(
+            'রিভিউ মুছবেন?',
+            'আপনি কি এই রিভিউ permanently মুছে ফেলতে চান?',
+            () => deleteReview(reviewId)
+        );
+    }
+
+    async function deleteReview(reviewId) {
         try {
             const res = await fetch(`${API_URL}/admin/reviews/${reviewId}`, {
                 method: 'DELETE',
@@ -789,26 +1912,31 @@
             });
 
             if (res.ok) {
+                showNotification('রিভিউ মুছে ফেলা হয়েছে', 'success');
                 loadReviews();
             }
         } catch (error) {
-            alert('মুছতে সমস্যা হয়েছে');
+            showNotification('মুছতে সমস্যা হয়েছে', 'error');
         }
     }
 
-    // Slides Management
-    let currentSlideId = null;
-    let slideImage = '';
+    // ==================== SLIDES MANAGEMENT ====================
 
     async function loadSlides() {
         const content = document.getElementById('contentArea');
         content.innerHTML = `
-            <div class="mb-6 flex justify-between items-center">
-                <h3 class="text-lg font-bold">স্লাইডার ব্যবস্থাপনা</h3>
-                <button onclick="showSlideForm()" class="bg-[#00AEEF] text-white px-4 py-2 rounded-lg hover:bg-[#003366]">
-                    <i class="fas fa-plus mr-2"></i>নতুন স্লাইড
-                </button>
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold">স্লাইডার ব্যবস্থাপনা</h3>
+                <div class="flex gap-2">
+                    <button onclick="showSlideForm()" class="bg-[#00AEEF] text-white px-4 py-2 rounded-lg hover:bg-[#003366]">
+                        <i class="fas fa-plus mr-2"></i>নতুন স্লাইড
+                    </button>
+                    <button onclick="loadSlides()" class="bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
             </div>
+            
             <div id="slidesList" class="grid grid-cols-1 gap-4"></div>
         `;
 
@@ -819,25 +1947,51 @@
             const slides = await res.json();
 
             const list = document.getElementById('slidesList');
+            
+            if (slides.length === 0) {
+                list.innerHTML = `
+                    <div class="text-center py-12 text-gray-500">
+                        <i class="fas fa-images text-5xl mb-4"></i>
+                        <p>কোন স্লাইড পাওয়া যায়নি</p>
+                        <button onclick="showSlideForm()" class="mt-4 bg-[#00AEEF] text-white px-6 py-2 rounded-lg hover:bg-[#003366]">
+                            প্রথম স্লাইড তৈরি করুন
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
             list.innerHTML = slides.map(slide => `
-                <div class="bg-white rounded-xl shadow-lg p-4 flex items-center gap-4">
-                    <img src="${slide.image}" class="w-32 h-20 object-cover rounded-lg" onerror="this.src='https://via.placeholder.com/150'">
+                <div class="bg-white rounded-xl shadow-lg p-4 flex flex-col md:flex-row items-start md:items-center gap-4 card-hover">
+                    <img src="${slide.image}" class="w-full md:w-48 h-32 object-cover rounded-lg" onerror="this.src='https://via.placeholder.com/200'">
                     <div class="flex-1">
-                        <h4 class="font-bold">${slide.title}</h4>
-                        <p class="text-gray-600 text-sm">${slide.subtitle || ''}</p>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <h4 class="font-bold text-lg">${slide.title}</h4>
+                            <span class="px-2 py-1 ${slide.active ? 'bg-green-500' : 'bg-gray-500'} text-white rounded-full text-xs">
+                                ${slide.active ? 'সক্রিয়' : 'নিষ্ক্রিয়'}
+                            </span>
+                        </div>
+                        <p class="text-gray-600">${slide.subtitle || ''}</p>
+                        ${slide.badge ? `<p class="text-sm mt-1"><span class="bg-[#00AEEF] text-white px-2 py-1 rounded-full text-xs">${slide.badge}</span></p>` : ''}
+                        <p class="text-xs text-gray-500 mt-2">অর্ডার: ${slide.order || 0}</p>
                     </div>
                     <div class="flex gap-2">
-                        <button onclick="editSlide('${slide._id}')" class="bg-yellow-500 text-white px-3 py-1 rounded-lg hover:bg-yellow-600">
-                            <i class="fas fa-edit"></i>
+                        <button onclick="editSlide('${slide._id}')" class="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600">
+                            <i class="fas fa-edit"></i> সম্পাদনা
                         </button>
-                        <button onclick="deleteSlide('${slide._id}')" class="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600">
-                            <i class="fas fa-trash"></i>
+                        <button onclick="confirmDeleteSlide('${slide._id}')" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">
+                            <i class="fas fa-trash"></i> মুছুন
                         </button>
                     </div>
                 </div>
             `).join('');
         } catch (error) {
-            console.error(error);
+            document.getElementById('slidesList').innerHTML = `
+                <div class="text-center py-12 text-red-500">
+                    <i class="fas fa-exclamation-circle text-5xl mb-4"></i>
+                    <p>স্লাইড লোড করতে সমস্যা হয়েছে</p>
+                </div>
+            `;
         }
     }
 
@@ -847,43 +2001,79 @@
 
         const content = document.getElementById('contentArea');
         content.innerHTML = `
-            <div class="bg-white rounded-xl shadow-lg p-6">
-                <h3 class="text-lg font-bold mb-4">${slide ? 'স্লাইড সম্পাদনা' : 'নতুন স্লাইড'}</h3>
+            <div class="bg-white rounded-xl shadow-lg p-4 md:p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold">${slide ? 'স্লাইড সম্পাদনা' : 'নতুন স্লাইড'}</h3>
+                    <button onclick="loadSlides()" class="text-gray-500 hover:text-red-500 text-2xl">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
                 <form id="slideForm" class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium mb-1">শিরোনাম *</label>
-                        <input type="text" id="slideTitle" value="${slide?.title || ''}" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF]" required>
+                        <input type="text" id="slideTitle" value="${slide?.title || ''}" 
+                               class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] outline-none" required>
                     </div>
+                    
                     <div>
                         <label class="block text-sm font-medium mb-1">উপশিরোনাম</label>
-                        <input type="text" id="slideSubtitle" value="${slide?.subtitle || ''}" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF]">
+                        <input type="text" id="slideSubtitle" value="${slide?.subtitle || ''}" 
+                               class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] outline-none">
                     </div>
+                    
                     <div>
                         <label class="block text-sm font-medium mb-1">ব্যাজ টেক্সট</label>
-                        <input type="text" id="slideBadge" value="${slide?.badge || ''}" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF]">
+                        <input type="text" id="slideBadge" value="${slide?.badge || ''}" 
+                               class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] outline-none">
                     </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-1">ব্যাজ আইকন</label>
+                        <input type="text" id="slideBadgeIcon" value="${slide?.badgeIcon || ''}" 
+                               class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] outline-none" 
+                               placeholder="যেমন: fa-clock">
+                    </div>
+                    
                     <div>
                         <label class="block text-sm font-medium mb-1">ছবি *</label>
                         ${slideImage ? `
-                            <div class="mb-2">
-                                <img src="${slideImage}" class="image-preview">
+                            <div class="mb-3">
+                                <img src="${slideImage}" class="h-32 w-auto object-cover rounded-lg border-2 border-[#00AEEF]">
                             </div>
                         ` : ''}
-                        <input type="file" id="slideImage" accept="image/*" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF]">
+                        <input type="file" id="slideImage" accept="image/*" 
+                               class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] outline-none">
                     </div>
+                    
                     <div>
                         <label class="block text-sm font-medium mb-1">অর্ডার</label>
-                        <input type="number" id="slideOrder" value="${slide?.order || 0}" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF]">
+                        <input type="number" id="slideOrder" value="${slide?.order || 0}" 
+                               class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] outline-none">
                     </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-1">বাটন টেক্সট</label>
+                        <input type="text" id="slideButtonText" value="${slide?.buttonText || ''}" 
+                               class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] outline-none">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-1">বাটন লিঙ্ক</label>
+                        <input type="text" id="slideButtonLink" value="${slide?.buttonLink || ''}" 
+                               class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] outline-none">
+                    </div>
+                    
                     <div class="flex items-center gap-2">
-                        <input type="checkbox" id="slideActive" ${slide?.active !== false ? 'checked' : ''} class="w-4 h-4">
+                        <input type="checkbox" id="slideActive" ${slide?.active !== false ? 'checked' : ''} class="w-5 h-5">
                         <label class="text-sm font-medium">সক্রিয়</label>
                     </div>
-                    <div class="flex gap-3 pt-4">
-                        <button type="submit" class="bg-[#00AEEF] text-white px-6 py-2 rounded-lg hover:bg-[#003366]">
+                    
+                    <div class="flex gap-3 pt-4 border-t">
+                        <button type="submit" class="bg-[#00AEEF] text-white px-8 py-3 rounded-lg hover:bg-[#003366] transition-colors font-bold">
                             ${slide ? 'আপডেট করুন' : 'সংরক্ষণ করুন'}
                         </button>
-                        <button type="button" onclick="loadSlides()" class="bg-gray-300 px-6 py-2 rounded-lg hover:bg-gray-400">
+                        <button type="button" onclick="loadSlides()" class="bg-gray-300 px-8 py-3 rounded-lg hover:bg-gray-400 transition-colors">
                             বাতিল
                         </button>
                     </div>
@@ -902,7 +2092,10 @@
             title: document.getElementById('slideTitle').value,
             subtitle: document.getElementById('slideSubtitle').value,
             badge: document.getElementById('slideBadge').value,
+            badgeIcon: document.getElementById('slideBadgeIcon').value,
             order: parseInt(document.getElementById('slideOrder').value) || 0,
+            buttonText: document.getElementById('slideButtonText').value,
+            buttonLink: document.getElementById('slideButtonLink').value,
             active: document.getElementById('slideActive').checked
         };
 
@@ -912,7 +2105,7 @@
         if (imageFile) {
             formData.append('image', imageFile);
         } else if (!slideImage && !currentSlideId) {
-            alert('অনুগ্রহ করে একটি ছবি নির্বাচন করুন');
+            showNotification('অনুগ্রহ করে একটি ছবি নির্বাচন করুন', 'error');
             return;
         }
 
@@ -930,13 +2123,14 @@
             });
 
             if (res.ok) {
-                alert(currentSlideId ? 'স্লাইড আপডেট হয়েছে' : 'স্লাইড সংরক্ষিত হয়েছে');
+                showNotification(currentSlideId ? 'স্লাইড আপডেট হয়েছে' : 'স্লাইড সংরক্ষিত হয়েছে', 'success');
                 loadSlides();
             } else {
-                alert('সংরক্ষণ করতে সমস্যা হয়েছে');
+                const data = await res.json();
+                showNotification(data.error || 'সংরক্ষণ করতে সমস্যা হয়েছে', 'error');
             }
         } catch (error) {
-            alert('সংরক্ষণ করতে সমস্যা হয়েছে');
+            showNotification('সংরক্ষণ করতে সমস্যা হয়েছে', 'error');
         }
     }
 
@@ -951,13 +2145,19 @@
                 showSlideForm(slide);
             }
         } catch (error) {
-            alert('স্লাইডের তথ্য লোড করতে পারেনি');
+            showNotification('স্লাইডের তথ্য লোড করতে পারেনি', 'error');
         }
     }
 
-    async function deleteSlide(slideId) {
-        if (!confirm('স্লাইডটি মুছে ফেলতে চান?')) return;
+    function confirmDeleteSlide(slideId) {
+        openConfirmModal(
+            'স্লাইড মুছবেন?',
+            'আপনি কি এই স্লাইড permanently মুছে ফেলতে চান?',
+            () => deleteSlide(slideId)
+        );
+    }
 
+    async function deleteSlide(slideId) {
         try {
             const res = await fetch(`${API_URL}/admin/slides/${slideId}`, {
                 method: 'DELETE',
@@ -965,64 +2165,120 @@
             });
 
             if (res.ok) {
+                showNotification('স্লাইড মুছে ফেলা হয়েছে', 'success');
                 loadSlides();
             }
         } catch (error) {
-            alert('মুছতে সমস্যা হয়েছে');
+            showNotification('মুছতে সমস্যা হয়েছে', 'error');
         }
     }
 
-    // Settings
+    // ==================== SETTINGS ====================
+
     async function loadSettings() {
         const content = document.getElementById('contentArea');
-        content.innerHTML = '<div class="text-center py-8"><div class="loading mx-auto"></div> লোড হচ্ছে...</div>';
+        content.innerHTML = `
+            <div class="flex items-center justify-center py-20">
+                <div class="loading"></div>
+                <span class="ml-4 text-gray-600">সেটিংস লোড হচ্ছে...</span>
+            </div>
+        `;
 
         try {
             const res = await fetch(`${API_URL}/settings`);
             const settings = await res.json();
 
             content.innerHTML = `
-                <div class="bg-white rounded-xl shadow-lg p-6">
-                    <h3 class="text-lg font-bold mb-4">সাইট সেটিংস</h3>
-                    <form id="settingsForm" class="space-y-4">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-white rounded-xl shadow-lg p-4 md:p-6">
+                    <h3 class="text-xl font-bold mb-6">সাইট সেটিংস</h3>
+                    
+                    <form id="settingsForm" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label class="block text-sm font-medium mb-1">সাইটের নাম</label>
-                                <input type="text" id="siteName" value="${settings.siteName || ''}" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF]">
+                                <label class="block text-sm font-medium mb-2">সাইটের নাম</label>
+                                <input type="text" id="siteName" value="${settings.siteName || ''}" 
+                                       class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] outline-none">
                             </div>
+                            
                             <div>
-                                <label class="block text-sm font-medium mb-1">সাইট টাইটেল</label>
-                                <input type="text" id="siteTitle" value="${settings.siteTitle || ''}" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF]">
+                                <label class="block text-sm font-medium mb-2">সাইট টাইটেল</label>
+                                <input type="text" id="siteTitle" value="${settings.siteTitle || ''}" 
+                                       class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] outline-none">
                             </div>
+                            
                             <div>
-                                <label class="block text-sm font-medium mb-1">ফোন নম্বর</label>
-                                <input type="text" id="phone" value="${settings.phone || ''}" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF]">
+                                <label class="block text-sm font-medium mb-2">সাইট বিবরণ</label>
+                                <input type="text" id="siteDescription" value="${settings.siteDescription || ''}" 
+                                       class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] outline-none">
                             </div>
+                            
                             <div>
-                                <label class="block text-sm font-medium mb-1">WhatsApp নম্বর</label>
-                                <input type="text" id="whatsapp" value="${settings.whatsapp || ''}" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF]">
+                                <label class="block text-sm font-medium mb-2">ফোন নম্বর</label>
+                                <input type="text" id="phone" value="${settings.phone || ''}" 
+                                       class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] outline-none">
                             </div>
+                            
                             <div>
-                                <label class="block text-sm font-medium mb-1">ইমেইল</label>
-                                <input type="email" id="email" value="${settings.email || ''}" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF]">
+                                <label class="block text-sm font-medium mb-2">WhatsApp নম্বর</label>
+                                <input type="text" id="whatsapp" value="${settings.whatsapp || ''}" 
+                                       class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] outline-none">
                             </div>
+                            
                             <div>
-                                <label class="block text-sm font-medium mb-1">ঠিকানা</label>
-                                <input type="text" id="address" value="${settings.address || ''}" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF]">
+                                <label class="block text-sm font-medium mb-2">ইমেইল</label>
+                                <input type="email" id="email" value="${settings.email || ''}" 
+                                       class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] outline-none">
                             </div>
+                            
                             <div>
-                                <label class="block text-sm font-medium mb-1">ডেলিভারি চার্জ (৳)</label>
-                                <input type="number" id="deliveryCharge" value="${settings.deliveryCharge || 60}" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF]">
+                                <label class="block text-sm font-medium mb-2">ঠিকানা</label>
+                                <input type="text" id="address" value="${settings.address || ''}" 
+                                       class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] outline-none">
                             </div>
+                            
                             <div>
-                                <label class="block text-sm font-medium mb-1">ফ্রি ডেলিভারি (৳)</label>
-                                <input type="number" id="freeDeliveryAbove" value="${settings.freeDeliveryAbove || 2000}" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF]">
+                                <label class="block text-sm font-medium mb-2">ডেলিভারি চার্জ (৳)</label>
+                                <input type="number" id="deliveryCharge" value="${settings.deliveryCharge || 60}" 
+                                       class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] outline-none">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium mb-2">ফ্রি ডেলিভারি (৳)</label>
+                                <input type="number" id="freeDeliveryAbove" value="${settings.freeDeliveryAbove || 2000}" 
+                                       class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] outline-none">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Facebook লিঙ্ক</label>
+                                <input type="url" id="facebook" value="${settings.facebook || ''}" 
+                                       class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] outline-none">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Instagram লিঙ্ক</label>
+                                <input type="url" id="instagram" value="${settings.instagram || ''}" 
+                                       class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] outline-none">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium mb-2">YouTube লিঙ্ক</label>
+                                <input type="url" id="youtube" value="${settings.youtube || ''}" 
+                                       class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] outline-none">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium mb-2">থিম কালার</label>
+                                <input type="color" id="themeColor" value="${settings.themeColor || '#00AEEF'}" 
+                                       class="w-full h-10 border rounded-lg px-1 py-1 focus:ring-2 focus:ring-[#00AEEF] outline-none">
                             </div>
                         </div>
-                        <div class="flex gap-3 pt-4">
-                            <button type="submit" class="bg-[#00AEEF] text-white px-6 py-2 rounded-lg hover:bg-[#003366]">
-                                সংরক্ষণ করুন
-                            </button>
+                        
+                        <div class="border-t pt-6">
+                            <div class="flex gap-3">
+                                <button type="submit" class="bg-[#00AEEF] text-white px-8 py-3 rounded-lg hover:bg-[#003366] transition-colors font-bold">
+                                    <i class="fas fa-save mr-2"></i>সংরক্ষণ করুন
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -1030,7 +2286,15 @@
 
             document.getElementById('settingsForm').addEventListener('submit', saveSettings);
         } catch (error) {
-            content.innerHTML = '<div class="text-red-500 text-center">ডেটা লোড করতে সমস্যা হয়েছে</div>';
+            content.innerHTML = `
+                <div class="text-center py-20">
+                    <i class="fas fa-exclamation-circle text-6xl text-red-500 mb-4"></i>
+                    <p class="text-xl text-red-500">সেটিংস লোড করতে সমস্যা হয়েছে</p>
+                    <button onclick="loadSettings()" class="mt-4 bg-[#00AEEF] text-white px-6 py-2 rounded-lg hover:bg-[#003366]">
+                        আবার চেষ্টা করুন
+                    </button>
+                </div>
+            `;
         }
     }
 
@@ -1040,12 +2304,17 @@
         const settings = {
             siteName: document.getElementById('siteName').value,
             siteTitle: document.getElementById('siteTitle').value,
+            siteDescription: document.getElementById('siteDescription').value,
             phone: document.getElementById('phone').value,
             whatsapp: document.getElementById('whatsapp').value,
             email: document.getElementById('email').value,
             address: document.getElementById('address').value,
-            deliveryCharge: parseInt(document.getElementById('deliveryCharge').value),
-            freeDeliveryAbove: parseInt(document.getElementById('freeDeliveryAbove').value)
+            deliveryCharge: parseInt(document.getElementById('deliveryCharge').value) || 60,
+            freeDeliveryAbove: parseInt(document.getElementById('freeDeliveryAbove').value) || 2000,
+            facebook: document.getElementById('facebook').value,
+            instagram: document.getElementById('instagram').value,
+            youtube: document.getElementById('youtube').value,
+            themeColor: document.getElementById('themeColor').value
         };
 
         try {
@@ -1059,13 +2328,42 @@
             });
 
             if (res.ok) {
-                alert('সেটিংস সংরক্ষিত হয়েছে');
+                showNotification('সেটিংস সংরক্ষিত হয়েছে', 'success');
             } else {
-                alert('সংরক্ষণ করতে সমস্যা হয়েছে');
+                showNotification('সংরক্ষণ করতে সমস্যা হয়েছে', 'error');
             }
         } catch (error) {
-            alert('সংরক্ষণ করতে সমস্যা হয়েছে');
+            showNotification('সংরক্ষণ করতে সমস্যা হয়েছে', 'error');
         }
+    }
+
+    // Initialize
+    async function init() {
+        // Load counts for badges
+        try {
+            const statsRes = await fetch(`${API_URL}/admin/stats`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (statsRes.ok) {
+                const stats = await statsRes.json();
+                document.getElementById('productCount').textContent = stats.totalProducts || 0;
+                document.getElementById('pendingOrderCount').textContent = stats.pendingOrders || 0;
+            }
+            
+            const reviewsRes = await fetch(`${API_URL}/admin/reviews?status=pending`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (reviewsRes.ok) {
+                const reviews = await reviewsRes.json();
+                document.getElementById('pendingReviewCount').textContent = reviews.reviews.length || 0;
+            }
+        } catch (error) {
+            console.error('Error loading counts:', error);
+        }
+    }
+
+    if (token) {
+        init();
     }
 </script>
 </body>
