@@ -41,10 +41,18 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// Multer Memory Storage (for handling multiple files)
+// Multer Configuration for memory storage
+const storage = multer.memoryStorage();
 const upload = multer({ 
-    storage: multer.memoryStorage(),
-    limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
+    storage: storage,
+    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype.startsWith('image/')) {
+            cb(null, true);
+        } else {
+            cb(new Error('Only image files are allowed'));
+        }
+    }
 });
 
 // MongoDB Connection
@@ -243,13 +251,34 @@ async function uploadToCloudinary(file, folder = 'jahid-gadgets') {
                 transformation: [{ width: 1200, height: 1200, crop: 'limit' }]
             },
             (error, result) => {
-                if (error) reject(error);
-                else resolve(result.secure_url);
+                if (error) {
+                    console.error('Cloudinary upload error:', error);
+                    reject(error);
+                } else {
+                    resolve(result.secure_url);
+                }
             }
         );
         uploadStream.end(file.buffer);
     });
 }
+
+// Temporary upload endpoint for multiple images
+app.post('/api/admin/products/temp-upload', authenticateToken, upload.array('images', 10), async (req, res) => {
+    try {
+        if (!req.files || req.files.length === 0) {
+            return res.status(400).json({ error: 'No images uploaded' });
+        }
+
+        const uploadPromises = req.files.map(file => uploadToCloudinary(file, 'jahid-gadgets/temp'));
+        const urls = await Promise.all(uploadPromises);
+        
+        res.json({ urls });
+    } catch (error) {
+        console.error('Temp upload error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
 
 // ==================== AUTH ROUTES ====================
 
@@ -293,29 +322,6 @@ app.get('/api/admin/verify', authenticateToken, async (req, res) => {
     try {
         const admin = await Admin.findById(req.user.id).select('-password');
         res.json(admin);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.post('/api/admin/change-password', authenticateToken, [
-    body('currentPassword').notEmpty(),
-    body('newPassword').isLength({ min: 6 })
-], validate, async (req, res) => {
-    try {
-        const { currentPassword, newPassword } = req.body;
-        const admin = await Admin.findById(req.user.id);
-
-        const validPassword = await bcrypt.compare(currentPassword, admin.password);
-        if (!validPassword) {
-            return res.status(401).json({ error: 'Current password is incorrect' });
-        }
-
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
-        admin.password = hashedPassword;
-        await admin.save();
-
-        res.json({ message: 'Password changed successfully' });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -386,7 +392,10 @@ app.post('/api/admin/products', authenticateToken, upload.array('images', 10), a
             }
         }
 
-        if (imageUrls.length === 0) {
+        // If no new images but existing images in productData
+        if (imageUrls.length === 0 && productData.images && productData.images.length > 0) {
+            // Use existing images
+        } else if (imageUrls.length === 0) {
             return res.status(400).json({ error: 'At least one image is required' });
         }
 
@@ -397,7 +406,7 @@ app.post('/api/admin/products', authenticateToken, upload.array('images', 10), a
 
         const product = await Product.create({
             ...productData,
-            images: imageUrls
+            images: imageUrls.length > 0 ? imageUrls : productData.images
         });
 
         res.json(product);
@@ -465,17 +474,6 @@ app.delete('/api/admin/products/:id', authenticateToken, async (req, res) => {
         }
 
         res.json({ message: 'Product deleted successfully' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// Bulk delete products
-app.post('/api/admin/products/bulk-delete', authenticateToken, async (req, res) => {
-    try {
-        const { ids } = req.body;
-        await Product.deleteMany({ id: { $in: ids } });
-        res.json({ message: 'Products deleted successfully' });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

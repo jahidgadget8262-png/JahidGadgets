@@ -579,11 +579,11 @@
             if (res.ok) {
                 token = data.token;
                 localStorage.setItem('adminToken', token);
-                document.getElementById('adminUsername').textContent = data.username;
                 document.getElementById('loginContainer').classList.add('hidden');
                 document.getElementById('adminPanel').classList.remove('hidden');
                 verifyToken();
                 loadPage('dashboard');
+                showNotification('লগইন সফল হয়েছে', 'success');
             } else {
                 errorDiv.textContent = data.error || 'লগইন ব্যর্থ হয়েছে';
                 errorDiv.classList.remove('hidden');
@@ -604,6 +604,7 @@
         document.getElementById('adminPanel').classList.add('hidden');
         document.getElementById('loginContainer').classList.remove('hidden');
         document.getElementById('loginForm').reset();
+        showNotification('লগআউট করা হয়েছে', 'info');
     }
 
     document.getElementById('logoutBtn').addEventListener('click', logout);
@@ -638,6 +639,40 @@
                 }
             });
         }
+    });
+
+    // ==================== NOTIFICATION FUNCTIONS ====================
+
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 z-[9999] px-6 py-3 rounded-lg shadow-lg text-white transform transition-all duration-500 translate-x-full ${
+            type === 'success' ? 'bg-green-500' : 
+            type === 'error' ? 'bg-red-500' : 
+            'bg-blue-500'
+        }`;
+        notification.innerHTML = `
+            <div class="flex items-center gap-3">
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+                <span>${message}</span>
+            </div>
+        `;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.classList.remove('translate-x-full');
+        }, 100);
+        
+        setTimeout(() => {
+            notification.classList.add('translate-x-full');
+            setTimeout(() => {
+                notification.remove();
+            }, 500);
+        }, 3000);
+    }
+
+    // Notification button click handler
+    document.getElementById('notificationBtn')?.addEventListener('click', () => {
+        showNotification('নতুন আপডেট আসছে!', 'info');
     });
 
     // ==================== MODAL FUNCTIONS ====================
@@ -747,7 +782,7 @@
     window.uploadImages = async function() {
         const files = fileInput.files;
         if (files.length === 0) {
-            alert('কমপক্ষে একটি ছবি নির্বাচন করুন');
+            showNotification('কমপক্ষে একটি ছবি নির্বাচন করুন', 'error');
             return;
         }
 
@@ -757,7 +792,7 @@
         }
 
         try {
-            const res = await fetch(`${API_URL}/admin/products/temp`, {
+            const res = await fetch(`${API_URL}/admin/products/temp-upload`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` },
                 body: formData
@@ -771,9 +806,10 @@
                 closeImageModal();
                 showNotification('ছবি আপলোড সফল হয়েছে', 'success');
             } else {
-                showNotification('ছবি আপলোড ব্যর্থ হয়েছে', 'error');
+                showNotification(data.error || 'ছবি আপলোড ব্যর্থ হয়েছে', 'error');
             }
         } catch (error) {
+            console.error('Upload error:', error);
             showNotification('ছবি আপলোড করতে সমস্যা হয়েছে', 'error');
         }
     }
@@ -783,7 +819,7 @@
         if (container) {
             container.innerHTML = productImages.map(img => `
                 <div class="relative group">
-                    <img src="${img}" class="image-preview">
+                    <img src="${img}" class="image-preview w-24 h-24 object-cover rounded-lg border-2 border-[#00AEEF]">
                     <button type="button" onclick="removeImage('${img}')" class="absolute -top-2 -right-2 bg-red-500 text-white w-6 h-6 rounded-full hover:bg-red-600 transition-colors">
                         <i class="fas fa-times"></i>
                     </button>
@@ -795,35 +831,6 @@
     window.removeImage = function(imageUrl) {
         productImages = productImages.filter(img => img !== imageUrl);
         updateImagePreview();
-    }
-
-    // ==================== NOTIFICATION ====================
-
-    function showNotification(message, type = 'info') {
-        const notification = document.createElement('div');
-        notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white transform transition-all duration-500 translate-x-full ${
-            type === 'success' ? 'bg-green-500' : 
-            type === 'error' ? 'bg-red-500' : 
-            'bg-blue-500'
-        }`;
-        notification.innerHTML = `
-            <div class="flex items-center gap-3">
-                <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
-                <span>${message}</span>
-            </div>
-        `;
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-            notification.classList.remove('translate-x-full');
-        }, 100);
-        
-        setTimeout(() => {
-            notification.classList.add('translate-x-full');
-            setTimeout(() => {
-                notification.remove();
-            }, 500);
-        }, 3000);
     }
 
     // ==================== PAGE LOADING ====================
@@ -1215,7 +1222,7 @@
                     </button>
                 </div>
                 
-                <form id="productForm" class="space-y-4" enctype="multipart/form-data">
+                <form id="productForm" class="space-y-4">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium mb-1">পণ্য ID *</label>
@@ -1316,11 +1323,10 @@
         e.preventDefault();
 
         if (productImages.length === 0) {
-            alert('অনুগ্রহ করে কমপক্ষে একটি ছবি আপলোড করুন');
+            showNotification('অনুগ্রহ করে কমপক্ষে একটি ছবি আপলোড করুন', 'error');
             return;
         }
 
-        const formData = new FormData();
         const productData = {
             id: document.getElementById('productId').value,
             cat: document.getElementById('productCat').value,
@@ -1339,22 +1345,15 @@
             productData.oldPrice = Math.round(productData.price * (100 / (100 - productData.discount)));
         }
 
-        formData.append('product', JSON.stringify(productData));
-
-        // Add new images if selected via file input
-        const fileInput = document.getElementById('fileInput');
-        if (fileInput && fileInput.files.length > 0) {
-            for (let file of fileInput.files) {
-                formData.append('images', file);
-            }
-        }
-
         try {
             const url = currentProductId 
                 ? `${API_URL}/admin/products/${currentProductId}`
                 : `${API_URL}/admin/products`;
             
             const method = currentProductId ? 'PUT' : 'POST';
+
+            const formData = new FormData();
+            formData.append('product', JSON.stringify(productData));
 
             const res = await fetch(url, {
                 method,
@@ -1370,6 +1369,7 @@
                 showNotification(data.error || 'সংরক্ষণ করতে সমস্যা হয়েছে', 'error');
             }
         } catch (error) {
+            console.error('Save error:', error);
             showNotification('সংরক্ষণ করতে সমস্যা হয়েছে', 'error');
         }
     }
@@ -2130,6 +2130,7 @@
                 showNotification(data.error || 'সংরক্ষণ করতে সমস্যা হয়েছে', 'error');
             }
         } catch (error) {
+            console.error('Save error:', error);
             showNotification('সংরক্ষণ করতে সমস্যা হয়েছে', 'error');
         }
     }
