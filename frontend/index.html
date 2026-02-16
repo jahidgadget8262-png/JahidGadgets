@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title id="siteTitle">Jahid Gadgets · আধুনিক প্রযুক্তির ঠিকানা</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * { font-family: 'Hind Siliguri', sans-serif; }
+        :root {
+            --primary-dark: #000B29;
+            --primary-blue: #00AEEF;
+            --silver: #C0C0C2;
+            --white: #FFFFFF;
+            --deep-blue: #003366;
+        }
+        body { background-color: var(--silver); color: var(--primary-dark); }
+        .container-custom {
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        .slide { transition: opacity 0.6s ease-in-out; }
+        .fade-up { animation: fadeUp 0.7s ease forwards; }
+        @keyframes fadeUp {
+            0% { opacity: 0; transform: translateY(15px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .card-hover { transition: all 0.2s ease; }
+        .card-hover:hover { transform: scale(1.02); box-shadow: 0 15px 25px -10px rgba(0,174,239,0.2); }
+        .badge-soft { background: linear-gradient(145deg, #ef4444, #dc2626); }
+        .dot-active { background-color: var(--primary-blue); width: 28px; }
+        .category-tab { 
+            transition: all 0.2s; 
+            cursor: pointer; 
+            border-bottom: 3px solid transparent;
+            position: relative;
+            text-decoration: none;
+            color: #003366;
+        }
+        .category-tab.active { 
+            border-bottom-color: var(--primary-blue); 
+            font-weight: 600; 
+            color: var(--primary-blue); 
+        }
+        .category-tab:hover {
+            color: var(--primary-blue);
+        }
+        .category-tab:hover::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--primary-blue);
+            opacity: 0.5;
+        }
+        .product-name {
+            color: #000B29;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+        .order-btn-link {
+            transition: all 0.2s;
+            display: block;
+            width: 100%;
+            text-align: center;
+            background-color: #003366;
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 0;
+            border-radius: 0.75rem;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+        }
+        .order-btn-link:hover {
+            background-color: #00AEEF;
+            transform: scale(1.02);
+            box-shadow: 0 10px 15px -3px rgba(0,174,239,0.3);
+        }
+        .product-gallery {
+            position: relative;
+            width: 100%;
+            height: 180px;
+            overflow: hidden;
+        }
+        .gallery-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.3s ease;
+        }
+        .gallery-controls {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+            z-index: 10;
+        }
+        .gallery-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: rgba(0,0,0,0.5);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        .gallery-btn:hover {
+            background-color: var(--primary-blue);
+        }
+        .image-indicator {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            display: flex;
+            gap: 5px;
+            z-index: 10;
+        }
+        .indicator-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: rgba(255,255,255,0.5);
+            transition: all 0.2s;
+        }
+        .indicator-dot.active {
+            background-color: var(--primary-blue);
+            transform: scale(1.2);
+        }
+        .nav-link { transition: all 0.2s; position: relative; text-decoration: none; color: white; }
+        .nav-link:hover { color: var(--primary-blue); }
+        .nav-link:hover::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--primary-blue);
+        }
+        .whatsapp-float {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #25D366;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            z-index: 100;
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+            text-decoration: none;
+        }
+        .whatsapp-float:hover {
+            transform: scale(1.1);
+            background-color: #20B038;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(37, 211, 102, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+        }
+        .popup-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .popup-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .popup-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 1.5rem;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            transform: scale(0.7);
+            transition: all 0.3s ease;
+        }
+        .popup-overlay.active .popup-content {
+            transform: scale(1);
+        }
+        .popup-success { border-top: 8px solid #10b981; }
+        .popup-error { border-top: 8px solid #ef4444; }
+        @media (max-width: 640px) {
+            .slide-content { padding: 1rem !important; }
+            .slide-title { font-size: 1.5rem !important; line-height: 1.2 !important; }
+            .slide-subtitle { font-size: 1rem !important; }
+            .product-gallery { height: 150px; }
+        }
+        #order, [id^="product-"] { scroll-margin-top: 80px; }
+        .loading { display: inline-block; width: 40px; height: 40px; border: 4px solid rgba(0,174,239,.3); border-radius: 50%; border-top-color: #00AEEF; animation: spin 1s ease-in-out infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes shimmer { 100% { transform: translateX(100%); } }
+        .animate-shimmer { animation: shimmer 2s infinite; }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+    <a href="#" id="whatsappLink" class="whatsapp-float" target="_blank" title="WhatsApp এ অর্ডার করুন">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <div id="popup" class="popup-overlay">
+        <div id="popupContent" class="popup-content">
+            <div id="popupIcon" class="text-6xl mb-4">✅</div>
+            <h3 id="popupTitle" class="text-2xl font-bold mb-2">সফল!</h3>
+            <p id="popupMessage" class="text-gray-600 mb-6">আপনার অর্ডার গৃহীত হয়েছে</p>
+            <button onclick="closePopup()" class="bg-blue-600 text-white px-8 py-3 rounded-full font-semibold hover:bg-blue-700 transition-all">ঠিক আছে</button>
+        </div>
+    </div>
+
+    <nav class="bg-[#000B29] text-white sticky top-0 z-40 shadow-lg">
+        <div class="container-custom">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-3">
+                    <img src="images/Jahid gadgets.png" alt="Jahid Gadgets" 
+                         class="h-12 w-auto object-contain rounded-lg border-2 border-[#00AEEF] shadow-md hover:shadow-xl hover:scale-105 transition-all duration-300" 
+                         onerror="this.style.display='none'">
+                    <span id="siteNameDisplay" class="text-xl md:text-2xl font-bold bg-gradient-to-r from-[#00AEEF] to-[#003366] bg-clip-text text-transparent relative">
+                        Jahid Gadgets
+                        <span class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full animate-shimmer"></span>
+                    </span>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#" class="nav-link"><i class="fas fa-home mr-1"></i>হোম</a>
+                    <a href="#products" class="nav-link"><i class="fas fa-box mr-1"></i>পণ্য</a>
+                    <a href="#order" class="nav-link"><i class="fas fa-shopping-cart mr-1"></i>অর্ডার</a>
+                    <a href="#reviews" class="nav-link"><i class="fas fa-star mr-1"></i>রিভিউ</a>
+                    <a href="#contact" class="nav-link"><i class="fas fa-phone mr-1"></i>যোগাযোগ</a>
+                </div>
+
+                <a href="tel:" id="phoneLink" class="hidden md:flex items-center gap-2 bg-[#00AEEF] text-white px-4 py-2 rounded-full hover:bg-[#003366] transition-all">
+                    <i class="fas fa-phone-alt"></i>
+                    <span>কল করুন</span>
+                </a>
+
+                <button id="mobileMenuBtn" class="md:hidden text-[#00AEEF] text-2xl">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+
+            <div id="mobileMenu" class="md:hidden hidden pb-4">
+                <div class="flex flex-col space-y-3">
+                    <a href="#" class="nav-link py-2"><i class="fas fa-home mr-2"></i>হোম</a>
+                    <a href="#products" class="nav-link py-2"><i class="fas fa-box mr-2"></i>পণ্য</a>
+                    <a href="#order" class="nav-link py-2"><i class="fas fa-shopping-cart mr-2"></i>অর্ডার</a>
+                    <a href="#reviews" class="nav-link py-2"><i class="fas fa-star mr-2"></i>রিভিউ</a>
+                    <a href="#contact" class="nav-link py-2"><i class="fas fa-phone mr-2"></i>যোগাযোগ</a>
+                    <a href="tel:" id="mobilePhoneLink" class="bg-[#00AEEF] text-white py-2 rounded-full text-center mt-2">
+                        <i class="fas fa-phone-alt mr-2"></i>কল করুন
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="container-custom pt-6">
+        <div class="relative rounded-2xl overflow-hidden shadow-xl h-56 md:h-80 lg:h-96" style="background-color: #000B29;">
+            <div id="sliderContainer" class="relative w-full h-full">
+                <!-- Slides will be loaded dynamically -->
+            </div>
+            <div id="sliderDots" class="absolute bottom-3 left-0 right-0 flex justify-center gap-2 z-20"></div>
+            <button id="prevSlide" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-[#00AEEF] text-white p-2 rounded-full w-8 h-8 md:w-10 md:h-10 text-base md:text-xl flex items-center justify-center backdrop-blur-sm transition-all">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button id="nextSlide" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-[#00AEEF] text-white p-2 rounded-full w-8 h-8 md:w-10 md:h-10 text-base md:text-xl flex items-center justify-center backdrop-blur-sm transition-all">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </section>
+
+    <section id="products" class="container-custom py-12">
+        <h2 class="text-3xl font-bold text-center mb-2" style="color: #000B29;"><i class="fas fa-store text-[#00AEEF] mr-2"></i>আমাদের কালেকশন</h2>
+        <p class="text-center mb-6" style="color: #003366;">৪টি ক্যাটাগরিতে অসংখ্য গ্যাজেট</p>
+        
+        <div class="flex flex-wrap justify-center gap-4 md:gap-8 mb-8 border-b border-[#C0C0C2]">
+            <a href="#all-products" class="category-tab active px-2 py-2 text-lg font-medium" data-cat="all"><i class="fas fa-th-large mr-1"></i>সবগুলো</a>
+            <a href="#watch-products" class="category-tab px-2 py-2 text-lg font-medium" data-cat="watch"><i class="fas fa-clock mr-1"></i>স্মার্ট ওয়াচ</a>
+            <a href="#earbud-products" class="category-tab px-2 py-2 text-lg font-medium" data-cat="earbud"><i class="fas fa-headphones mr-1"></i>ইয়ারবাড</a>
+            <a href="#power-products" class="category-tab px-2 py-2 text-lg font-medium" data-cat="power"><i class="fas fa-battery-full mr-1"></i>পাওয়ার ব্যাংক</a>
+            <a href="#speaker-products" class="category-tab px-2 py-2 text-lg font-medium" data-cat="speaker"><i class="fas fa-volume-up mr-1"></i>স্পিকার</a>
+        </div>
+
+        <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div class="col-span-full text-center py-12">
+                <div class="loading mx-auto"></div>
+                <p class="mt-4 text-gray-600">পণ্য লোড হচ্ছে...</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="order" class="container-custom pb-12 grid lg:grid-cols-2 gap-8">
+        <div class="p-6 md:p-8 rounded-3xl shadow-xl border fade-up" style="background-color: #FFFFFF; border-color: #C0C0C2;">
+            <h3 class="text-2xl font-bold flex items-center gap-2" style="color: #000B29;"><i class="fas fa-shopping-bag text-[#00AEEF]"></i>আপনার অর্ডার</h3>
+            <p class="mb-4" style="color: #003366;">নিচের ফর্মটি পূরণ করে অর্ডার সম্পন্ন করুন</p>
+            
+            <div id="cartItems" class="space-y-3 max-h-80 overflow-y-auto pr-2 mb-4 border-b pb-4" style="border-color: #C0C0C2;"></div>
+
+            <div class="flex justify-between items-center mb-4 text-lg font-semibold">
+                <span style="color: #000B29;">মোট মূল্য:</span>
+                <span id="totalPrice" style="color: #00AEEF;">০৳</span>
+            </div>
+
+            <form id="orderForm" class="space-y-4">
+                <div class="relative">
+                    <i class="fas fa-user absolute left-3 top-1/2 -translate-y-1/2 text-[#C0C0C2]"></i>
+                    <input type="text" id="name" placeholder="আপনার নাম *" required 
+                           class="w-full border rounded-xl pl-10 pr-5 py-3 focus:ring-2 focus:ring-[#00AEEF] outline-none" 
+                           style="border-color: #C0C0C2;">
+                </div>
+                <div class="relative">
+                    <i class="fas fa-phone absolute left-3 top-1/2 -translate-y-1/2 text-[#C0C0C2]"></i>
+                    <input type="tel" id="number" placeholder="মোবাইল নম্বর (বৈধ ১১ সংখ্যা) *" required 
+                           class="w-full border rounded-xl pl-10 pr-5 py-3 focus:ring-2 focus:ring-[#00AEEF] outline-none" 
+                           style="border-color: #C0C0C2;">
+                </div>
+                <div class="relative">
+                    <i class="fas fa-map-marker-alt absolute left-3 top-3 text-[#C0C0C2]"></i>
+                    <textarea id="address" rows="2" placeholder="ঠিকানা (এলাকা, জেলা) *" required 
+                              class="w-full border rounded-xl pl-10 pr-5 py-3 focus:ring-2 focus:ring-[#00AEEF] outline-none" 
+                              style="border-color: #C0C0C2;"></textarea>
+                </div>
+                <input type="hidden" id="orderSummaryInput">
+                <button type="submit" class="w-full text-white font-bold py-4 rounded-xl text-lg hover:scale-[1.02] transition-all shadow-lg flex items-center justify-center gap-2" style="background: linear-gradient(145deg, #00AEEF, #003366);">
+                    <i class="fas fa-check-circle"></i> অর্ডার নিশ্চিত করুন
+                </button>
+            </form>
+        </div>
+
+        <div id="reviews" class="space-y-6">
+            <div class="p-5 rounded-2xl shadow-md border fade-up" style="background-color: #FFFFFF; border-color: #C0C0C2;">
+                <h3 class="text-xl font-bold flex items-center gap-1" style="color: #000B29;"><i class="fas fa-star text-yellow-500"></i> গ্রাহক রিভিউ</h3>
+                <div class="mt-3 space-y-4" id="reviewList"></div>
+            </div>
+            <div class="p-5 rounded-2xl shadow-md border fade-up" style="background-color: #FFFFFF; border-color: #C0C0C2;">
+                <h4 class="font-bold text-lg" style="color: #000B29;"><i class="fas fa-pen-alt text-[#00AEEF] mr-1"></i>আপনার মতামত দিন</h4>
+                <form id="reviewForm" class="mt-3 flex flex-col gap-3">
+                    <div class="relative">
+                        <i class="fas fa-user absolute left-3 top-1/2 -translate-y-1/2 text-[#C0C0C2]"></i>
+                        <input type="text" id="reviewerName" placeholder="আপনার নাম" 
+                               class="border rounded-lg pl-10 pr-4 py-2 text-sm w-full focus:ring-2 focus:ring-[#00AEEF] outline-none" 
+                               style="border-color: #C0C0C2;">
+                    </div>
+                    <div class="relative">
+                        <i class="fas fa-map-marker-alt absolute left-3 top-1/2 -translate-y-1/2 text-[#C0C0C2]"></i>
+                        <input type="text" id="reviewerAddress" placeholder="আপনার ঠিকানা (ঐচ্ছিক)" 
+                               class="border rounded-lg pl-10 pr-4 py-2 text-sm w-full focus:ring-2 focus:ring-[#00AEEF] outline-none" 
+                               style="border-color: #C0C0C2;">
+                    </div>
+                    <div class="relative">
+                        <i class="fas fa-comment absolute left-3 top-3 text-[#C0C0C2]"></i>
+                        <textarea id="reviewText" rows="2" placeholder="রিভিউ লিখুন..." 
+                                  class="border rounded-lg pl-10 pr-4 py-2 text-sm w-full focus:ring-2 focus:ring-[#00AEEF] outline-none" 
+                                  style="border-color: #C0C0C2;"></textarea>
+                    </div>
+                    <button type="submit" class="text-white py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 hover:bg-[#00AEEF] transition-colors" style="background-color: #003366;">
+                        <i class="fas fa-paper-plane"></i> আপনার মতামত দিন
+                    </button>
+                </form>
+                <p class="text-xs text-center mt-2" style="color: #C0C0C2;"><i class="fas fa-info-circle"></i> আপনার রিভিউ এডমিন অনুমোদনের পর প্রকাশিত হবে</p>
+            </div>
+        </div>
+    </section>
+
+    <footer id="contact" class="text-white mt-8" style="background-color: #000B29;">
+        <div class="container-custom py-8 grid sm:grid-cols-3 gap-6 text-sm">
+            <div>
+                <h4 class="font-bold text-lg flex items-center gap-2" style="color: #00AEEF;"><i class="fas fa-store"></i>Jahid Gadgets</h4>
+                <p class="text-[#C0C0C2] flex items-start gap-2 mt-2">
+                    <i class="fas fa-map-marker-alt mt-1"></i>
+                    <span id="footerAddress">প্রিমিয়াম গ্যাজেটের সেরা সংগ্রহ। সারাদেশে ডেলিভারি।</span>
+                </p>
+            </div>
+            <div>
+                <h4 class="font-semibold flex items-center gap-2" style="color: #00AEEF;"><i class="fas fa-link"></i>লিঙ্ক</h4>
+                <ul class="text-[#C0C0C2] space-y-2 mt-2">
+                    <li><a href="#" class="hover:text-[#00AEEF] flex items-center gap-2"><i class="fas fa-chevron-right text-xs"></i>হোম</a></li>
+                    <li><a href="#products" class="hover:text-[#00AEEF] flex items-center gap-2"><i class="fas fa-chevron-right text-xs"></i>পণ্য</a></li>
+                    <li><a href="#order" class="hover:text-[#00AEEF] flex items-center gap-2"><i class="fas fa-chevron-right text-xs"></i>অর্ডার</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-semibold flex items-center gap-2" style="color: #00AEEF;"><i class="fas fa-phone-alt"></i>যোগাযোগ</h4>
+                <p class="text-[#C0C0C2] mt-2 space-y-2">
+                    <span class="flex items-start gap-2">
+                        <i class="fas fa-map-marker-alt mt-1"></i>
+                        <span id="footerFullAddress">রংপুর, বোদা, পঞ্চগড় সদর</span>
+                    </span>
+                    <span class="flex items-center gap-2">
+                        <i class="fas fa-phone"></i>
+                        <a href="tel:" id="footerPhone" class="hover:text-[#00AEEF]">+880 1709-363983</a>
+                    </span>
+                    <span class="flex items-center gap-2">
+                        <i class="fab fa-whatsapp"></i>
+                        <a href="#" id="footerWhatsapp" class="hover:text-[#00AEEF]" target="_blank">WhatsApp</a>
+                    </span>
+                </p>
+            </div>
+        </div>
+        <div class="border-t py-4 text-center text-xs" style="border-color: #003366; color: #C0C0C2;">
+            <i class="far fa-copyright mr-1"></i> ২০২৫ <span id="footerSiteName">Jahid Gadgets</span> · সর্বস্বত্ব সংরক্ষিত
+        </div>
+    </footer>
+
+    <script>
+        const API_URL = window.location.hostname === 'localhost' 
+            ? 'http://localhost:5000/api' 
+            : 'https://jahid-gadgets-backend.onrender.com/api';
+
+        let cart = [];
+        let products = [];
+        let slides = [];
+        let settings = {};
+
+        // Popup functions
+        function showPopup(type, title, message) {
+            const popup = document.getElementById('popup');
+            const popupContent = document.getElementById('popupContent');
+            const icon = document.getElementById('popupIcon');
+            const titleEl = document.getElementById('popupTitle');
+            const msgEl = document.getElementById('popupMessage');
+            
+            if (type === 'success') {
+                icon.innerHTML = '<i class="fas fa-check-circle text-green-500 text-6xl"></i>';
+                popupContent.className = 'popup-content popup-success';
+            } else {
+                icon.innerHTML = '<i class="fas fa-times-circle text-red-500 text-6xl"></i>';
+                popupContent.className = 'popup-content popup-error';
+            }
+            titleEl.textContent = title;
+            msgEl.textContent = message;
+            popup.classList.add('active');
+        }
+
+        window.closePopup = function() {
+            document.getElementById('popup').classList.remove('active');
+        };
+
+        document.getElementById('popup').addEventListener('click', function(e) {
+            if (e.target === this) closePopup();
+        });
+
+        // Mobile menu toggle
+        document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+            document.getElementById('mobileMenu').classList.toggle('hidden');
+        });
+
+        // Load settings
+        async function loadSettings() {
+            try {
+                const res = await fetch(`${API_URL}/settings`);
+                settings = await res.json();
+                
+                document.title = settings.siteTitle || 'Jahid Gadgets';
+                document.getElementById('siteNameDisplay').textContent = settings.siteName || 'Jahid Gadgets';
+                document.getElementById('footerSiteName').textContent = settings.siteName || 'Jahid Gadgets';
+                document.getElementById('footerAddress').textContent = settings.address || 'প্রিমিয়াম গ্যাজেটের সেরা সংগ্রহ। সারাদেশে ডেলিভারি।';
+                document.getElementById('footerFullAddress').textContent = settings.address || 'রংপুর, বোদা, পঞ্চগড় সদর';
+                
+                const phone = settings.phone || '+8801709363983';
+                document.getElementById('phoneLink').href = `tel:${phone}`;
+                document.getElementById('mobilePhoneLink').href = `tel:${phone}`;
+                document.getElementById('footerPhone').href = `tel:${phone}`;
+                document.getElementById('footerPhone').textContent = phone;
+                
+                const whatsapp = settings.whatsapp || '+8801709363983';
+                const whatsappText = encodeURIComponent(`👋 আসসালামু আলাইকুম,\n\n📱 আমি Jahid Gadgets এর পণ্য সম্পর্কে আগ্রহী।\n\n⌚️ আমার পছন্দের পণ্য: (এখানে পণ্যের নাম লিখুন)\n📍 ঠিকানা: (এখানে আপনার ঠিকানা লিখুন)\n📦 পরিমাণ: (কয়টি চান)\n\n✅ অনুগ্রহ করে দ্রুত যোগাযোগ করবেন। ধন্যবাদ!\n\n✨ জাজাকাল্লাহু খাইরান।`);
+                document.getElementById('whatsappLink').href = `https://wa.me/${whatsapp.replace(/\D/g,'')}?text=${whatsappText}`;
+                document.getElementById('footerWhatsapp').href = `https://wa.me/${whatsapp.replace(/\D/g,'')}?text=${whatsappText}`;
+            } catch (error) {
+                console.error('Error loading settings:', error);
+            }
+        }
+
+        // Load slides
+        async function loadSlides() {
+            try {
+                const res = await fetch(`${API_URL}/slides`);
+                slides = await res.json();
+                
+                const container = document.getElementById('sliderContainer');
+                const dotsContainer = document.getElementById('sliderDots');
+                
+                if (slides.length === 0) {
+                    container.innerHTML = `
+                        <div class="slide absolute inset-0 opacity-100">
+                            <img src="https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=1200&h=600&fit=crop" alt="স্মার্ট ওয়াচ" class="w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-gradient-to-r from-[#000B29] to-transparent"></div>
+                            <div class="absolute inset-0 flex items-center justify-start px-4 md:px-16 text-white">
+                                <div class="fade-up max-w-xl">
+                                    <span class="bg-[#00AEEF] text-white text-sm font-semibold px-4 py-1 rounded-full inline-flex items-center gap-1">
+                                        <i class="fas fa-clock"></i> স্মার্ট ওয়াচ
+                                    </span>
+                                    <h2 class="slide-title text-2xl md:text-5xl font-bold mt-3">অভিজ্ঞতা নতুন উচ্চতায়</h2>
+                                    <p class="slide-subtitle text-base md:text-xl mt-2 opacity-90">৪০% ছাড় + ১ বছর ওয়ারেন্টি</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = slides.map((slide, index) => `
+                    <div class="slide absolute inset-0 ${index === 0 ? 'opacity-100' : 'opacity-0'} transition-opacity duration-700">
+                        <img src="${slide.image}" alt="${slide.title}" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-r from-[#000B29] to-transparent"></div>
+                        <div class="absolute inset-0 flex items-center justify-start px-4 md:px-16 text-white slide-content">
+                            <div class="fade-up max-w-xl">
+                                ${slide.badge ? `
+                                    <span class="bg-[#00AEEF] text-white text-sm font-semibold px-4 py-1 rounded-full inline-flex items-center gap-1">
+                                        <i class="fas fa-tag"></i> ${slide.badge}
+                                    </span>
+                                ` : ''}
+                                <h2 class="slide-title text-2xl md:text-5xl font-bold mt-3">${slide.title}</h2>
+                                ${slide.subtitle ? `<p class="slide-subtitle text-base md:text-xl mt-2 opacity-90">${slide.subtitle}</p>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                
+                dotsContainer.innerHTML = slides.map((_, index) => `
+                    <button class="dot w-3 h-3 rounded-full ${index === 0 ? 'bg-[#00AEEF] dot-active w-7' : 'bg-white bg-opacity-60'} transition-all" data-index="${index}"></button>
+                `).join('');
+                
+                initSlider();
+            } catch (error) {
+                console.error('Error loading slides:', error);
+            }
+        }
+
+        // Load products
+        async function loadProducts(category = 'all') {
+            try {
+                const url = category === 'all' ? `${API_URL}/products` : `${API_URL}/products?category=${category}`;
+                const res = await fetch(url);
+                products = await res.json();
+                
+                renderProducts(products);
+            } catch (error) {
+                console.error('Error loading products:', error);
+                document.getElementById('productsGrid').innerHTML = '<div class="col-span-full text-center text-red-500">পণ্য লোড করতে সমস্যা হয়েছে</div>';
+            }
+        }
+
+        // Load reviews
+        async function loadReviews() {
+            try {
+                const res = await fetch(`${API_URL}/reviews`);
+                const reviews = await res.json();
+                
+                const reviewList = document.getElementById('reviewList');
+                
+                if (reviews.length === 0) {
+                    reviewList.innerHTML = '<p class="text-gray-500 text-center">কোন রিভিউ নেই</p>';
+                    return;
+                }
+                
+                reviewList.innerHTML = reviews.map(review => `
+                    <div class="flex gap-3 border-b pb-3 last:border-0">
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-white flex-shrink-0" style="background-color: #00AEEF;">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div>
+                            <p class="font-semibold" style="color: #000B29;">${review.name}</p>
+                            <p class="text-sm" style="color: #003366;">“${review.text}”</p>
+                            ${review.address ? `<p class="text-xs" style="color: #C0C0C2;"><i class="fas fa-map-marker-alt mr-1"></i>${review.address}</p>` : ''}
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading reviews:', error);
+            }
+        }
+
+        // Render products
+        function renderProducts(productsToRender) {
+            const grid = document.getElementById('productsGrid');
+            
+            if (productsToRender.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center text-gray-500">কোন পণ্য পাওয়া যায়নি</div>';
+                return;
+            }
+            
+            grid.innerHTML = productsToRender.map(p => `
+                <div id="product-${p.id}" class="rounded-2xl shadow-lg overflow-hidden border card-hover fade-up relative" style="background-color: #FFFFFF; border-color: #C0C0C2;">
+                    <span class="badge-soft absolute top-3 left-3 text-white text-sm font-bold px-3 py-1 rounded-full z-20 flex items-center gap-1">
+                        <i class="fas fa-tag"></i> ${p.discount}% ছাড়
+                    </span>
+                    
+                    <div class="product-gallery">
+                        <img id="gallery-img-${p.id}" src="${p.images[0]}" alt="${p.name}" class="gallery-image">
+                        
+                        <div class="gallery-controls">
+                            <button class="gallery-btn" onclick="changeImage('${p.id}', -1, ${JSON.stringify(p.images)}); event.stopPropagation();">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button class="gallery-btn" onclick="changeImage('${p.id}', 1, ${JSON.stringify(p.images)}); event.stopPropagation();">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="image-indicator">
+                            ${p.images.map((_, idx) => `
+                                <span class="indicator-dot indicator-${p.id} ${idx === 0 ? 'active' : ''}"></span>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 pt-3">
+                        <div class="product-name">${p.name}</div>
+                        <p class="text-sm mt-1" style="color: #003366;">${p.desc}</p>
+                        <div class="flex items-baseline gap-2 mt-2">
+                            <span class="text-gray-400 line-through text-sm">${p.oldPrice}৳</span>
+                            <span class="text-2xl font-bold" style="color: #00AEEF;">${p.price}৳</span>
+                        </div>
+                        <div class="order-btn-container mt-4">
+                            <button class="order-btn-link" onclick="addToCart('${p.id}', '${p.name}', ${p.price}, '${p.images[0]}'); return false;">
+                                <i class="fas fa-cart-plus"></i> অর্ডার করুন
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Image gallery
+        window.imageGalleries = {};
+
+        window.changeImage = function(productId, direction, images) {
+            if (!window.imageGalleries[productId]) {
+                window.imageGalleries[productId] = { currentIndex: 0 };
+            }
+            
+            const gallery = window.imageGalleries[productId];
+            gallery.currentIndex = (gallery.currentIndex + direction + images.length) % images.length;
+            
+            const mainImg = document.getElementById(`gallery-img-${productId}`);
+            if (mainImg) {
+                mainImg.src = images[gallery.currentIndex];
+            }
+            
+            document.querySelectorAll(`.indicator-${productId}`).forEach((ind, idx) => {
+                if (idx === gallery.currentIndex) {
+                    ind.classList.add('active');
+                } else {
+                    ind.classList.remove('active');
+                }
+            });
+        };
+
+        // Category tabs
+        document.querySelectorAll('.category-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                if (tab.dataset.cat) {
+                    loadProducts(tab.dataset.cat);
+                }
+            });
+        });
+
+        // Cart functions
+        function renderCart() {
+            const cartContainer = document.getElementById('cartItems');
+            const totalSpan = document.getElementById('totalPrice');
+            const orderSummaryInput = document.getElementById('orderSummaryInput');
+            
+            if (cart.length === 0) {
+                cartContainer.innerHTML = `<div class="text-center py-4" style="color: #C0C0C2;"><i class="fas fa-shopping-cart text-4xl mb-2"></i><br>আপনি এখনো কোনো পণ্য নির্বাচন করেননি</div>`;
+                if (totalSpan) totalSpan.innerText = '০৳';
+                if (orderSummaryInput) orderSummaryInput.value = '';
+                return;
+            }
+            
+            let html = '';
+            let total = 0;
+            cart.forEach((item, index) => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                html += `
+                    <div class="flex items-center gap-3 border-b pb-2 cart-item" style="border-color: #C0C0C2;">
+                        <img src="${item.image}" class="w-12 h-12 object-cover rounded-lg border" alt="${item.name}">
+                        <div class="flex-1">
+                            <p class="font-medium text-sm" style="color: #000B29;">${item.name}</p>
+                            <p class="text-xs" style="color: #003366;">${item.price}৳ × ${item.quantity}</p>
+                            <p class="text-xs font-bold" style="color: #00AEEF;">=${itemTotal}৳</p>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <button class="qty-down w-6 h-6 rounded-full flex items-center justify-center" style="background-color: #C0C0C2;" data-index="${index}"><i class="fas fa-minus text-xs"></i></button>
+                            <span class="w-6 text-center" style="color: #000B29;">${item.quantity}</span>
+                            <button class="qty-up w-6 h-6 rounded-full flex items-center justify-center" style="background-color: #C0C0C2;" data-index="${index}"><i class="fas fa-plus text-xs"></i></button>
+                            <button class="removeItem text-red-500 text-xl font-bold ml-2" data-index="${index}"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            cartContainer.innerHTML = html;
+            if (totalSpan) totalSpan.innerText = total + '৳';
+            if (orderSummaryInput) orderSummaryInput.value = cart.map(i => `${i.name} (${i.quantity}টি)`).join(', ');
+
+            document.querySelectorAll('.qty-up').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const idx = e.currentTarget.dataset.index;
+                    if (idx !== undefined && cart[idx]) {
+                        cart[idx].quantity += 1;
+                        renderCart();
+                    }
+                });
+            });
+            
+            document.querySelectorAll('.qty-down').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const idx = e.currentTarget.dataset.index;
+                    if (idx !== undefined && cart[idx]) {
+                        if (cart[idx].quantity > 1) {
+                            cart[idx].quantity -= 1;
+                        } else {
+                            cart.splice(idx, 1);
+                        }
+                        renderCart();
+                    }
+                });
+            });
+            
+            document.querySelectorAll('.removeItem').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const idx = e.currentTarget.dataset.index;
+                    if (idx !== undefined) {
+                        cart.splice(idx, 1);
+                        renderCart();
+                    }
+                });
+            });
+        }
+
+        window.addToCart = function(id, name, price, image) {
+            const existing = cart.find(item => item.id === id);
+            if (existing) {
+                existing.quantity += 1;
+            } else {
+                cart.push({ id, name, price, image, quantity: 1 });
+            }
+            renderCart();
+            
+            const orderSection = document.getElementById('order');
+            if (orderSection) {
+                orderSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                
+                const form = document.getElementById('orderForm');
+                if (form) {
+                    form.style.transition = 'box-shadow 0.3s ease';
+                    form.style.boxShadow = '0 0 0 3px #00AEEF';
+                    setTimeout(() => {
+                        form.style.boxShadow = 'none';
+                    }, 1500);
+                }
+            }
+        };
+
+        // Order form
+        function isValidBangladeshNumber(num) {
+            const cleaned = num.replace(/\s+/g, '');
+            return /^(01[3-9]\d{8})$/.test(cleaned);
+        }
+
+        document.getElementById('orderForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('name').value.trim();
+            const number = document.getElementById('number').value.trim();
+            const address = document.getElementById('address').value.trim();
+
+            if (!name || !number || !address) {
+                showPopup('error', 'ত্রুটি!', 'সব ঘর পূরণ করুন');
+                return;
+            }
+            if (!isValidBangladeshNumber(number)) {
+                showPopup('error', 'ত্রুটি!', 'বৈধ বাংলাদেশী মোবাইল নম্বর দিন');
+                return;
+            }
+            if (cart.length === 0) {
+                showPopup('error', 'ত্রুটি!', 'কমপক্ষে একটি পণ্য অর্ডার করুন');
+                return;
+            }
+
+            try {
+                const orderData = {
+                    customerName: name,
+                    customerPhone: number,
+                    customerAddress: address,
+                    items: cart.map(item => ({
+                        productId: item.id,
+                        name: item.name,
+                        price: item.price,
+                        quantity: item.quantity,
+                        image: item.image
+                    }))
+                };
+
+                const res = await fetch(`${API_URL}/orders`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(orderData)
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    const productList = cart.map(i => `${i.name} (${i.quantity}টি)`).join(', ');
+                    showPopup('success', 'অর্ডার সফল!', `আপনার অর্ডার গৃহীত হয়েছে: ${productList}`);
+
+                    cart = [];
+                    renderCart();
+                    document.getElementById('orderForm').reset();
+                } else {
+                    showPopup('error', 'ত্রুটি!', data.error || 'অর্ডার নিতে সমস্যা হয়েছে');
+                }
+            } catch (error) {
+                showPopup('error', 'ত্রুটি!', 'সার্ভারে সংযোগ করা যায়নি');
+            }
+        });
+
+        // Review form
+        document.getElementById('reviewForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const rName = document.getElementById('reviewerName').value.trim() || 'anonymous';
+            const rAddr = document.getElementById('reviewerAddress').value.trim();
+            const rText = document.getElementById('reviewText').value.trim();
+            
+            if (!rText) {
+                showPopup('error', 'ত্রুটি!', 'দয়া করে একটি রিভিউ লিখুন');
+                return;
+            }
+            
+            try {
+                const res = await fetch(`${API_URL}/reviews`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: rName,
+                        address: rAddr,
+                        text: rText
+                    })
+                });
+
+                if (res.ok) {
+                    showPopup('success', 'রিভিউ জমা হয়েছে!', 'আপনার রিভিউ এডমিন অনুমোদনের পর প্রকাশিত হবে। ধন্যবাদ!');
+                    document.getElementById('reviewForm').reset();
+                }
+            } catch (error) {
+                showPopup('error', 'ত্রুটি!', 'রিভিউ জমা দিতে সমস্যা হয়েছে');
+            }
+        });
+
+        // Slider functions
+        function initSlider() {
+            const slides = document.querySelectorAll('#sliderContainer .slide');
+            const dots = document.querySelectorAll('.dot');
+            const prevBtn = document.getElementById('prevSlide');
+            const nextBtn = document.getElementById('nextSlide');
+            let currentSlide = 0;
+            let autoTimer;
+
+            function showSlide(index) {
+                if (index < 0) index = slides.length - 1;
+                if (index >= slides.length) index = 0;
+                slides.forEach((s, i) => s.style.opacity = i === index ? '1' : '0');
+                dots.forEach((d, i) => {
+                    if (i === index) {
+                        d.classList.add('dot-active', 'bg-[#00AEEF]', 'w-7');
+                        d.classList.remove('bg-white', 'bg-opacity-60');
+                    } else {
+                        d.classList.remove('dot-active', 'bg-[#00AEEF]', 'w-7');
+                        d.classList.add('bg-white', 'bg-opacity-60');
+                    }
+                });
+                currentSlide = index;
+            }
+            
+            function nextSlide() { showSlide(currentSlide + 1); }
+            function prevSlide() { showSlide(currentSlide - 1); }
+            function startAuto() { autoTimer = setInterval(nextSlide, 5000); }
+            function resetAuto() { clearInterval(autoTimer); startAuto(); }
+
+            dots.forEach((dot, idx) => {
+                dot.addEventListener('click', () => { 
+                    showSlide(idx); 
+                    resetAuto(); 
+                });
+            });
+            
+            if (prevBtn) prevBtn.addEventListener('click', () => { prevSlide(); resetAuto(); });
+            if (nextBtn) nextBtn.addEventListener('click', () => { nextSlide(); resetAuto(); });
+            
+            showSlide(0);
+            startAuto();
+        }
+
+        // Initialize
+        async function init() {
+            await loadSettings();
+            await loadSlides();
+            await loadProducts();
+            await loadReviews();
+        }
+
+        init();
+    </script>
+</body>
+</html>
