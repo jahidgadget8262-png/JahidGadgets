@@ -33,12 +33,16 @@
         body {
             background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
             min-height: 100vh;
+            overflow-x: hidden;
+            width: 100%;
+            position: relative;
         }
 
         /* Smooth Scrolling */
         html {
             scroll-behavior: smooth;
             scroll-padding-top: 80px;
+            overflow-x: hidden;
         }
 
         /* Custom Container */
@@ -48,6 +52,8 @@
             margin-right: auto;
             padding-left: 1rem;
             padding-right: 1rem;
+            width: 100%;
+            overflow-x: hidden;
         }
 
         /* Navigation Styles */
@@ -461,6 +467,19 @@
             border-top: 8px solid #ef4444;
         }
 
+        /* Delivery Charge Badge */
+        .delivery-badge {
+            background: linear-gradient(145deg, #f59e0b, #d97706);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
         /* Animations */
         @keyframes fadeInUp {
             from {
@@ -477,17 +496,97 @@
             animation: fadeInUp 0.6s ease forwards;
         }
 
-        /* Mobile Menu */
+        /* Updated Mobile Menu Styles */
         .mobile-menu {
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             max-height: 0;
             opacity: 0;
             overflow: hidden;
+            background: rgba(0, 11, 41, 0.98);
+            backdrop-filter: blur(10px);
+            border-radius: 0 0 1.5rem 1.5rem;
+            margin-top: 0.5rem;
+            width: 100%;
         }
 
         .mobile-menu.open {
-            max-height: 300px;
+            max-height: 500px;
             opacity: 1;
+            overflow: visible;
+            padding-bottom: 1rem;
+            box-shadow: 0 20px 30px -10px rgba(0, 174, 239, 0.2);
+        }
+
+        .mobile-menu .nav-link {
+            display: flex;
+            align-items: center;
+            font-size: 1.1rem;
+            padding: 0.875rem 1rem;
+            border-radius: 0.75rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid transparent;
+            margin: 0 0.5rem;
+        }
+
+        .mobile-menu .nav-link:hover {
+            background: rgba(0, 174, 239, 0.15);
+            border-color: #00AEEF;
+            transform: translateX(5px);
+        }
+
+        .mobile-menu .nav-link i {
+            width: 24px;
+            font-size: 1.2rem;
+        }
+
+        #mobilePhoneLink {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: calc(100% - 1rem);
+            margin: 0 auto;
+            background: linear-gradient(145deg, #00AEEF, #003366);
+            border: 2px solid #00AEEF;
+            box-shadow: 0 4px 15px rgba(0, 174, 239, 0.3);
+            padding: 1rem 1.5rem;
+            border-radius: 1rem;
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        #mobilePhoneLink:hover {
+            border-color: white;
+            box-shadow: 0 8px 25px rgba(0, 174, 239, 0.5);
+            transform: scale(1.02);
+            background: linear-gradient(145deg, #003366, #00AEEF);
+        }
+
+        #mobilePhoneLink i {
+            font-size: 1.3rem;
+            animation: phonePulse 2s infinite;
+        }
+
+        @keyframes phonePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        #mobileMenuBtn {
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            background: transparent;
+            border: none;
+            color: #00AEEF;
+            font-size: 1.8rem;
+        }
+
+        #mobileMenuBtn:hover {
+            background: rgba(0, 174, 239, 0.1);
+            transform: scale(1.1);
         }
 
         /* Scrollbar */
@@ -528,10 +627,37 @@
                 bottom: 20px;
                 right: 20px;
             }
+
+            .container-custom {
+                padding-left: 0.75rem;
+                padding-right: 0.75rem;
+            }
+
+            .mobile-menu .nav-link {
+                padding: 0.75rem;
+                font-size: 1rem;
+                margin: 0 0.25rem;
+            }
+
+            #mobilePhoneLink {
+                padding: 0.875rem 1rem;
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .mobile-menu .nav-link {
+                padding: 0.625rem;
+                font-size: 0.95rem;
+            }
+
+            #mobilePhoneLink {
+                padding: 0.75rem;
+            }
         }
     </style>
 </head>
-<body class="antialiased">
+<body class="antialiased overflow-x-hidden">
 
     <!-- ==================== WHATSAPP FLOATING BUTTON ==================== -->
     <a href="#" id="whatsappLink" class="whatsapp-float" target="_blank" title="WhatsApp এ অর্ডার করুন">
@@ -588,27 +714,32 @@
                 </button>
             </div>
 
-            <!-- Mobile Menu -->
+            <!-- Updated Mobile Menu with Fixed Call Button -->
             <div id="mobileMenu" class="mobile-menu md:hidden">
-                <div class="flex flex-col space-y-3 pb-4">
-                    <a href="#" class="nav-link py-2 px-4 hover:bg-[#003366] rounded-lg transition-all">
-                        <i class="fas fa-home mr-2"></i>হোম
+                <div class="flex flex-col py-2">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-home mr-3"></i>হোম
                     </a>
-                    <a href="#products" class="nav-link py-2 px-4 hover:bg-[#003366] rounded-lg transition-all">
-                        <i class="fas fa-box mr-2"></i>পণ্য
+                    <a href="#products" class="nav-link">
+                        <i class="fas fa-box mr-3"></i>পণ্য
                     </a>
-                    <a href="#order" class="nav-link py-2 px-4 hover:bg-[#003366] rounded-lg transition-all">
-                        <i class="fas fa-shopping-cart mr-2"></i>অর্ডার
+                    <a href="#order" class="nav-link">
+                        <i class="fas fa-shopping-cart mr-3"></i>অর্ডার
                     </a>
-                    <a href="#reviews" class="nav-link py-2 px-4 hover:bg-[#003366] rounded-lg transition-all">
-                        <i class="fas fa-star mr-2"></i>রিভিউ
+                    <a href="#reviews" class="nav-link">
+                        <i class="fas fa-star mr-3"></i>রিভিউ
                     </a>
-                    <a href="#contact" class="nav-link py-2 px-4 hover:bg-[#003366] rounded-lg transition-all">
-                        <i class="fas fa-phone mr-2"></i>যোগাযোগ
+                    <a href="#contact" class="nav-link">
+                        <i class="fas fa-phone mr-3"></i>যোগাযোগ
                     </a>
-                    <a href="tel:" id="mobilePhoneLink" class="bg-[#00AEEF] text-white py-3 rounded-full text-center mt-2 hover:bg-[#003366] transition-all">
-                        <i class="fas fa-phone-alt mr-2"></i>কল করুন
-                    </a>
+                    
+                    <!-- Fixed Call Button - Now properly visible -->
+                    <div class="px-2 mt-2">
+                        <a href="tel:" id="mobilePhoneLink" class="flex items-center justify-center gap-3">
+                            <i class="fas fa-phone-alt"></i>
+                            <span>কল করুন</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -678,6 +809,28 @@
                 
                 <!-- Cart Items -->
                 <div id="cartItems" class="space-y-3 max-h-80 overflow-y-auto pr-2 mb-6 border-b border-[#C0C0C2] pb-4"></div>
+
+                <!-- Delivery Charge Info -->
+                <div class="bg-blue-50 p-4 rounded-xl mb-4">
+                    <div class="flex items-center gap-2 text-sm text-[#003366]">
+                        <i class="fas fa-truck text-[#00AEEF]"></i>
+                        <span class="font-semibold">ডেলিভারি চার্জ:</span>
+                    </div>
+                    <div class="mt-2 space-y-1 text-sm">
+                        <div class="flex justify-between">
+                            <span>ঢাকার ভিতরে:</span>
+                            <span class="font-bold text-[#00AEEF]" id="dhakaCharge">৬০ টাকা</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>ঢাকার বাইরে:</span>
+                            <span class="font-bold text-[#00AEEF]" id="outsideDhakaCharge">১২০ টাকা</span>
+                        </div>
+                        <div class="flex justify-between text-green-600">
+                            <span>২০০০+ টাকায়:</span>
+                            <span class="font-bold">ফ্রি ডেলিভারি</span>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Total Price -->
                 <div class="flex justify-between items-center mb-6 text-xl font-bold">
@@ -937,10 +1090,62 @@
             }, 3000);
         }
 
-        // Mobile Menu Toggle
-        document.getElementById('mobileMenuBtn').addEventListener('click', () => {
-            document.getElementById('mobileMenu').classList.toggle('open');
-        });
+        // ==================== IMPROVED MOBILE MENU TOGGLE ====================
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+
+        if (mobileMenuBtn && mobileMenu) {
+            mobileMenuBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                mobileMenu.classList.toggle('open');
+                
+                // Change icon based on menu state
+                const icon = mobileMenuBtn.querySelector('i');
+                if (mobileMenu.classList.contains('open')) {
+                    icon.className = 'fas fa-times';
+                    // Prevent body scroll when menu is open
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    icon.className = 'fas fa-bars';
+                    document.body.style.overflow = '';
+                }
+            });
+
+            // Close mobile menu when clicking on a link
+            document.querySelectorAll('#mobileMenu a').forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.remove('open');
+                    const icon = mobileMenuBtn.querySelector('i');
+                    if (icon) icon.className = 'fas fa-bars';
+                    document.body.style.overflow = '';
+                });
+            });
+
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (mobileMenu && mobileMenuBtn) {
+                    if (!mobileMenu.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+                        mobileMenu.classList.remove('open');
+                        const icon = mobileMenuBtn.querySelector('i');
+                        if (icon) icon.className = 'fas fa-bars';
+                        document.body.style.overflow = '';
+                    }
+                }
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                if (window.innerWidth >= 768) { // md breakpoint
+                    if (mobileMenu) {
+                        mobileMenu.classList.remove('open');
+                        const icon = mobileMenuBtn.querySelector('i');
+                        if (icon) icon.className = 'fas fa-bars';
+                        document.body.style.overflow = '';
+                    }
+                }
+            });
+        }
 
         // ==================== LOAD CATEGORIES ====================
 
@@ -1039,6 +1244,10 @@
                 document.getElementById('mobilePhoneLink').href = `tel:${phone}`;
                 document.getElementById('footerPhone').href = `tel:${phone}`;
                 document.getElementById('footerPhone').textContent = phone;
+                
+                // Update delivery charge display
+                document.getElementById('dhakaCharge').textContent = (settings.deliveryCharge || 60) + ' টাকা';
+                document.getElementById('outsideDhakaCharge').textContent = (settings.outsideDhakaCharge || 120) + ' টাকা';
                 
                 // Update WhatsApp link
                 const whatsapp = settings.whatsapp || '+8801709363983';
@@ -1311,11 +1520,11 @@
             }
             
             let html = '';
-            let total = 0;
+            let subtotal = 0;
             
             cart.forEach((item, index) => {
                 const itemTotal = item.price * item.quantity;
-                total += itemTotal;
+                subtotal += itemTotal;
                 
                 html += `
                     <div class="cart-item">
@@ -1345,8 +1554,37 @@
                 `;
             });
             
+            // Calculate delivery charge based on address
+            const address = document.getElementById('address')?.value || '';
+            const isDhaka = address.toLowerCase().includes('ঢাকা') || address.toLowerCase().includes('dhaka');
+            const deliveryCharge = subtotal >= (settings.freeDeliveryAbove || 2000) ? 0 : 
+                                   (isDhaka ? (settings.deliveryCharge || 60) : (settings.outsideDhakaCharge || 120));
+            
+            const grandTotal = subtotal + deliveryCharge;
+            
             cartContainer.innerHTML = html;
-            totalSpan.innerText = total + '৳';
+            
+            // Add delivery charge info below cart items
+            cartContainer.innerHTML += `
+                <div class="mt-4 pt-4 border-t border-[#C0C0C2]">
+                    <div class="flex justify-between text-sm mb-2">
+                        <span>সাবটোটাল:</span>
+                        <span class="font-semibold">${subtotal}৳</span>
+                    </div>
+                    <div class="flex justify-between text-sm mb-2">
+                        <span>ডেলিভারি চার্জ:</span>
+                        <span class="font-semibold ${deliveryCharge === 0 ? 'text-green-600' : ''}">
+                            ${deliveryCharge === 0 ? 'ফ্রি' : deliveryCharge + '৳'}
+                        </span>
+                    </div>
+                    <div class="flex justify-between text-lg font-bold mt-2 pt-2 border-t border-[#C0C0C2]">
+                        <span>মোট মূল্য:</span>
+                        <span class="text-[#00AEEF]">${grandTotal}৳</span>
+                    </div>
+                </div>
+            `;
+            
+            totalSpan.innerText = grandTotal + '৳';
             orderSummaryInput.value = cart.map(i => `${i.name} (${i.quantity}টি)`).join(', ');
         }
 
@@ -1395,6 +1633,11 @@
                 cartSection.style.boxShadow = 'none';
             }, 1500);
         };
+
+        // Recalculate delivery charge when address changes
+        document.getElementById('address').addEventListener('input', () => {
+            renderCart();
+        });
 
         // ==================== ORDER FORM ====================
 

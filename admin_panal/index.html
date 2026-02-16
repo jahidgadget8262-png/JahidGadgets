@@ -9,6 +9,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js for pie chart -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * { font-family: 'Hind Siliguri', sans-serif; }
         :root {
@@ -362,6 +364,13 @@
                 grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
             }
         }
+
+        /* Pie chart container */
+        .chart-container {
+            position: relative;
+            height: 200px;
+            width: 100%;
+        }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -632,6 +641,7 @@
     let confirmCallback = null;
     let notifications = [];
     let notificationInterval = null;
+    let chartInstance = null;
     
     const API_URL = window.location.hostname === 'localhost' || window.location.hostname.includes('127.0.0.1')
         ? 'http://localhost:5000/api'
@@ -1368,47 +1378,37 @@
                     </div>
 
                     <!-- Quick Stats -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div class="bg-white p-6 rounded-xl shadow-lg">
                             <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
                                 <i class="fas fa-chart-line text-[#00AEEF]"></i>
-                                দ্রুত পরিসংখ্যান
+                                অর্ডার স্ট্যাটাস
                             </h3>
                             <div class="space-y-4">
-                                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                                    <span class="text-gray-600">আজকের অর্ডার</span>
-                                    <span class="font-bold text-xl">${stats.todayOrders || 0}</span>
-                                </div>
-                                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                                    <span class="text-gray-600">সপ্তাহের অর্ডার</span>
-                                    <span class="font-bold text-xl">${stats.weekOrders || 0}</span>
-                                </div>
-                                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                                    <span class="text-gray-600">মাসের অর্ডার</span>
-                                    <span class="font-bold text-xl">${stats.monthOrders || 0}</span>
-                                </div>
-                                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                                    <span class="text-gray-600">স্বল্প মজুদ</span>
-                                    <span class="font-bold text-xl text-red-600">${stats.lowStock || 0}</span>
-                                </div>
+                                ${stats.ordersByStatus?.map(item => `
+                                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                        <span class="text-gray-600 capitalize">${item._id === 'pending' ? 'অপেক্ষমাণ' : 
+                                                                          item._id === 'confirmed' ? 'নিশ্চিত' :
+                                                                          item._id === 'processing' ? 'প্রক্রিয়াধীন' :
+                                                                          item._id === 'shipped' ? 'পাঠানো হয়েছে' :
+                                                                          item._id === 'delivered' ? 'ডেলিভারি হয়েছে' :
+                                                                          item._id === 'cancelled' ? 'বাতিল' : item._id}</span>
+                                        <span class="font-bold text-xl">${item.count}</span>
+                                    </div>
+                                `).join('') || '<p class="text-gray-500">কোন তথ্য নেই</p>'}
                             </div>
                         </div>
 
                         <div class="bg-white p-6 rounded-xl shadow-lg">
                             <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
-                                <i class="fas fa-chart-pie text-[#00AEEF]"></i>
-                                অর্ডারের অবস্থা
+                                <i class="fas fa-tags text-[#00AEEF]"></i>
+                                ক্যাটাগরি অনুযায়ী পণ্য
                             </h3>
-                            <div class="space-y-3">
-                                ${stats.ordersByStatus?.map(item => `
-                                    <div class="flex justify-between items-center">
-                                        <span class="capitalize">${item._id === 'pending' ? 'অপেক্ষমাণ' : 
-                                                                        item._id === 'confirmed' ? 'নিশ্চিত' :
-                                                                        item._id === 'processing' ? 'প্রক্রিয়াধীন' :
-                                                                        item._id === 'shipped' ? 'পাঠানো হয়েছে' :
-                                                                        item._id === 'delivered' ? 'ডেলিভারি হয়েছে' :
-                                                                        item._id === 'cancelled' ? 'বাতিল' : item._id}</span>
-                                        <span class="font-bold">${item.count}</span>
+                            <div class="space-y-4">
+                                ${stats.productsByCategory?.map(item => `
+                                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                        <span class="text-gray-600">${item.categoryName}</span>
+                                        <span class="font-bold text-xl">${item.count} টি</span>
                                     </div>
                                 `).join('') || '<p class="text-gray-500">কোন তথ্য নেই</p>'}
                             </div>
@@ -1486,6 +1486,11 @@
                     </div>
                 </div>
             `;
+
+            // Initialize pie chart if data exists
+            if (stats.ordersByStatus && stats.ordersByStatus.length > 0) {
+                initOrderChart(stats.ordersByStatus);
+            }
         } catch (error) {
             content.innerHTML = `
                 <div class="text-center py-20">
@@ -1497,6 +1502,53 @@
                 </div>
             `;
         }
+    }
+
+    function initOrderChart(ordersByStatus) {
+        // Check if chart canvas exists
+        const canvas = document.getElementById('orderChart');
+        if (!canvas) return;
+
+        // Destroy existing chart if it exists
+        if (chartInstance) {
+            chartInstance.destroy();
+        }
+
+        const labels = ordersByStatus.map(item => {
+            switch(item._id) {
+                case 'pending': return 'অপেক্ষমাণ';
+                case 'confirmed': return 'নিশ্চিত';
+                case 'processing': return 'প্রক্রিয়াধীন';
+                case 'shipped': return 'পাঠানো হয়েছে';
+                case 'delivered': return 'ডেলিভারি হয়েছে';
+                case 'cancelled': return 'বাতিল';
+                default: return item._id;
+            }
+        });
+
+        const data = ordersByStatus.map(item => item.count);
+        const colors = ['#F59E0B', '#3B82F6', '#8B5CF6', '#06B6D4', '#10B981', '#EF4444'];
+
+        chartInstance = new Chart(canvas, {
+            type: 'pie',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: colors.slice(0, data.length),
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
     }
 
     // ==================== PRODUCTS MANAGEMENT ====================
@@ -1921,6 +1973,7 @@
                                         <th class="p-3 text-left">পণ্য</th>
                                         <th class="p-3 text-left">মোট</th>
                                         <th class="p-3 text-left">স্ট্যাটাস</th>
+                                        <th class="p-3 text-left">ডেলিভারি</th>
                                         <th class="p-3 text-left">তারিখ</th>
                                         <th class="p-3 text-left">অ্যাকশন</th>
                                     </tr>
@@ -1942,6 +1995,11 @@
                                                                                                           order.status === 'shipped' ? 'পাঠানো হয়েছে' :
                                                                                                           order.status === 'delivered' ? 'ডেলিভারি হয়েছে' :
                                                                                                           order.status === 'cancelled' ? 'বাতিল' : order.status}</span>
+                                            </td>
+                                            <td class="p-3">
+                                                <span class="text-xs ${order.deliveryCharge === 0 ? 'text-green-600' : 'text-gray-600'}">
+                                                    ${order.deliveryCharge === 0 ? 'ফ্রি' : order.deliveryCharge + '৳'}
+                                                </span>
                                             </td>
                                             <td class="p-3">${new Date(order.createdAt).toLocaleDateString('bn-BD')}</td>
                                             <td class="p-3">
@@ -2026,6 +2084,11 @@
                                                                                       order.status === 'delivered' ? 'ডেলিভারি হয়েছে' :
                                                                                       order.status === 'cancelled' ? 'বাতিল' : order.status}</span>
                         </td>
+                        <td class="p-3">
+                            <span class="text-xs ${order.deliveryCharge === 0 ? 'text-green-600' : 'text-gray-600'}">
+                                ${order.deliveryCharge === 0 ? 'ফ্রি' : order.deliveryCharge + '৳'}
+                            </span>
+                        </td>
                         <td class="p-3">${new Date(order.createdAt).toLocaleDateString('bn-BD')}</td>
                         <td class="p-3">
                             <button onclick="showOrderDetails('${order._id}')" class="text-blue-600 hover:text-blue-800 mr-2">
@@ -2103,7 +2166,7 @@
                             </div>
                             <div class="flex justify-between">
                                 <span>ডেলিভারি চার্জ:</span>
-                                <span class="font-bold">${order.deliveryCharge || 60}৳</span>
+                                <span class="font-bold ${order.deliveryCharge === 0 ? 'text-green-600' : ''}">${order.deliveryCharge || 60}৳</span>
                             </div>
                             <div class="flex justify-between text-lg">
                                 <span>মোট:</span>
@@ -2722,8 +2785,14 @@
                             </div>
                             
                             <div>
-                                <label class="block text-sm font-medium mb-2">ডেলিভারি চার্জ (৳)</label>
+                                <label class="block text-sm font-medium mb-2">ঢাকার ভিতরে ডেলিভারি চার্জ (৳)</label>
                                 <input type="number" id="deliveryCharge" value="${settings.deliveryCharge || 60}" 
+                                       class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] outline-none">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium mb-2">ঢাকার বাইরে ডেলিভারি চার্জ (৳)</label>
+                                <input type="number" id="outsideDhakaCharge" value="${settings.outsideDhakaCharge || 120}" 
                                        class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] outline-none">
                             </div>
                             
@@ -2795,6 +2864,7 @@
             email: document.getElementById('email').value,
             address: document.getElementById('address').value,
             deliveryCharge: parseInt(document.getElementById('deliveryCharge').value) || 60,
+            outsideDhakaCharge: parseInt(document.getElementById('outsideDhakaCharge').value) || 120,
             freeDeliveryAbove: parseInt(document.getElementById('freeDeliveryAbove').value) || 2000,
             facebook: document.getElementById('facebook').value,
             instagram: document.getElementById('instagram').value,

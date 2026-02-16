@@ -111,6 +111,7 @@ const orderSchema = new mongoose.Schema({
     customerName: { type: String, required: true },
     customerPhone: { type: String, required: true },
     customerAddress: { type: String, required: true },
+    district: { type: String, default: '' },
     customerEmail: String,
     items: [{
         productId: String,
@@ -178,6 +179,7 @@ const settingsSchema = new mongoose.Schema({
     instagram: String,
     youtube: String,
     deliveryCharge: { type: Number, default: 60 },
+    outsideDhakaCharge: { type: Number, default: 120 },
     freeDeliveryAbove: { type: Number, default: 2000 },
     currency: { type: String, default: '৳' },
     themeColor: { type: String, default: '#00AEEF' },
@@ -596,18 +598,29 @@ app.post('/api/orders', [
         const orderData = req.body;
         const subtotal = orderData.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
         
-        // Get delivery charge from settings
-        const settings = await Settings.findOne() || { deliveryCharge: 60, freeDeliveryAbove: 2000 };
-        const deliveryCharge = subtotal >= settings.freeDeliveryAbove ? 0 : settings.deliveryCharge;
-        const grandTotal = subtotal + deliveryCharge;
+        // Get delivery charge from settings based on district
+        const settings = await Settings.findOne() || { 
+            deliveryCharge: 60, 
+            outsideDhakaCharge: 120,
+            freeDeliveryAbove: 2000 
+        };
+        
+        // Check if address contains Dhaka (case insensitive)
+        const isDhaka = orderData.customerAddress.toLowerCase().includes('ঢাকা') || 
+                       orderData.customerAddress.toLowerCase().includes('dhaka');
+        
+        const deliveryCharge = isDhaka ? settings.deliveryCharge : settings.outsideDhakaCharge;
+        const finalDeliveryCharge = subtotal >= settings.freeDeliveryAbove ? 0 : deliveryCharge;
+        const grandTotal = subtotal + finalDeliveryCharge;
 
         const order = await Order.create({
             ...orderData,
             orderId: generateOrderId(),
             totalAmount: subtotal,
-            deliveryCharge,
+            deliveryCharge: finalDeliveryCharge,
             grandTotal,
-            orderSummary: orderData.items.map(i => `${i.name} (${i.quantity}টি)`).join(', ')
+            orderSummary: orderData.items.map(i => `${i.name} (${i.quantity}টি)`).join(', '),
+            district: isDhaka ? 'ঢাকা' : 'ঢাকার বাহিরে'
         });
 
         // Update product sold count
@@ -947,7 +960,8 @@ app.get('/api/admin/stats', authenticateToken, async (req, res) => {
             lowStock,
             recentOrders,
             ordersByStatus,
-            topProducts
+            topProducts,
+            productsByCategory
         ] = await Promise.all([
             Order.countDocuments(),
             Order.countDocuments({ status: 'pending' }),
@@ -964,8 +978,24 @@ app.get('/api/admin/stats', authenticateToken, async (req, res) => {
             Order.aggregate([
                 { $group: { _id: '$status', count: { $sum: 1 } } }
             ]),
-            Product.find().sort({ sold: -1 }).limit(5)
+            Product.find().sort({ sold: -1 }).limit(5),
+            Product.aggregate([
+                { $group: { _id: '$cat', count: { $sum: 1 } } }
+            ])
         ]);
+
+        // Get category names
+        const categories = await Category.find();
+        const categoryMap = {};
+        categories.forEach(cat => {
+            categoryMap[cat.id] = cat.nameBn;
+        });
+
+        const productsByCategoryWithNames = productsByCategory.map(item => ({
+            category: item._id,
+            categoryName: categoryMap[item._id] || item._id,
+            count: item.count
+        }));
 
         res.json({
             totalOrders,
@@ -978,7 +1008,8 @@ app.get('/api/admin/stats', authenticateToken, async (req, res) => {
             lowStock,
             recentOrders,
             ordersByStatus,
-            topProducts
+            topProducts,
+            productsByCategory: productsByCategoryWithNames
         });
     } catch (error) {
         console.error('Stats error:', error);
