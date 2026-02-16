@@ -46,14 +46,15 @@
             overflow-x: hidden;
         }
 
-        /* নেভিগেশন বার ফিক্সড করার স্টাইল */
+        /* নেভিগেশন বার ফিক্সড - সবসময় দৃশ্যমান */
         nav {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             z-index: 1000;
-            transition: transform 0.3s ease;
+            transition: none; /* ট্রানজিশন রিমুভ করা হয়েছে */
+            transform: none; /* ট্রান্সফর্ম রিমুভ করা হয়েছে */
         }
 
         /* কন্টেইনার */
@@ -675,6 +676,10 @@
             nav .h-20 {
                 height: 70px;
             }
+
+            .mobile-menu {
+                top: 70px;
+            }
         }
 
         @media (max-width: 380px) {
@@ -688,9 +693,9 @@
             }
         }
 
-        /* নেভিগেশন বার হাইড/শো অ্যানিমেশন */
-        .nav-hidden {
-            transform: translateY(-100%);
+        /* নেভিগেশন বার সবসময় ফিক্সড - কোন ট্রান্সফর্ম নেই */
+        nav {
+            transform: none !important;
         }
     </style>
 </head>
@@ -713,7 +718,7 @@
         </div>
     </div>
 
-    <!-- ==================== ফিক্সড নেভিগেশন ==================== -->
+    <!-- ==================== ফিক্সড নেভিগেশন (সবসময় দৃশ্যমান) ==================== -->
     <nav class="bg-[#000B29] text-white shadow-2xl" id="mainNav">
         <div class="container-custom">
             <div class="flex justify-between items-center h-20">
@@ -1052,7 +1057,6 @@
         let categories = [];
         let currentSlideIndex = 0;
         let slideInterval;
-        let lastScrollTop = 0;
 
         // ==================== ইউটিলিটি ফাংশন ====================
 
@@ -1112,22 +1116,6 @@
                 }, 500);
             }, 3000);
         }
-
-        // ==================== স্ক্রোল হাইড/শো নেভিগেশন ====================
-        window.addEventListener('scroll', function() {
-            const nav = document.getElementById('mainNav');
-            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            
-            if (scrollTop > lastScrollTop && scrollTop > 100) {
-                // স্ক্রোল নিচে - নেভিগেশন লুকান
-                nav.classList.add('nav-hidden');
-            } else {
-                // স্ক্রোল উপরে - নেভিগেশন দেখান
-                nav.classList.remove('nav-hidden');
-            }
-            
-            lastScrollTop = scrollTop;
-        });
 
         // ==================== মোবাইল মেনু টগল ====================
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
