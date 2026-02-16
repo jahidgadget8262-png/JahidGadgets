@@ -640,26 +640,14 @@
             <h2 class="text-4xl md:text-5xl font-bold text-[#000B29] mb-2">
                 <i class="fas fa-store text-[#00AEEF] mr-2"></i>আমাদের কালেকশন
             </h2>
-            <p class="text-lg text-[#003366]">৪টি ক্যাটাগরিতে ১০০+ আধুনিক গ্যাজেট</p>
+            <p class="text-lg text-[#003366]" id="categoryCount">৪টি ক্যাটাগরিতে ১০০+ আধুনিক গ্যাজেট</p>
             <div class="w-24 h-1 bg-[#00AEEF] mx-auto mt-4 rounded-full"></div>
         </div>
         
         <!-- Category Tabs -->
-        <div class="flex flex-wrap justify-center gap-3 mb-10">
+        <div id="categoryTabs" class="flex flex-wrap justify-center gap-3 mb-10">
             <button class="category-tab active" data-cat="all">
                 <i class="fas fa-th-large"></i>সবগুলো
-            </button>
-            <button class="category-tab" data-cat="watch">
-                <i class="fas fa-clock"></i>স্মার্ট ওয়াচ
-            </button>
-            <button class="category-tab" data-cat="earbud">
-                <i class="fas fa-headphones"></i>ইয়ারবাড
-            </button>
-            <button class="category-tab" data-cat="power">
-                <i class="fas fa-battery-full"></i>পাওয়ার ব্যাংক
-            </button>
-            <button class="category-tab" data-cat="speaker">
-                <i class="fas fa-volume-up"></i>স্পিকার
             </button>
         </div>
 
@@ -832,11 +820,8 @@
                 <!-- Categories -->
                 <div>
                     <h4 class="text-lg font-bold text-[#00AEEF] mb-4">ক্যাটাগরি</h4>
-                    <ul class="space-y-3 text-[#C0C0C2]">
-                        <li><a href="#products" class="hover:text-[#00AEEF] transition-colors flex items-center gap-2" data-cat="watch"><i class="fas fa-clock"></i>স্মার্ট ওয়াচ</a></li>
-                        <li><a href="#products" class="hover:text-[#00AEEF] transition-colors flex items-center gap-2" data-cat="earbud"><i class="fas fa-headphones"></i>ইয়ারবাড</a></li>
-                        <li><a href="#products" class="hover:text-[#00AEEF] transition-colors flex items-center gap-2" data-cat="power"><i class="fas fa-battery-full"></i>পাওয়ার ব্যাংক</a></li>
-                        <li><a href="#products" class="hover:text-[#00AEEF] transition-colors flex items-center gap-2" data-cat="speaker"><i class="fas fa-volume-up"></i>স্পিকার</a></li>
+                    <ul id="footerCategories" class="space-y-3 text-[#C0C0C2]">
+                        <!-- Categories will be loaded dynamically -->
                     </ul>
                 </div>
 
@@ -889,6 +874,7 @@
         let products = [];
         let slides = [];
         let settings = {};
+        let categories = [];
         let currentSlideIndex = 0;
         let slideInterval;
 
@@ -955,6 +941,83 @@
         document.getElementById('mobileMenuBtn').addEventListener('click', () => {
             document.getElementById('mobileMenu').classList.toggle('open');
         });
+
+        // ==================== LOAD CATEGORIES ====================
+
+        async function loadCategories() {
+            try {
+                const res = await fetch(`${API_URL}/categories`);
+                categories = await res.json();
+                
+                // Update category tabs
+                const tabsContainer = document.getElementById('categoryTabs');
+                tabsContainer.innerHTML = `
+                    <button class="category-tab active" data-cat="all">
+                        <i class="fas fa-th-large"></i>সবগুলো
+                    </button>
+                `;
+                
+                categories.forEach(cat => {
+                    tabsContainer.innerHTML += `
+                        <button class="category-tab" data-cat="${cat.id}">
+                            <i class="fas ${cat.icon}"></i>${cat.nameBn}
+                        </button>
+                    `;
+                });
+                
+                // Update category count text
+                document.getElementById('categoryCount').textContent = `${categories.length} টি ক্যাটাগরিতে ${products.length}+ আধুনিক গ্যাজেট`;
+                
+                // Update footer categories
+                const footerCategories = document.getElementById('footerCategories');
+                footerCategories.innerHTML = '';
+                categories.forEach(cat => {
+                    footerCategories.innerHTML += `
+                        <li><a href="#products" class="hover:text-[#00AEEF] transition-colors flex items-center gap-2" data-cat="${cat.id}"><i class="fas ${cat.icon}"></i>${cat.nameBn}</a></li>
+                    `;
+                });
+                
+                // Re-attach category click handlers
+                attachCategoryHandlers();
+                
+            } catch (error) {
+                console.error('Error loading categories:', error);
+            }
+        }
+
+        function attachCategoryHandlers() {
+            document.querySelectorAll('.category-tab').forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    // Update active state
+                    document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    // Load products
+                    const category = tab.dataset.cat;
+                    loadProducts(category);
+                    
+                    // Scroll to products section
+                    document.getElementById('products').scrollIntoView({ behavior: 'smooth' });
+                });
+            });
+
+            // Category links in footer
+            document.querySelectorAll('footer a[data-cat]').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const category = link.dataset.cat;
+                    
+                    // Activate corresponding tab
+                    document.querySelectorAll('.category-tab').forEach(tab => {
+                        if (tab.dataset.cat === category) {
+                            tab.click();
+                        }
+                    });
+                });
+            });
+        }
 
         // ==================== LOAD SETTINGS ====================
 
@@ -1132,8 +1195,8 @@
             
             const mainImg = document.getElementById(`gallery-img-${productId}`);
             if (mainImg) {
-                mainImg.src = images[gallery.currentIndex];
                 mainImg.style.opacity = '0.5';
+                mainImg.src = images[gallery.currentIndex];
                 setTimeout(() => { mainImg.style.opacity = '1'; }, 100);
             }
             
@@ -1226,40 +1289,6 @@
                 }
             });
         }
-
-        // ==================== CATEGORY TABS ====================
-
-        document.querySelectorAll('.category-tab').forEach(tab => {
-            tab.addEventListener('click', (e) => {
-                e.preventDefault();
-                
-                // Update active state
-                document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                
-                // Load products
-                const category = tab.dataset.cat;
-                loadProducts(category);
-                
-                // Scroll to products section
-                document.getElementById('products').scrollIntoView({ behavior: 'smooth' });
-            });
-        });
-
-        // Category links in footer
-        document.querySelectorAll('footer a[data-cat]').forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const category = link.dataset.cat;
-                
-                // Activate corresponding tab
-                document.querySelectorAll('.category-tab').forEach(tab => {
-                    if (tab.dataset.cat === category) {
-                        tab.click();
-                    }
-                });
-            });
-        });
 
         // ==================== CART FUNCTIONS ====================
 
@@ -1433,13 +1462,6 @@
                     renderCart();
                     document.getElementById('orderForm').reset();
                     
-                    // Send WhatsApp notification to admin (optional)
-                    const adminWhatsapp = settings.whatsapp || '+8801709363983';
-                    const message = encodeURIComponent(
-                        `🆕 নতুন অর্ডার!\n\n👤 নাম: ${name}\n📞 ফোন: ${number}\n📍 ঠিকানা: ${address}\n📦 পণ্য: ${productList}\n💰 মোট: ${cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)}৳\n\nঅর্ডার আইডি: ${data.orderId}`
-                    );
-                    // window.open(`https://wa.me/${adminWhatsapp.replace(/\D/g,'')}?text=${message}`, '_blank');
-                    
                 } else {
                     showPopup('error', 'ত্রুটি!', data.error || 'অর্ডার নিতে সমস্যা হয়েছে');
                 }
@@ -1545,6 +1567,7 @@
             
             // Load all data
             await loadSettings();
+            await loadCategories();
             await loadSlides();
             await loadProducts();
             await loadReviews();

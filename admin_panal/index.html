@@ -134,6 +134,7 @@
             opacity: 0;
             visibility: hidden;
             transition: all 0.3s;
+            backdrop-filter: blur(5px);
         }
         
         .modal-overlay.active {
@@ -206,6 +207,7 @@
             width: 100%;
             height: 200px;
             overflow: hidden;
+            border-radius: 0.75rem 0.75rem 0 0;
         }
         
         .gallery-image {
@@ -284,6 +286,81 @@
         
         ::-webkit-scrollbar-thumb:hover {
             background: var(--primary-blue);
+        }
+
+        /* Notification styles */
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .notification-item {
+            background: white;
+            border-radius: 12px;
+            padding: 16px 24px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transform: translateX(120%);
+            animation: slideIn 0.5s forwards;
+            pointer-events: auto;
+            border-left: 4px solid;
+            min-width: 300px;
+            max-width: 400px;
+        }
+
+        @keyframes slideIn {
+            to { transform: translateX(0); }
+        }
+
+        .notification-success { border-left-color: #10b981; }
+        .notification-error { border-left-color: #ef4444; }
+        .notification-info { border-left-color: #3b82f6; }
+
+        /* Image gallery modal */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .gallery-item {
+            position: relative;
+            cursor: pointer;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        .gallery-item.selected {
+            border: 3px solid var(--primary-blue);
+            transform: scale(1.05);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .notification-item {
+                min-width: 250px;
+                padding: 12px 16px;
+            }
+            
+            .gallery-grid {
+                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            }
         }
     </style>
 </head>
@@ -368,6 +445,12 @@
                     <span>ড্যাশবোর্ড</span>
                 </div>
                 
+                <div class="menu-item" data-page="categories">
+                    <i class="fas fa-tags"></i>
+                    <span>ক্যাটাগরি</span>
+                    <span class="ml-auto bg-purple-500 text-xs px-2 py-1 rounded-full" id="categoryCount">0</span>
+                </div>
+                
                 <div class="menu-item" data-page="products">
                     <i class="fas fa-box"></i>
                     <span>পণ্য ব্যবস্থাপনা</span>
@@ -423,7 +506,7 @@
                     <div class="relative">
                         <button id="notificationBtn" class="text-gray-600 hover:text-[#00AEEF] text-xl relative">
                             <i class="fas fa-bell"></i>
-                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center">3</span>
+                            <span id="notificationBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center hidden">0</span>
                         </button>
                     </div>
                     
@@ -466,13 +549,16 @@
         
         <div id="previewContainer" class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 max-h-96 overflow-y-auto p-2"></div>
         
-        <div class="flex justify-end gap-3 mt-6">
-            <button onclick="closeImageModal()" class="px-6 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 transition-colors">
-                বাতিল
-            </button>
-            <button onclick="uploadImages()" class="px-6 py-2 bg-[#00AEEF] text-white rounded-lg hover:bg-[#003366] transition-colors">
-                <i class="fas fa-upload mr-2"></i>আপলোড
-            </button>
+        <div class="flex justify-between items-center mt-6">
+            <div class="text-sm text-gray-500" id="uploadStatus"></div>
+            <div class="flex gap-3">
+                <button onclick="closeImageModal()" class="px-6 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 transition-colors">
+                    বাতিল
+                </button>
+                <button onclick="uploadImages()" id="uploadBtn" class="px-6 py-2 bg-[#00AEEF] text-white rounded-lg hover:bg-[#003366] transition-colors">
+                    <i class="fas fa-upload mr-2"></i>আপলোড
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -511,6 +597,29 @@
     </div>
 </div>
 
+<!-- Gallery Preview Modal -->
+<div id="galleryModal" class="modal-overlay">
+    <div class="modal-content w-full max-w-2xl p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold text-[#000B29]">ছবি গ্যালারি</h3>
+            <button onclick="closeGalleryModal()" class="text-gray-500 hover:text-red-500 text-2xl">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div id="galleryContainer" class="gallery-grid">
+            <!-- Gallery images will be loaded here -->
+        </div>
+        <div class="flex justify-end mt-4">
+            <button onclick="closeGalleryModal()" class="px-6 py-2 bg-gray-300 rounded-lg hover:bg-gray-400">
+                বন্ধ করুন
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Notification Container -->
+<div id="notificationContainer" class="notification-container"></div>
+
 <script>
     // ==================== CONFIGURATION ====================
     let token = localStorage.getItem('adminToken');
@@ -521,10 +630,99 @@
     let slideImage = '';
     let currentOrderId = null;
     let confirmCallback = null;
+    let notifications = [];
+    let notificationInterval = null;
     
     const API_URL = window.location.hostname === 'localhost' || window.location.hostname.includes('127.0.0.1')
         ? 'http://localhost:5000/api'
         : 'https://jahid-gadgets-backend.onrender.com/api';
+
+    // ==================== NOTIFICATION FUNCTIONS ====================
+
+    function showNotification(message, type = 'info', duration = 3000) {
+        const container = document.getElementById('notificationContainer');
+        const id = Date.now() + Math.random();
+        
+        const notification = document.createElement('div');
+        notification.id = `notification-${id}`;
+        notification.className = `notification-item notification-${type}`;
+        notification.innerHTML = `
+            <i class="fas ${type === 'success' ? 'fa-check-circle text-green-500' : 
+                         type === 'error' ? 'fa-exclamation-circle text-red-500' : 
+                         'fa-info-circle text-blue-500'} text-xl"></i>
+            <span class="flex-1">${message}</span>
+            <button onclick="removeNotification('${id}')" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        
+        container.appendChild(notification);
+        
+        // Auto remove after duration
+        setTimeout(() => {
+            removeNotification(id);
+        }, duration);
+    }
+
+    window.removeNotification = function(id) {
+        const notification = document.getElementById(`notification-${id}`);
+        if (notification) {
+            notification.style.animation = 'slideIn 0.5s reverse';
+            setTimeout(() => {
+                notification.remove();
+            }, 500);
+        }
+    };
+
+    async function checkNotifications() {
+        if (!token) return;
+        
+        try {
+            const res = await fetch(`${API_URL}/admin/stats`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            if (res.ok) {
+                const stats = await res.json();
+                
+                // Update counts
+                document.getElementById('pendingOrderCount').textContent = stats.pendingOrders || 0;
+                
+                // Check for new pending orders
+                if (stats.pendingOrders > 0) {
+                    document.getElementById('notificationBadge').textContent = stats.pendingOrders;
+                    document.getElementById('notificationBadge').classList.remove('hidden');
+                    
+                    // Show notification for new pending orders (only once)
+                    if (!localStorage.getItem('lastPendingCount') || 
+                        parseInt(localStorage.getItem('lastPendingCount')) < stats.pendingOrders) {
+                        showNotification(`${stats.pendingOrders} টি অর্ডার অপেক্ষমাণ`, 'info');
+                    }
+                    
+                    localStorage.setItem('lastPendingCount', stats.pendingOrders);
+                } else {
+                    document.getElementById('notificationBadge').classList.add('hidden');
+                }
+            }
+        } catch (error) {
+            console.error('Error checking notifications:', error);
+        }
+    }
+
+    // Start notification checker
+    function startNotificationChecker() {
+        if (notificationInterval) clearInterval(notificationInterval);
+        checkNotifications();
+        notificationInterval = setInterval(checkNotifications, 30000); // Check every 30 seconds
+    }
+
+    // Stop notification checker
+    function stopNotificationChecker() {
+        if (notificationInterval) {
+            clearInterval(notificationInterval);
+            notificationInterval = null;
+        }
+    }
 
     // ==================== INITIALIZATION ====================
     
@@ -534,6 +732,7 @@
         document.getElementById('adminPanel').classList.remove('hidden');
         verifyToken();
         loadPage('dashboard');
+        startNotificationChecker();
     }
 
     // Verify token
@@ -583,14 +782,17 @@
                 document.getElementById('adminPanel').classList.remove('hidden');
                 verifyToken();
                 loadPage('dashboard');
+                startNotificationChecker();
                 showNotification('লগইন সফল হয়েছে', 'success');
             } else {
                 errorDiv.textContent = data.error || 'লগইন ব্যর্থ হয়েছে';
                 errorDiv.classList.remove('hidden');
+                showNotification(data.error || 'লগইন ব্যর্থ হয়েছে', 'error');
             }
         } catch (error) {
             errorDiv.textContent = 'সার্ভারে সংযোগ করা যায়নি';
             errorDiv.classList.remove('hidden');
+            showNotification('সার্ভারে সংযোগ করা যায়নি', 'error');
         } finally {
             submitBtn.disabled = false;
             submitBtn.innerHTML = 'লগইন করুন <i class="fas fa-arrow-right ml-2"></i>';
@@ -600,10 +802,12 @@
     // Logout
     function logout() {
         localStorage.removeItem('adminToken');
+        localStorage.removeItem('lastPendingCount');
         token = null;
         document.getElementById('adminPanel').classList.add('hidden');
         document.getElementById('loginContainer').classList.remove('hidden');
         document.getElementById('loginForm').reset();
+        stopNotificationChecker();
         showNotification('লগআউট করা হয়েছে', 'info');
     }
 
@@ -621,6 +825,12 @@
         document.querySelector('.sidebar').classList.remove('open');
         document.getElementById('sidebarOverlay').classList.add('hidden');
     }
+
+    // Notification button click handler
+    document.getElementById('notificationBtn').addEventListener('click', () => {
+        loadPage('orders');
+        showNotification('অর্ডার পৃষ্ঠায় নেওয়া হচ্ছে', 'info');
+    });
 
     // Menu navigation
     document.querySelectorAll('.menu-item').forEach(item => {
@@ -641,40 +851,6 @@
         }
     });
 
-    // ==================== NOTIFICATION FUNCTIONS ====================
-
-    function showNotification(message, type = 'info') {
-        const notification = document.createElement('div');
-        notification.className = `fixed top-4 right-4 z-[9999] px-6 py-3 rounded-lg shadow-lg text-white transform transition-all duration-500 translate-x-full ${
-            type === 'success' ? 'bg-green-500' : 
-            type === 'error' ? 'bg-red-500' : 
-            'bg-blue-500'
-        }`;
-        notification.innerHTML = `
-            <div class="flex items-center gap-3">
-                <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
-                <span>${message}</span>
-            </div>
-        `;
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-            notification.classList.remove('translate-x-full');
-        }, 100);
-        
-        setTimeout(() => {
-            notification.classList.add('translate-x-full');
-            setTimeout(() => {
-                notification.remove();
-            }, 500);
-        }, 3000);
-    }
-
-    // Notification button click handler
-    document.getElementById('notificationBtn')?.addEventListener('click', () => {
-        showNotification('নতুন আপডেট আসছে!', 'info');
-    });
-
     // ==================== MODAL FUNCTIONS ====================
 
     // Image Modal
@@ -686,6 +862,36 @@
         document.getElementById('imageModal').classList.remove('active');
         document.getElementById('fileInput').value = '';
         document.getElementById('previewContainer').innerHTML = '';
+        document.getElementById('uploadStatus').innerHTML = '';
+    }
+
+    // Gallery Modal
+    window.openGalleryModal = function(images, callback) {
+        const gallery = document.getElementById('galleryContainer');
+        gallery.innerHTML = images.map((img, index) => `
+            <div class="gallery-item ${index === 0 ? 'selected' : ''}" onclick="selectGalleryImage('${img}', ${index})">
+                <img src="${img}" class="w-full h-24 object-cover">
+            </div>
+        `).join('');
+        
+        window.galleryCallback = callback;
+        document.getElementById('galleryModal').classList.add('active');
+    }
+
+    window.selectGalleryImage = function(image, index) {
+        document.querySelectorAll('.gallery-item').forEach(item => {
+            item.classList.remove('selected');
+        });
+        event.currentTarget.classList.add('selected');
+        
+        if (window.galleryCallback) {
+            window.galleryCallback(image);
+        }
+    }
+
+    window.closeGalleryModal = function() {
+        document.getElementById('galleryModal').classList.remove('active');
+        window.galleryCallback = null;
     }
 
     // Order Modal
@@ -758,6 +964,7 @@
     function handleFiles(files) {
         const preview = document.getElementById('previewContainer');
         preview.innerHTML = '';
+        document.getElementById('uploadStatus').innerHTML = `${files.length} টি ছবি নির্বাচিত`;
         
         for (let file of files) {
             if (file.type.startsWith('image/')) {
@@ -786,6 +993,13 @@
             return;
         }
 
+        const uploadBtn = document.getElementById('uploadBtn');
+        const originalText = uploadBtn.innerHTML;
+        
+        uploadBtn.disabled = true;
+        uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>আপলোড হচ্ছে...';
+        document.getElementById('uploadStatus').innerHTML = 'ছবি আপলোড হচ্ছে... দয়া করে অপেক্ষা করুন';
+
         const formData = new FormData();
         for (let file of files) {
             formData.append('images', file);
@@ -804,22 +1018,27 @@
                 productImages = [...productImages, ...data.urls];
                 updateImagePreview();
                 closeImageModal();
-                showNotification('ছবি আপলোড সফল হয়েছে', 'success');
+                showNotification(`${data.urls.length} টি ছবি আপলোড সফল হয়েছে`, 'success');
             } else {
                 showNotification(data.error || 'ছবি আপলোড ব্যর্থ হয়েছে', 'error');
+                document.getElementById('uploadStatus').innerHTML = 'আপলোড ব্যর্থ হয়েছে';
             }
         } catch (error) {
             console.error('Upload error:', error);
             showNotification('ছবি আপলোড করতে সমস্যা হয়েছে', 'error');
+            document.getElementById('uploadStatus').innerHTML = 'ছবি আপলোড করতে সমস্যা হয়েছে';
+        } finally {
+            uploadBtn.disabled = false;
+            uploadBtn.innerHTML = originalText;
         }
     }
 
     function updateImagePreview() {
         const container = document.getElementById('imagePreviewContainer');
         if (container) {
-            container.innerHTML = productImages.map(img => `
+            container.innerHTML = productImages.map((img, index) => `
                 <div class="relative group">
-                    <img src="${img}" class="image-preview w-24 h-24 object-cover rounded-lg border-2 border-[#00AEEF]">
+                    <img src="${img}" class="image-preview w-24 h-24 object-cover rounded-lg border-2 border-[#00AEEF]" onclick="openGalleryModal(productImages, (image) => console.log('Selected:', image))">
                     <button type="button" onclick="removeImage('${img}')" class="absolute -top-2 -right-2 bg-red-500 text-white w-6 h-6 rounded-full hover:bg-red-600 transition-colors">
                         <i class="fas fa-times"></i>
                     </button>
@@ -838,6 +1057,7 @@
     async function loadPage(page) {
         const titles = {
             dashboard: 'ড্যাশবোর্ড',
+            categories: 'ক্যাটাগরি',
             products: 'পণ্য ব্যবস্থাপনা',
             orders: 'অর্ডারসমূহ',
             reviews: 'রিভিউ',
@@ -848,11 +1068,228 @@
 
         switch(page) {
             case 'dashboard': await loadDashboard(); break;
+            case 'categories': await loadCategories(); break;
             case 'products': await loadProducts(); break;
             case 'orders': await loadOrders(); break;
             case 'reviews': await loadReviews(); break;
             case 'slides': await loadSlides(); break;
             case 'settings': await loadSettings(); break;
+        }
+    }
+
+    // ==================== CATEGORIES MANAGEMENT ====================
+
+    async function loadCategories() {
+        const content = document.getElementById('contentArea');
+        content.innerHTML = `
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold">ক্যাটাগরি ব্যবস্থাপনা</h3>
+                <div class="flex gap-2">
+                    <button onclick="showCategoryForm()" class="bg-[#00AEEF] text-white px-4 py-2 rounded-lg hover:bg-[#003366] transition-colors">
+                        <i class="fas fa-plus mr-2"></i>নতুন ক্যাটাগরি
+                    </button>
+                    <button onclick="loadCategories()" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div id="categoriesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        `;
+
+        try {
+            const res = await fetch(`${API_URL}/admin/categories`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const categories = await res.json();
+
+            document.getElementById('categoryCount').textContent = categories.length;
+
+            const list = document.getElementById('categoriesList');
+            
+            if (categories.length === 0) {
+                list.innerHTML = '<div class="col-span-full text-center py-12 text-gray-500">কোন ক্যাটাগরি পাওয়া যায়নি</div>';
+                return;
+            }
+
+            list.innerHTML = categories.map(cat => `
+                <div class="bg-white rounded-xl shadow-lg p-4 card-hover">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 bg-[#00AEEF] rounded-full flex items-center justify-center text-white">
+                            <i class="fas ${cat.icon}"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-bold">${cat.nameBn}</h4>
+                            <p class="text-sm text-gray-500">${cat.name} (${cat.id})</p>
+                        </div>
+                        <span class="px-2 py-1 ${cat.active ? 'bg-green-500' : 'bg-gray-500'} text-white text-xs rounded-full">
+                            ${cat.active ? 'সক্রিয়' : 'নিষ্ক্রিয়'}
+                        </span>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="editCategory('${cat.id}')" class="flex-1 bg-yellow-500 text-white py-2 rounded-lg hover:bg-yellow-600">
+                            <i class="fas fa-edit"></i> সম্পাদনা
+                        </button>
+                        <button onclick="confirmDeleteCategory('${cat.id}')" class="flex-1 bg-red-500 text-white py-2 rounded-lg hover:bg-red-600">
+                            <i class="fas fa-trash"></i> মুছুন
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+        } catch (error) {
+            document.getElementById('categoriesList').innerHTML = `
+                <div class="col-span-full text-center py-12 text-red-500">
+                    <i class="fas fa-exclamation-circle text-5xl mb-4"></i>
+                    <p>ক্যাটাগরি লোড করতে সমস্যা হয়েছে</p>
+                </div>
+            `;
+        }
+    }
+
+    function showCategoryForm(category = null) {
+        const content = document.getElementById('contentArea');
+        content.innerHTML = `
+            <div class="bg-white rounded-xl shadow-lg p-4 md:p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold">${category ? 'ক্যাটাগরি সম্পাদনা' : 'নতুন ক্যাটাগরি'}</h3>
+                    <button onclick="loadCategories()" class="text-gray-500 hover:text-red-500 text-2xl">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <form id="categoryForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">ক্যাটাগরি আইডি *</label>
+                        <input type="text" id="catId" value="${category?.id || ''}" ${category ? 'readonly' : ''} 
+                               class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] outline-none" 
+                               placeholder="যেমন: smartphone" required>
+                        <p class="text-xs text-gray-500 mt-1">ইউনিক আইডি, ইংরেজিতে লিখুন</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-1">ক্যাটাগরির নাম (ইংরেজি) *</label>
+                        <input type="text" id="catName" value="${category?.name || ''}" 
+                               class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] outline-none" required>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-1">ক্যাটাগরির নাম (বাংলা) *</label>
+                        <input type="text" id="catNameBn" value="${category?.nameBn || ''}" 
+                               class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] outline-none" required>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-1">আইকন</label>
+                        <input type="text" id="catIcon" value="${category?.icon || 'fa-box'}" 
+                               class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] outline-none" 
+                               placeholder="যেমন: fa-mobile">
+                        <p class="text-xs text-gray-500 mt-1">Font Awesome ক্লাস নাম (fa- দিয়ে শুরু)</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-1">অর্ডার</label>
+                        <input type="number" id="catOrder" value="${category?.order || 0}" 
+                               class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] outline-none">
+                    </div>
+                    
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="catActive" ${category?.active !== false ? 'checked' : ''} class="w-5 h-5">
+                        <label class="text-sm font-medium">সক্রিয়</label>
+                    </div>
+                    
+                    <div class="flex gap-3 pt-4 border-t">
+                        <button type="submit" class="bg-[#00AEEF] text-white px-8 py-3 rounded-lg hover:bg-[#003366] transition-colors font-bold">
+                            ${category ? 'আপডেট করুন' : 'সংরক্ষণ করুন'}
+                        </button>
+                        <button type="button" onclick="loadCategories()" class="bg-gray-300 px-8 py-3 rounded-lg hover:bg-gray-400 transition-colors">
+                            বাতিল
+                        </button>
+                    </div>
+                </form>
+            </div>
+        `;
+
+        document.getElementById('categoryForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const catData = {
+                id: document.getElementById('catId').value,
+                name: document.getElementById('catName').value,
+                nameBn: document.getElementById('catNameBn').value,
+                icon: document.getElementById('catIcon').value,
+                order: parseInt(document.getElementById('catOrder').value) || 0,
+                active: document.getElementById('catActive').checked
+            };
+
+            try {
+                const url = category 
+                    ? `${API_URL}/admin/categories/${category.id}`
+                    : `${API_URL}/admin/categories`;
+                
+                const method = category ? 'PUT' : 'POST';
+
+                const res = await fetch(url, {
+                    method,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(catData)
+                });
+
+                if (res.ok) {
+                    showNotification(category ? 'ক্যাটাগরি আপডেট হয়েছে' : 'ক্যাটাগরি সংরক্ষিত হয়েছে', 'success');
+                    loadCategories();
+                } else {
+                    const data = await res.json();
+                    showNotification(data.error || 'সংরক্ষণ করতে সমস্যা হয়েছে', 'error');
+                }
+            } catch (error) {
+                showNotification('সংরক্ষণ করতে সমস্যা হয়েছে', 'error');
+            }
+        });
+    }
+
+    async function editCategory(catId) {
+        try {
+            const res = await fetch(`${API_URL}/admin/categories`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const categories = await res.json();
+            const category = categories.find(c => c.id === catId);
+            if (category) {
+                showCategoryForm(category);
+            }
+        } catch (error) {
+            showNotification('ক্যাটাগরি তথ্য লোড করতে পারেনি', 'error');
+        }
+    }
+
+    function confirmDeleteCategory(catId) {
+        openConfirmModal(
+            'ক্যাটাগরি মুছবেন?',
+            'এই ক্যাটাগরিতে কোন পণ্য থাকলে মুছতে পারবেন না।',
+            () => deleteCategory(catId)
+        );
+    }
+
+    async function deleteCategory(catId) {
+        try {
+            const res = await fetch(`${API_URL}/admin/categories/${catId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (res.ok) {
+                showNotification('ক্যাটাগরি মুছে ফেলা হয়েছে', 'success');
+                loadCategories();
+            } else {
+                const data = await res.json();
+                showNotification(data.error || 'মুছতে সমস্যা হয়েছে', 'error');
+            }
+        } catch (error) {
+            showNotification('মুছতে সমস্যা হয়েছে', 'error');
         }
     }
 
@@ -965,7 +1402,12 @@
                             <div class="space-y-3">
                                 ${stats.ordersByStatus?.map(item => `
                                     <div class="flex justify-between items-center">
-                                        <span class="capitalize">${item._id}</span>
+                                        <span class="capitalize">${item._id === 'pending' ? 'অপেক্ষমাণ' : 
+                                                                        item._id === 'confirmed' ? 'নিশ্চিত' :
+                                                                        item._id === 'processing' ? 'প্রক্রিয়াধীন' :
+                                                                        item._id === 'shipped' ? 'পাঠানো হয়েছে' :
+                                                                        item._id === 'delivered' ? 'ডেলিভারি হয়েছে' :
+                                                                        item._id === 'cancelled' ? 'বাতিল' : item._id}</span>
                                         <span class="font-bold">${item.count}</span>
                                     </div>
                                 `).join('') || '<p class="text-gray-500">কোন তথ্য নেই</p>'}
@@ -999,7 +1441,12 @@
                                             <td class="p-3 font-medium">${order.customerName}</td>
                                             <td class="p-3 font-bold">${order.grandTotal || order.totalAmount}৳</td>
                                             <td class="p-3">
-                                                <span class="status-badge status-${order.status}">${order.status}</span>
+                                                <span class="status-badge status-${order.status}">${order.status === 'pending' ? 'অপেক্ষমাণ' : 
+                                                                                                      order.status === 'confirmed' ? 'নিশ্চিত' :
+                                                                                                      order.status === 'processing' ? 'প্রক্রিয়াধীন' :
+                                                                                                      order.status === 'shipped' ? 'পাঠানো হয়েছে' :
+                                                                                                      order.status === 'delivered' ? 'ডেলিভারি হয়েছে' :
+                                                                                                      order.status === 'cancelled' ? 'বাতিল' : order.status}</span>
                                             </td>
                                             <td class="p-3">${new Date(order.createdAt).toLocaleDateString('bn-BD')}</td>
                                         </tr>
@@ -1074,10 +1521,6 @@
                        class="border rounded-lg px-4 py-2 flex-1 min-w-[200px] focus:ring-2 focus:ring-[#00AEEF] outline-none">
                 <select id="categoryFilter" class="border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] outline-none">
                     <option value="all">সব ক্যাটাগরি</option>
-                    <option value="watch">স্মার্ট ওয়াচ</option>
-                    <option value="earbud">ইয়ারবাড</option>
-                    <option value="power">পাওয়ার ব্যাংক</option>
-                    <option value="speaker">স্পিকার</option>
                 </select>
             </div>
             
@@ -1085,12 +1528,20 @@
         `;
 
         try {
+            // Load categories for filter
+            const catRes = await fetch(`${API_URL}/categories`);
+            const categories = await catRes.json();
+            
+            const categoryFilter = document.getElementById('categoryFilter');
+            categories.forEach(cat => {
+                categoryFilter.innerHTML += `<option value="${cat.id}">${cat.nameBn}</option>`;
+            });
+
             const res = await fetch(`${API_URL}/products`);
             let products = await res.json();
 
             const list = document.getElementById('productsList');
             const searchInput = document.getElementById('productSearch');
-            const categoryFilter = document.getElementById('categoryFilter');
 
             function renderFilteredProducts() {
                 const searchTerm = searchInput.value.toLowerCase();
@@ -1157,6 +1608,9 @@
                                     <i class="fas fa-trash"></i> মুছুন
                                 </button>
                             </div>
+                            <div class="mt-2 text-xs text-gray-400 text-center">
+                                <i class="fas fa-images mr-1"></i>${p.images.length} টি ছবি
+                            </div>
                         </div>
                     </div>
                 `).join('');
@@ -1195,7 +1649,11 @@
         
         const mainImg = document.getElementById(`gallery-${productId}`);
         if (mainImg) {
+            mainImg.style.opacity = '0.5';
             mainImg.src = images[gallery.currentIndex];
+            setTimeout(() => {
+                mainImg.style.opacity = '1';
+            }, 100);
         }
         
         const indicators = document.querySelectorAll(`#indicator-${productId} .indicator-dot`);
@@ -1208,9 +1666,13 @@
         });
     };
 
-    function showProductForm(product = null) {
+    async function showProductForm(product = null) {
         currentProductId = product?.id || null;
         productImages = product?.images || [];
+
+        // Load categories for dropdown
+        const catRes = await fetch(`${API_URL}/categories`);
+        const categories = await catRes.json();
 
         const content = document.getElementById('contentArea');
         content.innerHTML = `
@@ -1241,10 +1703,10 @@
                         <div>
                             <label class="block text-sm font-medium mb-1">ক্যাটাগরি *</label>
                             <select id="productCat" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#00AEEF] outline-none" required>
-                                <option value="watch" ${product?.cat === 'watch' ? 'selected' : ''}>স্মার্ট ওয়াচ</option>
-                                <option value="earbud" ${product?.cat === 'earbud' ? 'selected' : ''}>ইয়ারবাড</option>
-                                <option value="power" ${product?.cat === 'power' ? 'selected' : ''}>পাওয়ার ব্যাংক</option>
-                                <option value="speaker" ${product?.cat === 'speaker' ? 'selected' : ''}>স্পিকার</option>
+                                <option value="">ক্যাটাগরি নির্বাচন করুন</option>
+                                ${categories.map(cat => `
+                                    <option value="${cat.id}" ${product?.cat === cat.id ? 'selected' : ''}>${cat.nameBn}</option>
+                                `).join('')}
                             </select>
                         </div>
                         
@@ -1294,13 +1756,14 @@
                             <div id="imagePreviewContainer" class="flex flex-wrap gap-3 mt-4">
                                 ${productImages.map(img => `
                                     <div class="relative group">
-                                        <img src="${img}" class="image-preview w-24 h-24 object-cover rounded-lg border-2 border-[#00AEEF]">
+                                        <img src="${img}" class="image-preview w-24 h-24 object-cover rounded-lg border-2 border-[#00AEEF] cursor-pointer" onclick="openGalleryModal(productImages, (image) => console.log('Selected:', image))">
                                         <button type="button" onclick="removeImage('${img}')" class="absolute -top-2 -right-2 bg-red-500 text-white w-6 h-6 rounded-full hover:bg-red-600 transition-colors">
                                             <i class="fas fa-times"></i>
                                         </button>
                                     </div>
                                 `).join('')}
                             </div>
+                            <p class="text-xs text-gray-500 mt-2">ছবির উপর ক্লিক করে বড় করে দেখুন</p>
                         </div>
                     </div>
                     
@@ -1473,7 +1936,12 @@
                                             </td>
                                             <td class="p-3 font-bold">${order.grandTotal || order.totalAmount}৳</td>
                                             <td class="p-3">
-                                                <span class="status-badge status-${order.status}">${order.status}</span>
+                                                <span class="status-badge status-${order.status}">${order.status === 'pending' ? 'অপেক্ষমাণ' : 
+                                                                                                          order.status === 'confirmed' ? 'নিশ্চিত' :
+                                                                                                          order.status === 'processing' ? 'প্রক্রিয়াধীন' :
+                                                                                                          order.status === 'shipped' ? 'পাঠানো হয়েছে' :
+                                                                                                          order.status === 'delivered' ? 'ডেলিভারি হয়েছে' :
+                                                                                                          order.status === 'cancelled' ? 'বাতিল' : order.status}</span>
                                             </td>
                                             <td class="p-3">${new Date(order.createdAt).toLocaleDateString('bn-BD')}</td>
                                             <td class="p-3">
@@ -1551,7 +2019,12 @@
                         </td>
                         <td class="p-3 font-bold">${order.grandTotal || order.totalAmount}৳</td>
                         <td class="p-3">
-                            <span class="status-badge status-${order.status}">${order.status}</span>
+                            <span class="status-badge status-${order.status}">${order.status === 'pending' ? 'অপেক্ষমাণ' : 
+                                                                                      order.status === 'confirmed' ? 'নিশ্চিত' :
+                                                                                      order.status === 'processing' ? 'প্রক্রিয়াধীন' :
+                                                                                      order.status === 'shipped' ? 'পাঠানো হয়েছে' :
+                                                                                      order.status === 'delivered' ? 'ডেলিভারি হয়েছে' :
+                                                                                      order.status === 'cancelled' ? 'বাতিল' : order.status}</span>
                         </td>
                         <td class="p-3">${new Date(order.createdAt).toLocaleDateString('bn-BD')}</td>
                         <td class="p-3">
@@ -1596,8 +2069,13 @@
                             <h4 class="font-bold mb-2">অর্ডারের তথ্য</h4>
                             <p><span class="text-gray-600">অর্ডার আইডি:</span> ${order.orderId || 'N/A'}</p>
                             <p><span class="text-gray-600">তারিখ:</span> ${new Date(order.createdAt).toLocaleString('bn-BD')}</p>
-                            <p><span class="text-gray-600">পেমেন্ট:</span> ${order.paymentMethod}</p>
-                            <p><span class="text-gray-600">স্ট্যাটাস:</span> <span class="status-badge status-${order.status}">${order.status}</span></p>
+                            <p><span class="text-gray-600">পেমেন্ট:</span> ${order.paymentMethod === 'cash_on_delivery' ? 'ক্যাশ অন ডেলিভারি' : order.paymentMethod}</p>
+                            <p><span class="text-gray-600">স্ট্যাটাস:</span> <span class="status-badge status-${order.status}">${order.status === 'pending' ? 'অপেক্ষমাণ' : 
+                                                                                                                                          order.status === 'confirmed' ? 'নিশ্চিত' :
+                                                                                                                                          order.status === 'processing' ? 'প্রক্রিয়াধীন' :
+                                                                                                                                          order.status === 'shipped' ? 'পাঠানো হয়েছে' :
+                                                                                                                                          order.status === 'delivered' ? 'ডেলিভারি হয়েছে' :
+                                                                                                                                          order.status === 'cancelled' ? 'বাতিল' : order.status}</span></p>
                         </div>
                     </div>
 
@@ -1680,6 +2158,7 @@
                 showNotification('অর্ডার স্ট্যাটাস আপডেট হয়েছে', 'success');
                 closeOrderModal();
                 loadOrders();
+                checkNotifications(); // Update notification badge
             }
         } catch (error) {
             showNotification('আপডেট করতে সমস্যা হয়েছে', 'error');
@@ -1704,6 +2183,7 @@
             if (res.ok) {
                 showNotification('অর্ডার মুছে ফেলা হয়েছে', 'success');
                 loadOrders();
+                checkNotifications(); // Update notification badge
             }
         } catch (error) {
             showNotification('মুছতে সমস্যা হয়েছে', 'error');
@@ -1757,7 +2237,9 @@
                                         <div class="flex-1">
                                             <div class="flex items-center gap-2 flex-wrap">
                                                 <h4 class="font-bold">${review.name}</h4>
-                                                <span class="status-badge status-${review.status}">${review.status}</span>
+                                                <span class="status-badge status-${review.status}">${review.status === 'pending' ? 'অপেক্ষমাণ' : 
+                                                                                                       review.status === 'approved' ? 'অনুমোদিত' : 
+                                                                                                       review.status === 'rejected' ? 'বাতিল' : review.status}</span>
                                                 ${review.isFeatured ? '<span class="bg-yellow-500 text-white px-2 py-1 rounded-full text-xs">ফিচার্ড</span>' : ''}
                                             </div>
                                             <p class="text-gray-600 text-sm">${review.address || 'ঠিকানা নেই'}</p>
@@ -1830,7 +2312,9 @@
                                 <div class="flex-1">
                                     <div class="flex items-center gap-2 flex-wrap">
                                         <h4 class="font-bold">${review.name}</h4>
-                                        <span class="status-badge status-${review.status}">${review.status}</span>
+                                        <span class="status-badge status-${review.status}">${review.status === 'pending' ? 'অপেক্ষমাণ' : 
+                                                                                               review.status === 'approved' ? 'অনুমোদিত' : 
+                                                                                               review.status === 'rejected' ? 'বাতিল' : review.status}</span>
                                     </div>
                                     <p class="text-gray-600 text-sm">${review.address || 'ঠিকানা নেই'}</p>
                                     <p class="mt-2">"${review.text}"</p>
@@ -1963,7 +2447,7 @@
 
             list.innerHTML = slides.map(slide => `
                 <div class="bg-white rounded-xl shadow-lg p-4 flex flex-col md:flex-row items-start md:items-center gap-4 card-hover">
-                    <img src="${slide.image}" class="w-full md:w-48 h-32 object-cover rounded-lg" onerror="this.src='https://via.placeholder.com/200'">
+                    <img src="${slide.image}" class="w-full md:w-48 h-32 object-cover rounded-lg cursor-pointer" onclick="openGalleryModal(['${slide.image}'], () => {})" onerror="this.src='https://via.placeholder.com/200'">
                     <div class="flex-1">
                         <div class="flex items-center gap-2 flex-wrap">
                             <h4 class="font-bold text-lg">${slide.title}</h4>
@@ -2039,7 +2523,7 @@
                         <label class="block text-sm font-medium mb-1">ছবি *</label>
                         ${slideImage ? `
                             <div class="mb-3">
-                                <img src="${slideImage}" class="h-32 w-auto object-cover rounded-lg border-2 border-[#00AEEF]">
+                                <img src="${slideImage}" class="h-32 w-auto object-cover rounded-lg border-2 border-[#00AEEF] cursor-pointer" onclick="openGalleryModal(['${slideImage}'], () => {})">
                             </div>
                         ` : ''}
                         <input type="file" id="slideImage" accept="image/*" 
@@ -2340,6 +2824,8 @@
 
     // Initialize
     async function init() {
+        if (!token) return;
+        
         // Load counts for badges
         try {
             const statsRes = await fetch(`${API_URL}/admin/stats`, {
@@ -2357,6 +2843,14 @@
             if (reviewsRes.ok) {
                 const reviews = await reviewsRes.json();
                 document.getElementById('pendingReviewCount').textContent = reviews.reviews.length || 0;
+            }
+
+            const catRes = await fetch(`${API_URL}/admin/categories`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (catRes.ok) {
+                const categories = await catRes.json();
+                document.getElementById('categoryCount').textContent = categories.length || 0;
             }
         } catch (error) {
             console.error('Error loading counts:', error);

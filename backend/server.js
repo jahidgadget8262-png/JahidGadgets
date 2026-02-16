@@ -64,6 +64,17 @@ mongoose.connect(process.env.MONGODB_URI, {
 
 // ==================== SCHEMAS ====================
 
+// Category Schema
+const categorySchema = new mongoose.Schema({
+    id: { type: String, required: true, unique: true },
+    name: { type: String, required: true },
+    nameBn: { type: String, required: true },
+    icon: { type: String, default: 'fa-box' },
+    order: { type: Number, default: 0 },
+    active: { type: Boolean, default: true },
+    createdAt: { type: Date, default: Date.now }
+});
+
 // Admin Schema
 const adminSchema = new mongoose.Schema({
     username: { type: String, required: true, unique: true },
@@ -77,7 +88,7 @@ const adminSchema = new mongoose.Schema({
 // Product Schema
 const productSchema = new mongoose.Schema({
     id: { type: String, required: true, unique: true },
-    cat: { type: String, required: true, enum: ['watch', 'earbud', 'power', 'speaker'] },
+    cat: { type: String, required: true },
     name: { type: String, required: true },
     price: { type: Number, required: true },
     oldPrice: { type: Number, required: true },
@@ -175,6 +186,7 @@ const settingsSchema = new mongoose.Schema({
     updatedAt: { type: Date, default: Date.now }
 });
 
+const Category = mongoose.model('Category', categorySchema);
 const Admin = mongoose.model('Admin', adminSchema);
 const Product = mongoose.model('Product', productSchema);
 const Order = mongoose.model('Order', orderSchema);
@@ -226,6 +238,23 @@ async function createInitialAdmin() {
     }
 }
 
+async function initializeCategories() {
+    try {
+        const categories = await Category.find();
+        if (categories.length === 0) {
+            await Category.insertMany([
+                { id: 'watch', name: 'Smart Watch', nameBn: 'স্মার্ট ওয়াচ', icon: 'fa-clock', order: 1 },
+                { id: 'earbud', name: 'Earbud', nameBn: 'ইয়ারবাড', icon: 'fa-headphones', order: 2 },
+                { id: 'power', name: 'Power Bank', nameBn: 'পাওয়ার ব্যাংক', icon: 'fa-battery-full', order: 3 },
+                { id: 'speaker', name: 'Speaker', nameBn: 'স্পিকার', icon: 'fa-volume-up', order: 4 }
+            ]);
+            console.log('✅ Default categories created');
+        }
+    } catch (error) {
+        console.error('❌ Error creating categories:', error);
+    }
+}
+
 async function initializeSettings() {
     try {
         const settings = await Settings.findOne();
@@ -239,6 +268,7 @@ async function initializeSettings() {
 }
 
 createInitialAdmin();
+initializeCategories();
 initializeSettings();
 
 // Helper function to upload to Cloudinary
@@ -327,6 +357,78 @@ app.get('/api/admin/verify', authenticateToken, async (req, res) => {
     }
 });
 
+// ==================== CATEGORY ROUTES ====================
+
+// Get all categories (public)
+app.get('/api/categories', async (req, res) => {
+    try {
+        const categories = await Category.find({ active: true }).sort({ order: 1 });
+        res.json(categories);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Get all categories (admin)
+app.get('/api/admin/categories', authenticateToken, async (req, res) => {
+    try {
+        const categories = await Category.find().sort({ order: 1 });
+        res.json(categories);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Create category (admin)
+app.post('/api/admin/categories', authenticateToken, async (req, res) => {
+    try {
+        const { id, name, nameBn, icon, order, active } = req.body;
+        
+        const existing = await Category.findOne({ id });
+        if (existing) {
+            return res.status(400).json({ error: 'Category ID already exists' });
+        }
+
+        const category = await Category.create({
+            id, name, nameBn, icon: icon || 'fa-box', order: order || 0, active: active !== false
+        });
+
+        res.json(category);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Update category (admin)
+app.put('/api/admin/categories/:id', authenticateToken, async (req, res) => {
+    try {
+        const category = await Category.findOneAndUpdate(
+            { id: req.params.id },
+            req.body,
+            { new: true }
+        );
+        res.json(category);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Delete category (admin)
+app.delete('/api/admin/categories/:id', authenticateToken, async (req, res) => {
+    try {
+        // Check if category has products
+        const products = await Product.findOne({ cat: req.params.id });
+        if (products) {
+            return res.status(400).json({ error: 'Cannot delete category with products' });
+        }
+        
+        await Category.findOneAndDelete({ id: req.params.id });
+        res.json({ message: 'Category deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // ==================== PRODUCT ROUTES ====================
 
 // Get all products (public)
@@ -392,10 +494,7 @@ app.post('/api/admin/products', authenticateToken, upload.array('images', 10), a
             }
         }
 
-        // If no new images but existing images in productData
-        if (imageUrls.length === 0 && productData.images && productData.images.length > 0) {
-            // Use existing images
-        } else if (imageUrls.length === 0) {
+        if (imageUrls.length === 0) {
             return res.status(400).json({ error: 'At least one image is required' });
         }
 
@@ -406,7 +505,7 @@ app.post('/api/admin/products', authenticateToken, upload.array('images', 10), a
 
         const product = await Product.create({
             ...productData,
-            images: imageUrls.length > 0 ? imageUrls : productData.images
+            images: imageUrls
         });
 
         res.json(product);
