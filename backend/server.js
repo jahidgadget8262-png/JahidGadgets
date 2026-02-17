@@ -483,8 +483,9 @@ app.get('/api/products/:id', async (req, res) => {
 app.post('/api/admin/products', authenticateToken, upload.array('images', 10), async (req, res) => {
     try {
         const productData = JSON.parse(req.body.product);
-        
-        const imageUrls = [];
+        let imageUrls = [];
+
+        // যদি ফাইল আপলোড করা হয়, সেগুলো ক্লাউডিনারিতে আপলোড করে URL নিন
         if (req.files && req.files.length > 0) {
             for (const file of req.files) {
                 try {
@@ -494,15 +495,19 @@ app.post('/api/admin/products', authenticateToken, upload.array('images', 10), a
                     console.error('Image upload error:', uploadError);
                 }
             }
+        } 
+        // যদি কোনো ফাইল না থাকে, তাহলে productData.images থেকে URL গুলো ব্যবহার করুন
+        else if (productData.images && Array.isArray(productData.images) && productData.images.length > 0) {
+            imageUrls = productData.images;
         }
 
+        // যদি কোনো ছবি না পাওয়া যায়, তবে ত্রুটি দেখান
         if (imageUrls.length === 0) {
             return res.status(400).json({ error: 'At least one image is required' });
         }
 
-        if (!productData.oldPrice && productData.discount) {
-            productData.oldPrice = Math.round(productData.price * (100 / (100 - productData.discount)));
-        }
+        // productData থেকে images প্রপার্টি সরিয়ে নতুন করে যোগ করুন (নিরাপত্তার জন্য)
+        delete productData.images;
 
         const product = await Product.create({
             ...productData,
