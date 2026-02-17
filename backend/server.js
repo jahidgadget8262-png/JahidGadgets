@@ -133,6 +133,7 @@ const orderSchema = new mongoose.Schema({
     orderSummary: String,
     notes: String,
     trackingCode: String,
+    notificationRead: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
 });
@@ -147,6 +148,7 @@ const reviewSchema = new mongoose.Schema({
     productName: String,
     status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
     isFeatured: { type: Boolean, default: false },
+    notificationRead: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now }
 });
 
@@ -418,7 +420,6 @@ app.put('/api/admin/categories/:id', authenticateToken, async (req, res) => {
 // Delete category (admin)
 app.delete('/api/admin/categories/:id', authenticateToken, async (req, res) => {
     try {
-        // Check if category has products
         const products = await Product.findOne({ cat: req.params.id });
         if (products) {
             return res.status(400).json({ error: 'Cannot delete category with products' });
@@ -483,7 +484,6 @@ app.post('/api/admin/products', authenticateToken, upload.array('images', 10), a
     try {
         const productData = JSON.parse(req.body.product);
         
-        // Upload images to Cloudinary
         const imageUrls = [];
         if (req.files && req.files.length > 0) {
             for (const file of req.files) {
@@ -500,7 +500,6 @@ app.post('/api/admin/products', authenticateToken, upload.array('images', 10), a
             return res.status(400).json({ error: 'At least one image is required' });
         }
 
-        // Calculate old price if not provided
         if (!productData.oldPrice && productData.discount) {
             productData.oldPrice = Math.round(productData.price * (100 / (100 - productData.discount)));
         }
@@ -523,7 +522,6 @@ app.put('/api/admin/products/:id', authenticateToken, upload.array('images', 10)
         const productId = req.params.id;
         let updateData = req.body.product ? JSON.parse(req.body.product) : req.body;
 
-        // Upload new images if any
         if (req.files && req.files.length > 0) {
             const imageUrls = [];
             for (const file of req.files) {
@@ -564,7 +562,6 @@ app.delete('/api/admin/products/:id', authenticateToken, async (req, res) => {
             return res.status(404).json({ error: 'Product not found' });
         }
 
-        // Delete images from cloudinary (optional)
         for (const imageUrl of product.images) {
             try {
                 const publicId = imageUrl.split('/').pop().split('.')[0];
@@ -598,14 +595,12 @@ app.post('/api/orders', [
         const orderData = req.body;
         const subtotal = orderData.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
         
-        // Get delivery charge from settings based on district
         const settings = await Settings.findOne() || { 
             deliveryCharge: 60, 
             outsideDhakaCharge: 120,
             freeDeliveryAbove: 2000 
         };
         
-        // Check if address contains Dhaka (case insensitive)
         const isDhaka = orderData.customerAddress.toLowerCase().includes('ঢাকা') || 
                        orderData.customerAddress.toLowerCase().includes('dhaka');
         
@@ -623,7 +618,6 @@ app.post('/api/orders', [
             district: isDhaka ? 'ঢাকা' : 'ঢাকার বাহিরে'
         });
 
-        // Update product sold count
         for (const item of orderData.items) {
             await Product.findOneAndUpdate(
                 { id: item.productId },
@@ -678,6 +672,10 @@ app.get('/api/admin/orders/:id', authenticateToken, async (req, res) => {
         if (!order) {
             return res.status(404).json({ error: 'Order not found' });
         }
+        
+        // Mark as read when viewed
+        await Order.findByIdAndUpdate(req.params.id, { notificationRead: true });
+        
         res.json(order);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -768,6 +766,23 @@ app.get('/api/admin/reviews', authenticateToken, async (req, res) => {
             currentPage: parseInt(page),
             total
         });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Get single review (admin)
+app.get('/api/admin/reviews/:id', authenticateToken, async (req, res) => {
+    try {
+        const review = await Review.findById(req.params.id);
+        if (!review) {
+            return res.status(404).json({ error: 'Review not found' });
+        }
+        
+        // Mark as read when viewed
+        await Review.findByIdAndUpdate(req.params.id, { notificationRead: true });
+        
+        res.json(review);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -961,7 +976,8 @@ app.get('/api/admin/stats', authenticateToken, async (req, res) => {
             recentOrders,
             ordersByStatus,
             topProducts,
-            productsByCategory
+            productsByCategory,
+            pendingReviews
         ] = await Promise.all([
             Order.countDocuments(),
             Order.countDocuments({ status: 'pending' }),
@@ -981,10 +997,10 @@ app.get('/api/admin/stats', authenticateToken, async (req, res) => {
             Product.find().sort({ sold: -1 }).limit(5),
             Product.aggregate([
                 { $group: { _id: '$cat', count: { $sum: 1 } } }
-            ])
+            ]),
+            Review.countDocuments({ status: 'pending' })
         ]);
 
-        // Get category names
         const categories = await Category.find();
         const categoryMap = {};
         categories.forEach(cat => {
@@ -1009,10 +1025,68 @@ app.get('/api/admin/stats', authenticateToken, async (req, res) => {
             recentOrders,
             ordersByStatus,
             topProducts,
-            productsByCategory: productsByCategoryWithNames
+            productsByCategory: productsByCategoryWithNames,
+            pendingReviews
         });
     } catch (error) {
         console.error('Stats error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ==================== NOTIFICATION ROUTES ====================
+
+// Get unread notifications count
+app.get('/api/admin/notifications/unread', authenticateToken, async (req, res) => {
+    try {
+        const [pendingOrders, pendingReviews] = await Promise.all([
+            Order.countDocuments({ status: 'pending', notificationRead: false }),
+            Review.countDocuments({ status: 'pending', notificationRead: false })
+        ]);
+        
+        const notifications = [];
+        
+        if (pendingOrders > 0) {
+            const recentOrders = await Order.find({ status: 'pending', notificationRead: false })
+                .sort({ createdAt: -1 })
+                .limit(5)
+                .select('_id orderId customerName createdAt');
+            
+            notifications.push({
+                type: 'order',
+                count: pendingOrders,
+                items: recentOrders.map(o => ({
+                    id: o._id,
+                    orderId: o.orderId,
+                    customerName: o.customerName,
+                    time: o.createdAt
+                }))
+            });
+        }
+        
+        if (pendingReviews > 0) {
+            const recentReviews = await Review.find({ status: 'pending', notificationRead: false })
+                .sort({ createdAt: -1 })
+                .limit(5)
+                .select('_id name text createdAt');
+            
+            notifications.push({
+                type: 'review',
+                count: pendingReviews,
+                items: recentReviews.map(r => ({
+                    id: r._id,
+                    name: r.name,
+                    text: r.text,
+                    time: r.createdAt
+                }))
+            });
+        }
+        
+        res.json({
+            total: pendingOrders + pendingReviews,
+            notifications
+        });
+    } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
