@@ -22,7 +22,9 @@ app.use(cors({
     origin: [
         process.env.FRONTEND_URL,
         process.env.ADMIN_URL,
-        'https://www.jahidgadgets.shop',   // www সহ ভার্সন
+        'https://jahidgadgets.shop',
+    'https://www.jahidgadgets.shop',
+    'https://admin.jahidgadgets.shop',
         'http://localhost:3000',
         'http://localhost:5000'
     ],
