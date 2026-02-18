@@ -19,7 +19,13 @@ app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 app.use(cors({
-    origin: [process.env.FRONTEND_URL, process.env.ADMIN_URL, 'http://localhost:3000', 'http://localhost:5000'],
+    origin: [
+        process.env.FRONTEND_URL,
+        process.env.ADMIN_URL,
+        'https://www.jahidgadgets.shop',   // www সহ ভার্সন
+        'http://localhost:3000',
+        'http://localhost:5000'
+    ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
