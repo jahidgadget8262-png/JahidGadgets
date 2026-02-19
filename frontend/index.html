@@ -222,6 +222,8 @@ src="https://www.facebook.com/tr?id=1705708543740057&ev=PageView&noscript=1"
             position: relative;
             transition: all 0.3s ease;
             padding: 0.5rem 0;
+            text-decoration: none;
+            color: white;
         }
 
         .nav-link::after {
@@ -316,12 +318,17 @@ src="https://www.facebook.com/tr?id=1705708543740057&ev=PageView&noscript=1"
             background: white;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             border: 1px solid transparent;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .category-tab:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 16px rgba(0,174,239,0.15);
             border-color: var(--primary-blue);
+            text-decoration: none;
         }
 
         .category-tab.active {
@@ -381,6 +388,29 @@ src="https://www.facebook.com/tr?id=1705708543740057&ev=PageView&noscript=1"
             height: 100%;
             object-fit: cover;
             transition: opacity 0.4s ease;
+        }
+
+        .gallery-image.loading {
+            opacity: 0.5;
+        }
+
+        .gallery-loader {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0,174,239,0.2);
+            border-radius: 50%;
+            border-top-color: var(--primary-blue);
+            animation: spin 0.8s linear infinite;
+            z-index: 15;
+            display: none;
+        }
+
+        .gallery-loader.active {
+            display: block;
         }
 
         .gallery-controls {
@@ -459,6 +489,7 @@ src="https://www.facebook.com/tr?id=1705708543740057&ev=PageView&noscript=1"
             border: 1px solid transparent;
             width: 100%;
             cursor: pointer;
+            text-decoration: none;
         }
 
         .order-btn:hover {
@@ -466,6 +497,8 @@ src="https://www.facebook.com/tr?id=1705708543740057&ev=PageView&noscript=1"
             transform: translateY(-2px);
             box-shadow: 0 10px 20px rgba(0,174,239,0.3);
             border-color: white;
+            text-decoration: none;
+            color: white;
         }
 
         .cart-item {
@@ -841,6 +874,16 @@ src="https://www.facebook.com/tr?id=1705708543740057&ev=PageView&noscript=1"
             white-space: nowrap;
             border-width: 0;
         }
+
+        /* প্রোডাক্ট লিংক স্টাইল */
+        .product-link {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .product-link:hover {
+            text-decoration: none;
+        }
     </style>
 </head>
 <body class="antialiased overflow-x-hidden">
@@ -979,11 +1022,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <div class="w-24 h-1 bg-[#00AEEF] mx-auto mt-4 rounded-full" aria-hidden="true"></div>
             </div>
             
-            <!-- ক্যাটাগরি ট্যাব -->
+            <!-- ক্যাটাগরি ট্যাব - এখন লিংক হিসেবে কাজ করবে -->
             <div id="categoryTabs" class="flex flex-wrap justify-center gap-3 mb-10" role="tablist" aria-label="পণ্য ক্যাটাগরি">
-                <button class="category-tab active" data-cat="all" role="tab" aria-selected="true">
-                    <i class="fas fa-th-large" aria-hidden="true"></i>সবগুলো
-                </button>
+                <!-- ডাইনামিক্যালি লোড হবে -->
             </div>
 
             <!-- প্রোডাক্ট গ্রিড -->
@@ -1212,9 +1253,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
     </footer>
 
-    <!-- ========== জাভাস্ক্রিপ্ট (অপরিবর্তিত) ========== -->
+    <!-- ========== জাভাস্ক্রিপ্ট (আপডেটেড) ========== -->
     <script>
-        // আপনার বিদ্যমান জাভাস্ক্রিপ্ট এখানে থাকবে (অপরিবর্তিত)
+        // আপনার বিদ্যমান জাভাস্ক্রিপ্ট এখানে থাকবে (আপডেটেড)
         // API কনফিগারেশন
         const API_URL = window.location.hostname === 'localhost' || window.location.hostname.includes('127.0.0.1')
             ? 'http://localhost:5000/api'
@@ -1288,6 +1329,23 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             }, 3000);
         }
 
+        // URL আপডেট ফাংশন (ক্যাটাগরির জন্য)
+        function updateURLForCategory(category) {
+            const url = new URL(window.location);
+            if (category && category !== 'all') {
+                url.searchParams.set('cat', category);
+            } else {
+                url.searchParams.delete('cat');
+            }
+            window.history.pushState({}, '', url);
+        }
+
+        // URL থেকে ক্যাটাগরি পাওয়া
+        function getCategoryFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('cat') || 'all';
+        }
+
         // ==================== মোবাইল মেনু টগল ====================
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         const mobileMenu = document.getElementById('mobileMenu');
@@ -1349,26 +1407,31 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 const res = await fetch(`${API_URL}/categories`);
                 categories = await res.json();
                 
-                // ক্যাটাগরি ট্যাব আপডেট
+                // ক্যাটাগরি ট্যাব আপডেট - লিংক সহ
                 const tabsContainer = document.getElementById('categoryTabs');
-                tabsContainer.innerHTML = `
-                    <button class="category-tab active" data-cat="all" role="tab" aria-selected="true">
+                
+                // সবগুলো ক্যাটাগরির জন্য URL তৈরি
+                let tabsHTML = `
+                    <a href="?cat=all" class="category-tab ${getCategoryFromURL() === 'all' ? 'active' : ''}" data-cat="all" role="tab" aria-selected="${getCategoryFromURL() === 'all'}">
                         <i class="fas fa-th-large"></i>সবগুলো
-                    </button>
+                    </a>
                 `;
                 
                 categories.forEach(cat => {
-                    tabsContainer.innerHTML += `
-                        <button class="category-tab" data-cat="${cat.id}" role="tab" aria-selected="false">
+                    const isActive = getCategoryFromURL() === cat.id;
+                    tabsHTML += `
+                        <a href="?cat=${cat.id}" class="category-tab ${isActive ? 'active' : ''}" data-cat="${cat.id}" role="tab" aria-selected="${isActive}">
                             <i class="fas ${cat.icon}"></i>${cat.nameBn}
-                        </button>
+                        </a>
                     `;
                 });
+                
+                tabsContainer.innerHTML = tabsHTML;
                 
                 // ক্যাটাগরি কাউন্ট টেক্সট আপডেট
                 document.getElementById('categoryCount').textContent = `${categories.length} টি ক্যাটাগরিতে ${products.length}+ আধুনিক গ্যাজেট`;
                 
-                // ক্যাটাগরি ক্লিক হ্যান্ডলার সংযুক্ত
+                // ক্যাটাগরি ক্লিক হ্যান্ডলার সংযুক্ত (লিংকের জন্য আলাদা হ্যান্ডলার)
                 attachCategoryHandlers();
                 
             } catch (error) {
@@ -1379,7 +1442,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         function attachCategoryHandlers() {
             document.querySelectorAll('.category-tab').forEach(tab => {
                 tab.addEventListener('click', (e) => {
+                    // লিংক হিসেবে কাজ করবে, কিন্তু পেজ রিলোড না করে প্রোডাক্ট ফিল্টার করবে
                     e.preventDefault();
+                    
+                    const href = tab.getAttribute('href');
+                    const category = tab.dataset.cat;
+                    
+                    // URL আপডেট
+                    window.history.pushState({}, '', href);
                     
                     // অ্যাক্টিভ স্টেট আপডেট
                     document.querySelectorAll('.category-tab').forEach(t => {
@@ -1390,7 +1460,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     tab.setAttribute('aria-selected', 'true');
                     
                     // প্রোডাক্ট লোড
-                    const category = tab.dataset.cat;
                     loadProducts(category);
                     
                     // প্রোডাক্ট সেকশনে স্ক্রোল
@@ -1580,11 +1649,26 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             gallery.currentIndex = (gallery.currentIndex + direction + images.length) % images.length;
             
             const mainImg = document.getElementById(`gallery-img-${productId}`);
-            if (mainImg) {
-                mainImg.style.opacity = '0.5';
+            const loader = document.getElementById(`gallery-loader-${productId}`);
+            
+            if (mainImg && loader) {
+                // লোডিং দেখান
+                loader.classList.add('active');
+                mainImg.classList.add('loading');
+                
+                // ইমেজ লোড হওয়ার পর লোডিং বন্ধ
+                mainImg.onload = function() {
+                    loader.classList.remove('active');
+                    mainImg.classList.remove('loading');
+                };
+                
+                mainImg.onerror = function() {
+                    loader.classList.remove('active');
+                    mainImg.classList.remove('loading');
+                };
+                
                 mainImg.src = images[gallery.currentIndex];
                 mainImg.alt = `${productId} এর ছবি ${gallery.currentIndex + 1}`;
-                setTimeout(() => { mainImg.style.opacity = '1'; }, 100);
             }
             
             // ইন্ডিকেটর আপডেট
@@ -1597,6 +1681,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 }
             });
         };
+
+        // পণ্যের নাম থেকে URL-ফ্রেন্ডলি স্লাগ তৈরি
+        function createProductSlug(name) {
+            return name
+                .toLowerCase()
+                .replace(/[^\w\s\u0980-\u09FF]/g, '') // বাংলা ও ইংরেজি অক্ষর রাখে
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-')
+                .substring(0, 50);
+        }
 
         async function loadProducts(category = 'all') {
             const grid = document.getElementById('productsGrid');
@@ -1624,6 +1718,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             grid.innerHTML = productsToRender.map(p => {
                 // ইমেজ অ্যারে কে JSON স্ট্রিং এ কনভার্ট করার সময় সঠিকভাবে এস্কেপ করা
                 const imagesJson = JSON.stringify(p.images).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                const productSlug = createProductSlug(p.name);
+                
+                // পণ্যের জন্য ইউনিক আইডি তৈরি (ইমেজ লোডিং এর জন্য)
+                const productId = `product-${p.id}`;
                 
                 return `
                 <div class="product-card fade-in-up" role="listitem">
@@ -1632,21 +1730,24 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     </span>
                     
                     <div class="product-gallery">
-                        <img id="gallery-img-${p.id}" src="${p.images[0]}" alt="${p.name} - ${p.desc}" class="gallery-image" onerror="this.src='https://via.placeholder.com/400'" loading="lazy">
+                        <!-- লোডার -->
+                        <div id="gallery-loader-${productId}" class="gallery-loader"></div>
+                        
+                        <img id="gallery-img-${productId}" src="${p.images[0]}" alt="${p.name} - ${p.desc}" class="gallery-image" onerror="this.src='https://via.placeholder.com/400'" loading="lazy">
                         
                         ${p.images.length > 1 ? `
                             <div class="gallery-controls">
-                                <button class="gallery-btn" onclick="changeImage('${p.id}', -1, ${imagesJson}, event)" aria-label="পূর্ববর্তী ছবি">
+                                <button class="gallery-btn" onclick="changeImage('${productId}', -1, ${imagesJson}, event)" aria-label="পূর্ববর্তী ছবি">
                                     <i class="fas fa-chevron-left" aria-hidden="true"></i>
                                 </button>
-                                <button class="gallery-btn" onclick="changeImage('${p.id}', 1, ${imagesJson}, event)" aria-label="পরবর্তী ছবি">
+                                <button class="gallery-btn" onclick="changeImage('${productId}', 1, ${imagesJson}, event)" aria-label="পরবর্তী ছবি">
                                     <i class="fas fa-chevron-right" aria-hidden="true"></i>
                                 </button>
                             </div>
                             
                             <div class="image-indicator" aria-hidden="true">
                                 ${p.images.map((_, idx) => `
-                                    <span class="indicator-dot indicator-${p.id} ${idx === 0 ? 'active' : ''}"></span>
+                                    <span class="indicator-dot indicator-${productId} ${idx === 0 ? 'active' : ''}"></span>
                                 `).join('')}
                             </div>
                         ` : ''}
@@ -1666,18 +1767,23 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             <span><i class="fas fa-shopping-cart mr-1" aria-hidden="true"></i>বিক্রি: ${p.sold || 0}</span>
                         </div>
                         
-                        <button class="order-btn" onclick='addToCart("${p.id}", "${p.name.replace(/'/g, "\\'")}", ${p.price}, "${p.images[0]}")' aria-label="${p.name} অর্ডার করুন">
+                        <!-- অর্ডার করুন বাটন - এখন পণ্যের নাম অনুযায়ী লিংক সহ -->
+                        <a href="#order" class="order-btn" onclick='addToCart("${p.id}", "${p.name.replace(/'/g, "\\'")}", ${p.price}, "${p.images[0]}"); return false;' aria-label="${p.name} অর্ডার করুন">
                             <i class="fas fa-cart-plus" aria-hidden="true"></i>
                             অর্ডার করুন
-                        </button>
+                        </a>
+                        
+                        <!-- পণ্যের বিস্তারিত লিংক (SEO এর জন্য) -->
+                        <a href="/product/${productSlug}-${p.id}" class="sr-only" aria-label="${p.name} এর বিস্তারিত দেখুন">বিস্তারিত</a>
                     </div>
                 </div>
             `}).join('');
             
             // গ্যালারি ইনিশিয়ালাইজ
             productsToRender.forEach(p => {
-                if (!window.productGalleries[p.id]) {
-                    window.productGalleries[p.id] = { currentIndex: 0 };
+                const productId = `product-${p.id}`;
+                if (!window.productGalleries[productId]) {
+                    window.productGalleries[productId] = { currentIndex: 0 };
                 }
             });
         }
@@ -1995,11 +2101,29 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             await loadSettings();
             await loadCategories();
             await loadSlides();
-            await loadProducts();
+            
+            // URL থেকে ক্যাটাগরি নিয়ে প্রোডাক্ট লোড
+            const initialCategory = getCategoryFromURL();
+            await loadProducts(initialCategory);
             await loadReviews();
             
             // কার্ট ইনিশিয়ালাইজ
             renderCart();
+            
+            // ব্রাউজারের ব্যাক/ফরওয়ার্ড বাটন হ্যান্ডলিং
+            window.addEventListener('popstate', function() {
+                const category = getCategoryFromURL();
+                
+                // ক্যাটাগরি ট্যাব আপডেট
+                document.querySelectorAll('.category-tab').forEach(tab => {
+                    const isActive = tab.dataset.cat === category;
+                    tab.classList.toggle('active', isActive);
+                    tab.setAttribute('aria-selected', isActive);
+                });
+                
+                // প্রোডাক্ট রিলোড
+                loadProducts(category);
+            });
         }
 
         // অ্যাপ স্টার্ট
