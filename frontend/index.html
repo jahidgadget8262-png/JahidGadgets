@@ -387,30 +387,64 @@ src="https://www.facebook.com/tr?id=1705708543740057&ev=PageView&noscript=1"
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: opacity 0.4s ease;
+            transition: opacity 0.3s ease;
         }
 
         .gallery-image.loading {
-            opacity: 0.5;
+            opacity: 0.7;
+            filter: blur(2px);
         }
 
+        /* প্রোফেশনাল ইমেজ লোডিং ইফেক্ট */
         .gallery-loader {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(0,174,239,0.2);
-            border-radius: 50%;
-            border-top-color: var(--primary-blue);
-            animation: spin 0.8s linear infinite;
-            z-index: 15;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s linear infinite;
+            z-index: 10;
             display: none;
         }
 
         .gallery-loader.active {
             display: block;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200% 0;
+            }
+            100% {
+                background-position: 200% 0;
+            }
+        }
+
+        /* স্কেলটন লোডিং ইফেক্ট */
+        .skeleton-loader {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                rgba(255,255,255,0) 0%, 
+                rgba(255,255,255,0.6) 50%, 
+                rgba(255,255,255,0) 100%);
+            animation: skeleton-loading 1.5s infinite;
+            z-index: 15;
+            pointer-events: none;
+        }
+
+        @keyframes skeleton-loading {
+            0% {
+                transform: translateX(-100%);
+            }
+            100% {
+                transform: translateX(100%);
+            }
         }
 
         .gallery-controls {
@@ -800,6 +834,26 @@ src="https://www.facebook.com/tr?id=1705708543740057&ev=PageView&noscript=1"
             border-top: 4px solid #00AEEF;
         }
 
+        /* বাংলা সাবটাইটেল স্টাইল */
+        .bengali-subtitle {
+            font-size: 0.8rem;
+            background: linear-gradient(135deg, #00AEEF, #003366);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            border-left: 2px solid #00AEEF;
+            padding-left: 8px;
+            margin-top: 2px;
+        }
+
+        .brand-container {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+
         @media (max-width: 640px) {
             body {
                 padding-top: 70px;
@@ -845,6 +899,10 @@ src="https://www.facebook.com/tr?id=1705708543740057&ev=PageView&noscript=1"
             .mobile-menu {
                 top: 70px;
             }
+
+            .bengali-subtitle {
+                font-size: 0.7rem;
+            }
         }
 
         @media (max-width: 380px) {
@@ -855,6 +913,10 @@ src="https://www.facebook.com/tr?id=1705708543740057&ev=PageView&noscript=1"
 
             #mobilePhoneLink {
                 padding: 0.75rem;
+            }
+
+            .bengali-subtitle {
+                font-size: 0.65rem;
             }
         }
 
@@ -926,11 +988,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             <img src="images/Jahid gadgets.png" alt="Jahid Gadgets - আধুনিক প্রযুক্তির ঠিকানা" 
                                  class="h-10 w-auto object-contain rounded-xl border-2 border-[#00AEEF] shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300"
                                  onerror="this.style.display='none'">
-                            <div>
+                            <div class="brand-container">
                                 <span id="siteNameDisplay" class="text-2xl font-bold bg-gradient-to-r from-[#00AEEF] to-white bg-clip-text text-transparent">
                                     Jahid Gadgets
                                 </span>
-                                <p class="text-xs text-[#C0C0C2] hidden md:block">আধুনিক প্রযুক্তির ঠিকানা</p>
+                                <!-- বাংলা সাবটাইটেল - প্রোফেশনাল এবং ব্র্যান্ডের সাথে মানানসই -->
+                                <span class="bengali-subtitle" id="bengaliSubtitle">প্রযুক্তির বিশ্বাসযোগ্য ঠিকানা</span>
                             </div>
                         </a>
                     </div>
@@ -1194,7 +1257,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <div class="text-center md:text-left">
                     <div class="flex items-center justify-center md:justify-start gap-3 mb-3">
                         <img src="images/Jahid gadgets.png" alt="Jahid Gadgets" class="h-9 w-auto" onerror="this.style.display='none'">
-                        <h4 class="text-xl font-bold text-[#00AEEF]">Jahid Gadgets</h4>
+                        <div>
+                            <h4 class="text-xl font-bold text-[#00AEEF]">Jahid Gadgets</h4>
+                            <span class="text-xs text-[#C0C0C2]">প্রযুক্তির বিশ্বাসযোগ্য ঠিকানা</span>
+                        </div>
                     </div>
                     <p id="footerAddress" class="text-[#C0C0C2] leading-relaxed text-sm">
                         প্রিমিয়াম গ্যাজেটের সেরা সংগ্রহ। সারাদেশে হোম ডেলিভারি।
@@ -1482,6 +1548,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 document.getElementById('footerAddress').textContent = settings.address || 'প্রিমিয়াম গ্যাজেটের সেরা সংগ্রহ';
                 document.getElementById('footerFullAddress').textContent = settings.address || 'রংপুর, বোদা, পঞ্চগড় সদর';
                 
+                // বাংলা সাবটাইটেল আপডেট (সেটিংস থেকে নেওয়া যেতে পারে)
+                const bengaliSubtitle = document.getElementById('bengaliSubtitle');
+                if (bengaliSubtitle) {
+                    bengaliSubtitle.textContent = settings.bengaliSubtitle || 'প্রযুক্তির বিশ্বাসযোগ্য ঠিকানা';
+                }
+                
                 // ফোন নম্বর আপডেট
                 const phone = settings.phone || '+8801709363983';
                 document.getElementById('phoneLink').href = `tel:${phone}`;
@@ -1652,23 +1724,24 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             const loader = document.getElementById(`gallery-loader-${productId}`);
             
             if (mainImg && loader) {
-                // লোডিং দেখান
+                // প্রোফেশনাল লোডিং ইফেক্ট - শিমার ইফেক্ট
                 loader.classList.add('active');
                 mainImg.classList.add('loading');
                 
-                // ইমেজ লোড হওয়ার পর লোডিং বন্ধ
-                mainImg.onload = function() {
+                // ইমেজ প্রিলোড করার জন্য একটি টেম্প ইমেজ তৈরি
+                const tempImg = new Image();
+                tempImg.onload = function() {
+                    mainImg.src = images[gallery.currentIndex];
+                    mainImg.onload = function() {
+                        loader.classList.remove('active');
+                        mainImg.classList.remove('loading');
+                    };
+                };
+                tempImg.onerror = function() {
                     loader.classList.remove('active');
                     mainImg.classList.remove('loading');
                 };
-                
-                mainImg.onerror = function() {
-                    loader.classList.remove('active');
-                    mainImg.classList.remove('loading');
-                };
-                
-                mainImg.src = images[gallery.currentIndex];
-                mainImg.alt = `${productId} এর ছবি ${gallery.currentIndex + 1}`;
+                tempImg.src = images[gallery.currentIndex];
             }
             
             // ইন্ডিকেটর আপডেট
@@ -1730,7 +1803,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     </span>
                     
                     <div class="product-gallery">
-                        <!-- লোডার -->
+                        <!-- প্রোফেশনাল লোডিং ইফেক্ট -->
                         <div id="gallery-loader-${productId}" class="gallery-loader"></div>
                         
                         <img id="gallery-img-${productId}" src="${p.images[0]}" alt="${p.name} - ${p.desc}" class="gallery-image" onerror="this.src='https://via.placeholder.com/400'" loading="lazy">
@@ -2076,7 +2149,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     );
                     document.getElementById('reviewForm').reset();
                     
-                    // ২ সেকেন্ড পর রিভিউ রিলোড
+                    // ২ সেকন্ড পর রিভিউ রিলোড
                     setTimeout(() => {
                         loadReviews();
                     }, 2000);
