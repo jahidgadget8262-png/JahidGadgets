@@ -456,6 +456,42 @@ src="https://www.facebook.com/tr?id=1705708543740057&ev=PageView&noscript=1"
             }
         }
 
+        /* স্কেলটন কার্ড স্টাইল */
+        .skeleton-card {
+            background: white;
+            border-radius: 1.5rem;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            border: 1px solid rgba(192,192,194,0.3);
+        }
+        .skeleton-image {
+            width: 100%;
+            height: 240px;
+            background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s linear infinite;
+        }
+        .skeleton-line {
+            height: 1rem;
+            background: #e0e0e0;
+            border-radius: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .skeleton-line.short {
+            width: 60%;
+        }
+        .skeleton-line.medium {
+            width: 80%;
+        }
+        .skeleton-line.long {
+            width: 100%;
+        }
+        .skeleton-button {
+            height: 2.5rem;
+            background: #e0e0e0;
+            border-radius: 9999px;
+        }
+
         .gallery-controls {
             position: absolute;
             bottom: 15px;
@@ -1068,7 +1104,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <h2 class="sr-only">প্রচারিত পণ্য</h2>
             <div class="relative rounded-3xl overflow-hidden shadow-2xl h-64 md:h-96 lg:h-[500px] group">
                 <div id="sliderContainer" class="relative w-full h-full">
-                    <!-- স্লাইডগুলো ডায়নামিক্যালি লোড হবে -->
+                    <!-- স্লাইডগুলো ডায়নামিক্যালি লোড হবে (init-এ) -->
                 </div>
                 
                 <!-- ডটস -->
@@ -1101,10 +1137,54 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
             <!-- প্রোডাক্ট গ্রিড -->
             <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" role="list" aria-label="পণ্যের তালিকা">
-                <!-- প্রোডাক্টগুলো এখানে লোড হবে -->
-                <div class="col-span-full text-center py-20" role="status">
-                    <div class="loading mx-auto"></div>
-                    <p class="mt-4 text-gray-600 text-lg">পণ্য লোড হচ্ছে...</p>
+                <!-- স্কেলটন লোডার (ডাটা লোড হওয়া পর্যন্ত দেখাবে) -->
+                <div class="skeleton-card fade-in-up" aria-hidden="true">
+                    <div class="skeleton-image"></div>
+                    <div class="p-4">
+                        <div class="skeleton-line short"></div>
+                        <div class="skeleton-line long"></div>
+                        <div class="skeleton-line medium"></div>
+                        <div class="flex gap-2 mt-4">
+                            <div class="skeleton-button flex-1"></div>
+                            <div class="skeleton-button flex-1"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="skeleton-card fade-in-up" aria-hidden="true">
+                    <div class="skeleton-image"></div>
+                    <div class="p-4">
+                        <div class="skeleton-line short"></div>
+                        <div class="skeleton-line long"></div>
+                        <div class="skeleton-line medium"></div>
+                        <div class="flex gap-2 mt-4">
+                            <div class="skeleton-button flex-1"></div>
+                            <div class="skeleton-button flex-1"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="skeleton-card fade-in-up" aria-hidden="true">
+                    <div class="skeleton-image"></div>
+                    <div class="p-4">
+                        <div class="skeleton-line short"></div>
+                        <div class="skeleton-line long"></div>
+                        <div class="skeleton-line medium"></div>
+                        <div class="flex gap-2 mt-4">
+                            <div class="skeleton-button flex-1"></div>
+                            <div class="skeleton-button flex-1"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="skeleton-card fade-in-up" aria-hidden="true">
+                    <div class="skeleton-image"></div>
+                    <div class="p-4">
+                        <div class="skeleton-line short"></div>
+                        <div class="skeleton-line long"></div>
+                        <div class="skeleton-line medium"></div>
+                        <div class="flex gap-2 mt-4">
+                            <div class="skeleton-button flex-1"></div>
+                            <div class="skeleton-button flex-1"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -1335,7 +1415,36 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             ? 'http://localhost:5000/api'
             : 'https://jahid-gadgets-backend.onrender.com/api';
 
-        // গ্লোবাল ভেরিয়েবল
+        // ==================== ক্যাশ ম্যানেজার ====================
+        const cache = {
+            get(key) {
+                try {
+                    const item = localStorage.getItem(key);
+                    if (!item) return null;
+                    const { data, expiry } = JSON.parse(item);
+                    if (expiry < Date.now()) {
+                        localStorage.removeItem(key);
+                        return null;
+                    }
+                    return data;
+                } catch (e) {
+                    return null;
+                }
+            },
+            set(key, data, ttl = 5 * 60 * 1000) { // 5 মিনিট ডিফল্ট
+                try {
+                    const item = {
+                        data,
+                        expiry: Date.now() + ttl
+                    };
+                    localStorage.setItem(key, JSON.stringify(item));
+                } catch (e) {
+                    console.warn('Cache write failed', e);
+                }
+            }
+        };
+
+        // ==================== গ্লোবাল ভেরিয়েবল ====================
         let cart = [];
         let products = [];
         let slides = [];
@@ -1344,12 +1453,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         let currentSlideIndex = 0;
         let slideInterval;
 
-        // ==================== ইউটিলিটি ফাংশন ====================
-
-        // ইমেজ URL অপটিমাইজ করা (Cloudinary width)
+        // ইমেজ URL অপটিমাইজ করা (Cloudinary width + f_auto)
         function optimizeImageUrl(url, width = 300) {
             if (!url || !url.includes('cloudinary.com')) return url;
-            return url.replace('/upload/', `/upload/w_${width}/`);
+            return url.replace('/upload/', `/upload/w_${width},f_auto/`);
         }
 
         // পপআপ দেখান
@@ -1380,23 +1487,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         document.getElementById('popup').addEventListener('click', function(e) {
             if (e.target === this) closePopup();
         });
-
-        // নোটিফিকেশন দেখান
-        function showNotification(message, type = 'info') {
-            // ইতিমধ্যে SwiftBags এর মতো একটি নোটিফিকেশন সিস্টেম আছে; আমরা সংক্ষিপ্ত রাখছি
-            console.log(message);
-        }
-
-        // URL আপডেট ফাংশন (ক্যাটাগরির জন্য)
-        function updateURLForCategory(category) {
-            const url = new URL(window.location);
-            if (category && category !== 'all') {
-                url.searchParams.set('cat', category);
-            } else {
-                url.searchParams.delete('cat');
-            }
-            window.history.pushState({}, '', url);
-        }
 
         // URL থেকে ক্যাটাগরি পাওয়া
         function getCategoryFromURL() {
@@ -1454,67 +1544,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             });
         }
 
-        // ==================== ডাটা লোড (প্যারালাল) ====================
-
-        async function loadCategories() {
-            try {
-                const res = await fetch(`${API_URL}/categories`);
-                categories = await res.json();
-                
-                const tabsContainer = document.getElementById('categoryTabs');
-                let tabsHTML = `
-                    <a href="?cat=all" class="category-tab ${getCategoryFromURL() === 'all' ? 'active' : ''}" data-cat="all" role="tab" aria-selected="${getCategoryFromURL() === 'all'}">
-                        <i class="fas fa-th-large"></i>সবগুলো
-                    </a>
-                `;
-                
-                categories.forEach(cat => {
-                    const isActive = getCategoryFromURL() === cat.id;
-                    tabsHTML += `
-                        <a href="?cat=${cat.id}" class="category-tab ${isActive ? 'active' : ''}" data-cat="${cat.id}" role="tab" aria-selected="${isActive}">
-                            <i class="fas ${cat.icon}"></i>${cat.nameBn}
-                        </a>
-                    `;
-                });
-                
-                tabsContainer.innerHTML = tabsHTML;
-                document.getElementById('categoryCount').textContent = `${categories.length} টি ক্যাটাগরিতে ${products.length}+ আধুনিক গ্যাজেট`;
-                attachCategoryHandlers();
-                
-            } catch (error) {
-                console.error('Error loading categories:', error);
-            }
-        }
-
-        function attachCategoryHandlers() {
-            document.querySelectorAll('.category-tab').forEach(tab => {
-                tab.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    
-                    const href = tab.getAttribute('href');
-                    const category = tab.dataset.cat;
-                    
-                    window.history.pushState({}, '', href);
-                    
-                    document.querySelectorAll('.category-tab').forEach(t => {
-                        t.classList.remove('active');
-                        t.setAttribute('aria-selected', 'false');
-                    });
-                    tab.classList.add('active');
-                    tab.setAttribute('aria-selected', 'true');
-                    
-                    loadProducts(category);
-                    
-                    document.getElementById('products').scrollIntoView({ behavior: 'smooth' });
-                });
-            });
-        }
-
-        async function loadSettings() {
-            try {
-                const res = await fetch(`${API_URL}/settings`);
-                settings = await res.json();
-                
+        // ==================== ডাটা অ্যাপ্লাই ফাংশন (সব সেকশন আপডেট) ====================
+        function applyInitialData(data) {
+            // সেটিংস
+            if (data.settings) {
+                settings = data.settings;
                 document.title = settings.siteTitle || 'Jahid Gadgets | আধুনিক প্রযুক্তির ঠিকানা - সেরা গ্যাজেট স্টোর';
                 document.getElementById('siteNameDisplay').textContent = settings.siteName || 'Jahid Gadgets';
                 document.getElementById('footerSiteName').textContent = settings.siteName || 'Jahid Gadgets';
@@ -1541,27 +1575,37 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 );
                 document.getElementById('whatsappLink').href = `https://wa.me/${whatsapp.replace(/\D/g,'')}?text=${whatsappText}`;
                 document.getElementById('footerWhatsapp').href = `https://wa.me/${whatsapp.replace(/\D/g,'')}?text=${whatsappText}`;
-                
-            } catch (error) {
-                console.error('Error loading settings:', error);
             }
-        }
 
-        async function loadSlides() {
-            try {
-                const res = await fetch(`${API_URL}/slides`);
-                slides = await res.json();
+            // ক্যাটাগরি
+            if (data.categories) {
+                categories = data.categories;
+                const tabsContainer = document.getElementById('categoryTabs');
+                let tabsHTML = `
+                    <a href="?cat=all" class="category-tab ${getCategoryFromURL() === 'all' ? 'active' : ''}" data-cat="all" role="tab" aria-selected="${getCategoryFromURL() === 'all'}">
+                        <i class="fas fa-th-large"></i>সবগুলো
+                    </a>
+                `;
                 
+                categories.forEach(cat => {
+                    const isActive = getCategoryFromURL() === cat.id;
+                    tabsHTML += `
+                        <a href="?cat=${cat.id}" class="category-tab ${isActive ? 'active' : ''}" data-cat="${cat.id}" role="tab" aria-selected="${isActive}">
+                            <i class="fas ${cat.icon}"></i>${cat.nameBn}
+                        </a>
+                    `;
+                });
+                
+                tabsContainer.innerHTML = tabsHTML;
+                attachCategoryHandlers();
+                document.getElementById('categoryCount').textContent = `${categories.length} টি ক্যাটাগরিতে ${data.products ? data.products.length : 0}+ আধুনিক গ্যাজেট`;
+            }
+
+            // স্লাইডার
+            if (data.slides) {
+                slides = data.slides;
                 const container = document.getElementById('sliderContainer');
                 const dotsContainer = document.getElementById('sliderDots');
-                
-                if (slides.length === 0) {
-                    slides = [
-                        { image: 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=1200', title: 'স্মার্ট ওয়াচ', subtitle: 'আধুনিক প্রযুক্তির অভিজ্ঞতা', badge: '৪০% ছাড়' },
-                        { image: 'https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf4?w=1200', title: 'ওয়্যারলেস ইয়ারবাড', subtitle: 'ক্রিস্টাল ক্লিয়ার সাউন্ড', badge: 'নতুন অ্যারাইভাল' },
-                        { image: 'https://images.unsplash.com/photo-1593640408182-31c70c8268f5?w=1200', title: 'পাওয়ার ব্যাংক', subtitle: '২০০০০mAh দীর্ঘস্থায়ী ব্যাটারি', badge: 'বেস্ট সেলার' }
-                    ];
-                }
                 
                 container.innerHTML = slides.map((slide, index) => {
                     const imgUrl = optimizeImageUrl(slide.image, 1200);
@@ -1588,11 +1632,115 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 `).join('');
                 
                 initSlider();
-            } catch (error) {
-                console.error('Error loading slides:', error);
+            }
+
+            // প্রোডাক্ট
+            if (data.products) {
+                products = data.products;
+                // ক্যাটাগরি ফিল্টার অনুযায়ী প্রোডাক্ট দেখান
+                const category = getCategoryFromURL();
+                const filtered = category === 'all' ? products : products.filter(p => p.cat === category);
+                renderProducts(filtered);
+            }
+
+            // রিভিউ
+            if (data.reviews) {
+                const reviewList = document.getElementById('reviewList');
+                if (data.reviews.length === 0) {
+                    reviewList.innerHTML = '<p class="text-center text-gray-500 py-4">কোন রিভিউ নেই</p>';
+                } else {
+                    reviewList.innerHTML = data.reviews.map(review => `
+                        <div class="review-card" role="listitem">
+                            <div class="flex gap-3">
+                                <div class="w-10 h-10 bg-[#00AEEF] rounded-full flex items-center justify-center text-white font-bold flex-shrink-0" aria-hidden="true">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <h5 class="font-bold text-[#000B29]">${review.name}</h5>
+                                        <span class="text-xs text-[#00AEEF]">
+                                            <i class="fas fa-star"></i> ${review.rating || 5}.0
+                                        </span>
+                                    </div>
+                                    <p class="text-sm text-[#003366] mt-1">"${review.text}"</p>
+                                    ${review.address ? `
+                                        <p class="text-xs text-[#C0C0C2] mt-1">
+                                            <i class="fas fa-map-marker-alt mr-1"></i>${review.address}
+                                        </p>
+                                    ` : ''}
+                                    <p class="text-xs text-gray-400 mt-1">
+                                        ${new Date(review.createdAt).toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric' })}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
             }
         }
 
+        // ==================== কম্বাইন্ড ডাটা লোড (প্রথমবার /api/initial-data) ====================
+        async function loadInitialData() {
+            // প্রথমে ক্যাশ দেখি
+            const cached = cache.get('initial');
+            if (cached) {
+                applyInitialData(cached);
+                // পটভূমিতে আপডেট চেক
+                fetch(`${API_URL}/initial-data`)
+                    .then(res => res.json())
+                    .then(data => {
+                        cache.set('initial', data);
+                        applyInitialData(data);
+                    })
+                    .catch(err => console.error('Background refresh failed', err));
+                return;
+            }
+
+            // ক্যাশ না থাকলে API কল
+            try {
+                const res = await fetch(`${API_URL}/initial-data`);
+                const data = await res.json();
+                cache.set('initial', data);
+                applyInitialData(data);
+            } catch (error) {
+                console.error('Initial data load error:', error);
+                document.getElementById('productsGrid').innerHTML = `
+                    <div class="col-span-full text-center py-12 text-red-500">
+                        <i class="fas fa-exclamation-circle text-5xl mb-4"></i>
+                        <p>ডেটা লোড করতে সমস্যা হয়েছে। পৃষ্ঠা রিফ্রেশ করুন।</p>
+                    </div>
+                `;
+            }
+        }
+
+        // ==================== ক্যাটাগরি হ্যান্ডলার ====================
+        function attachCategoryHandlers() {
+            document.querySelectorAll('.category-tab').forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    const href = tab.getAttribute('href');
+                    const category = tab.dataset.cat;
+                    
+                    window.history.pushState({}, '', href);
+                    
+                    document.querySelectorAll('.category-tab').forEach(t => {
+                        t.classList.remove('active');
+                        t.setAttribute('aria-selected', 'false');
+                    });
+                    tab.classList.add('active');
+                    tab.setAttribute('aria-selected', 'true');
+                    
+                    // প্রোডাক্ট ফিল্টার
+                    const filtered = category === 'all' ? products : products.filter(p => p.cat === category);
+                    renderProducts(filtered);
+                    
+                    document.getElementById('products').scrollIntoView({ behavior: 'smooth' });
+                });
+            });
+        }
+
+        // ==================== স্লাইডার ইনিশিয়ালাইজ ====================
         function initSlider() {
             const slides = document.querySelectorAll('#sliderContainer .slide');
             const dots = document.querySelectorAll('.dot');
@@ -1656,7 +1804,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             startAutoSlide();
         }
 
-        // ==================== প্রোডাক্ট ফাংশন (অপটিমাইজড) ====================
+        // ==================== প্রোডাক্ট ফাংশন ====================
 
         window.productGalleries = {};
 
@@ -1712,31 +1860,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 .substring(0, 50);
         }
 
-        async function loadProducts(category = 'all') {
-            const grid = document.getElementById('productsGrid');
-            
-            try {
-                const url = category === 'all' ? `${API_URL}/products` : `${API_URL}/products?category=${category}`;
-                const res = await fetch(url);
-                products = await res.json();
-                
-                if (products.length === 0) {
-                    grid.innerHTML = '<div class="col-span-full text-center py-12 text-gray-500">কোন পণ্য পাওয়া যায়নি</div>';
-                    return;
-                }
-                
-                renderProducts(products);
-            } catch (error) {
-                console.error('Error loading products:', error);
-                grid.innerHTML = '<div class="col-span-full text-center py-12 text-red-500">পণ্য লোড করতে সমস্যা হয়েছে</div>';
-            }
-        }
-
         function renderProducts(productsToRender) {
             const grid = document.getElementById('productsGrid');
             
+            if (!productsToRender || productsToRender.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center py-12 text-gray-500">কোন পণ্য পাওয়া যায়নি</div>';
+                return;
+            }
+
             grid.innerHTML = productsToRender.map(p => {
-                // অপটিমাইজড ইমেজ URL তৈরি করুন (প্রোডাক্ট কার্ডের জন্য w=300)
                 const optimizedImages = p.images.map(url => optimizeImageUrl(url, 300));
                 const imagesJson = JSON.stringify(optimizedImages).replace(/'/g, "\\'").replace(/"/g, '&quot;');
                 const productSlug = createProductSlug(p.name);
@@ -2004,50 +2136,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             }
         });
 
-        // ==================== রিভিউ ফাংশন ====================
-
-        async function loadReviews() {
-            try {
-                const res = await fetch(`${API_URL}/reviews`);
-                const reviews = await res.json();
-                
-                const reviewList = document.getElementById('reviewList');
-                
-                if (reviews.length === 0) {
-                    reviewList.innerHTML = '<p class="text-center text-gray-500 py-4">কোন রিভিউ নেই</p>';
-                    return;
-                }
-                
-                reviewList.innerHTML = reviews.map(review => `
-                    <div class="review-card" role="listitem">
-                        <div class="flex gap-3">
-                            <div class="w-10 h-10 bg-[#00AEEF] rounded-full flex items-center justify-center text-white font-bold flex-shrink-0" aria-hidden="true">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <div>
-                                <div class="flex items-center gap-2 flex-wrap">
-                                    <h5 class="font-bold text-[#000B29]">${review.name}</h5>
-                                    <span class="text-xs text-[#00AEEF]">
-                                        <i class="fas fa-star"></i> ${review.rating || 5}.0
-                                    </span>
-                                </div>
-                                <p class="text-sm text-[#003366] mt-1">"${review.text}"</p>
-                                ${review.address ? `
-                                    <p class="text-xs text-[#C0C0C2] mt-1">
-                                        <i class="fas fa-map-marker-alt mr-1"></i>${review.address}
-                                    </p>
-                                ` : ''}
-                                <p class="text-xs text-gray-400 mt-1">
-                                    ${new Date(review.createdAt).toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric' })}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-            } catch (error) {
-                console.error('Error loading reviews:', error);
-            }
-        }
+        // ==================== রিভিউ ফর্ম ====================
 
         document.getElementById('reviewForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -2074,8 +2163,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     );
                     document.getElementById('reviewForm').reset();
                     
+                    // ২ সেকেন্ড পরে রিভিউ রিলোড (নতুন রিভিউ এডমিন অ্যাপ্রুভ করলেই আসবে)
                     setTimeout(() => {
-                        loadReviews();
+                        // শুধু ক্যাশ মুছে দিয়ে আবার লোড করলে নতুন রিভিউ দেখাবে (যদি অ্যাপ্রুভ হয়)
+                        cache.set('initial', null); // ক্যাশ ফোর্স রিফ্রেশ
+                        loadInitialData();
                     }, 2000);
                 }
             } catch (error) {
@@ -2083,169 +2175,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             }
         });
 
-        // ==================== ইনিশিয়ালাইজেশন (প্যারালাল লোডিং) ====================
-
-        async function init() {
-            document.getElementById('productsGrid').innerHTML = `
-                <div class="col-span-full text-center py-20" role="status">
-                    <div class="loading mx-auto"></div>
-                    <p class="mt-4 text-gray-600">পণ্য লোড হচ্ছে...</p>
-                </div>
-            `;
-            
-            try {
-                // সমস্ত API কল সমান্তরালে শুরু করুন
-                const [settingsRes, categoriesRes, slidesRes, productsRes, reviewsRes] = await Promise.all([
-                    fetch(`${API_URL}/settings`).catch(e => ({ ok: false })),
-                    fetch(`${API_URL}/categories`).catch(e => ({ ok: false })),
-                    fetch(`${API_URL}/slides`).catch(e => ({ ok: false })),
-                    fetch(`${API_URL}/products${getCategoryFromURL() !== 'all' ? `?category=${getCategoryFromURL()}` : ''}`).catch(e => ({ ok: false })),
-                    fetch(`${API_URL}/reviews`).catch(e => ({ ok: false }))
-                ]);
-                
-                // সেটিংস
-                if (settingsRes.ok) {
-                    settings = await settingsRes.json();
-                    // আপডেট DOM
-                    document.title = settings.siteTitle || 'Jahid Gadgets';
-                    document.getElementById('siteNameDisplay').textContent = settings.siteName || 'Jahid Gadgets';
-                    document.getElementById('footerSiteName').textContent = settings.siteName || 'Jahid Gadgets';
-                    document.getElementById('footerAddress').textContent = settings.address || 'প্রিমিয়াম গ্যাজেটের সেরা সংগ্রহ';
-                    document.getElementById('footerFullAddress').textContent = settings.address || 'রংপুর, বোদা, পঞ্চগড় সদর';
-                    
-                    const bengaliSubtitle = document.getElementById('bengaliSubtitle');
-                    if (bengaliSubtitle) bengaliSubtitle.textContent = settings.bengaliSubtitle || 'প্রযুক্তির বিশ্বাসযোগ্য ঠিকানা';
-                    
-                    const phone = settings.phone || '+8801709363983';
-                    document.getElementById('phoneLink').href = `tel:${phone}`;
-                    document.getElementById('mobilePhoneLink').href = `tel:${phone}`;
-                    document.getElementById('footerPhone').href = `tel:${phone}`;
-                    document.getElementById('footerPhone').textContent = phone;
-                    
-                    document.getElementById('dhakaCharge').textContent = (settings.deliveryCharge || 60) + ' টাকা';
-                    document.getElementById('outsideDhakaCharge').textContent = (settings.outsideDhakaCharge || 120) + ' টাকা';
-                    
-                    const whatsapp = settings.whatsapp || '+8801709363983';
-                    const whatsappText = encodeURIComponent(
-                        `👋 আসসালামু আলাইকুম,\n\n📱 আমি Jahid Gadgets এর পণ্য সম্পর্কে জানতে চাই।\n\n🔍 পণ্যের নাম: \n📍 আমার ঠিকানা: \n📦 পরিমাণ: \n\n✅ অনুগ্রহ করে দ্রুত যোগাযোগ করবেন। ধন্যবাদ!`
-                    );
-                    document.getElementById('whatsappLink').href = `https://wa.me/${whatsapp.replace(/\D/g,'')}?text=${whatsappText}`;
-                    document.getElementById('footerWhatsapp').href = `https://wa.me/${whatsapp.replace(/\D/g,'')}?text=${whatsappText}`;
-                }
-                
-                // ক্যাটাগরি
-                if (categoriesRes.ok) {
-                    categories = await categoriesRes.json();
-                    const tabsContainer = document.getElementById('categoryTabs');
-                    let tabsHTML = `
-                        <a href="?cat=all" class="category-tab ${getCategoryFromURL() === 'all' ? 'active' : ''}" data-cat="all" role="tab" aria-selected="${getCategoryFromURL() === 'all'}">
-                            <i class="fas fa-th-large"></i>সবগুলো
-                        </a>
-                    `;
-                    categories.forEach(cat => {
-                        const isActive = getCategoryFromURL() === cat.id;
-                        tabsHTML += `
-                            <a href="?cat=${cat.id}" class="category-tab ${isActive ? 'active' : ''}" data-cat="${cat.id}" role="tab" aria-selected="${isActive}">
-                                <i class="fas ${cat.icon}"></i>${cat.nameBn}
-                            </a>
-                        `;
-                    });
-                    tabsContainer.innerHTML = tabsHTML;
-                    attachCategoryHandlers();
-                    document.getElementById('categoryCount').textContent = `${categories.length} টি ক্যাটাগরিতে ${products.length}+ আধুনিক গ্যাজেট`;
-                }
-                
-                // প্রোডাক্ট (ইমিডিয়েট রেন্ডার)
-                if (productsRes.ok) {
-                    products = await productsRes.json();
-                    renderProducts(products);
-                }
-                
-                // স্লাইডার
-                if (slidesRes.ok) {
-                    slides = await slidesRes.json();
-                    const container = document.getElementById('sliderContainer');
-                    const dotsContainer = document.getElementById('sliderDots');
-                    
-                    if (slides.length === 0) {
-                        slides = [
-                            { image: 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=1200', title: 'স্মার্ট ওয়াচ', subtitle: 'আধুনিক প্রযুক্তির অভিজ্ঞতা', badge: '৪০% ছাড়' },
-                            { image: 'https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf4?w=1200', title: 'ওয়্যারলেস ইয়ারবাড', subtitle: 'ক্রিস্টাল ক্লিয়ার সাউন্ড', badge: 'নতুন অ্যারাইভাল' },
-                            { image: 'https://images.unsplash.com/photo-1593640408182-31c70c8268f5?w=1200', title: 'পাওয়ার ব্যাংক', subtitle: '২০০০০mAh দীর্ঘস্থায়ী ব্যাটারি', badge: 'বেস্ট সেলার' }
-                        ];
-                    }
-                    
-                    container.innerHTML = slides.map((slide, index) => {
-                        const imgUrl = optimizeImageUrl(slide.image, 1200);
-                        return `
-                        <div class="slide ${index === 0 ? 'opacity-100' : 'opacity-0'}" style="z-index: ${index === 0 ? 10 : 1};" role="tabpanel" aria-label="স্লাইড ${index + 1}: ${slide.title}">
-                            <img src="${imgUrl}" alt="${slide.title} - ${slide.subtitle}" class="w-full h-full object-cover" loading="${index === 0 ? 'eager' : 'lazy'}">
-                            <div class="absolute inset-0 bg-gradient-to-r from-[#000B29] via-[#000B29]/80 to-transparent" aria-hidden="true"></div>
-                            <div class="absolute inset-0 flex items-center justify-start px-6 md:px-16 text-white slide-content">
-                                <div class="max-w-xl">
-                                    ${slide.badge ? `
-                                        <span class="inline-block bg-[#00AEEF] text-white text-sm md:text-base font-semibold px-4 py-2 rounded-full mb-4">
-                                            <i class="fas fa-tag mr-1"></i>${slide.badge}
-                                        </span>
-                                    ` : ''}
-                                    <h2 class="text-3xl md:text-5xl lg:text-6xl font-bold mb-3">${slide.title}</h2>
-                                    ${slide.subtitle ? `<p class="text-lg md:text-xl text-[#C0C0C2]">${slide.subtitle}</p>` : ''}
-                                </div>
-                            </div>
-                        </div>
-                    `}).join('');
-                    
-                    dotsContainer.innerHTML = slides.map((_, index) => `
-                        <button class="dot w-3 h-3 rounded-full ${index === 0 ? 'dot-active' : 'bg-white/50'}" data-index="${index}" role="tab" aria-label="স্লাইড ${index + 1}" aria-selected="${index === 0}"></button>
-                    `).join('');
-                    
-                    initSlider();
-                }
-                
-                // রিভিউ
-                if (reviewsRes.ok) {
-                    const reviews = await reviewsRes.json();
-                    const reviewList = document.getElementById('reviewList');
-                    
-                    if (reviews.length === 0) {
-                        reviewList.innerHTML = '<p class="text-center text-gray-500 py-4">কোন রিভিউ নেই</p>';
-                    } else {
-                        reviewList.innerHTML = reviews.map(review => `
-                            <div class="review-card" role="listitem">
-                                <div class="flex gap-3">
-                                    <div class="w-10 h-10 bg-[#00AEEF] rounded-full flex items-center justify-center text-white font-bold flex-shrink-0" aria-hidden="true">
-                                        <i class="fas fa-user"></i>
-                                    </div>
-                                    <div>
-                                        <div class="flex items-center gap-2 flex-wrap">
-                                            <h5 class="font-bold text-[#000B29]">${review.name}</h5>
-                                            <span class="text-xs text-[#00AEEF]">
-                                                <i class="fas fa-star"></i> ${review.rating || 5}.0
-                                            </span>
-                                        </div>
-                                        <p class="text-sm text-[#003366] mt-1">"${review.text}"</p>
-                                        ${review.address ? `<p class="text-xs text-[#C0C0C2] mt-1"><i class="fas fa-map-marker-alt mr-1"></i>${review.address}</p>` : ''}
-                                        <p class="text-xs text-gray-400 mt-1">${new Date(review.createdAt).toLocaleDateString('bn-BD')}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        `).join('');
-                    }
-                }
-                
-                // কার্ট রেন্ডার
-                renderCart();
-                
-            } catch (error) {
-                console.error('Initialization error:', error);
-                document.getElementById('productsGrid').innerHTML = `
-                    <div class="col-span-full text-center py-12 text-red-500">
-                        <i class="fas fa-exclamation-circle text-5xl mb-4"></i>
-                        <p>ডেটা লোড করতে সমস্যা হয়েছে। পৃষ্ঠা রিফ্রেশ করুন।</p>
-                    </div>
-                `;
-            }
-        }
+        // ==================== ইনিশিয়ালাইজেশন ====================
 
         // ব্রাউজারের ব্যাক/ফরওয়ার্ড বাটন হ্যান্ডলিং
         window.addEventListener('popstate', function() {
@@ -2257,11 +2187,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 tab.setAttribute('aria-selected', isActive);
             });
             
-            loadProducts(category);
+            const filtered = category === 'all' ? products : products.filter(p => p.cat === category);
+            renderProducts(filtered);
         });
 
         // অ্যাপ স্টার্ট
-        init();
+        loadInitialData();
     </script>
 </body>
 </html>

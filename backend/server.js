@@ -173,6 +173,7 @@ const settingsSchema = new mongoose.Schema({
     siteName: { type: String, default: 'Jahid Gadgets' },
     siteTitle: { type: String, default: 'আধুনিক প্রযুক্তির ঠিকানা' },
     siteDescription: { type: String, default: 'প্রিমিয়াম গ্যাজেটের সেরা সংগ্রহ' },
+    bengaliSubtitle: { type: String, default: 'প্রযুক্তির বিশ্বাসযোগ্য ঠিকানা' },
     phone: { type: String, default: '+8801709363983' },
     whatsapp: { type: String, default: '+8801709363983' },
     address: { type: String, default: 'রংপুর, বোদা, পঞ্চগড় সদর' },
@@ -314,6 +315,34 @@ app.post('/api/admin/products/temp-upload', authenticateToken, upload.array('ima
     }
 });
 
+// ==================== COMBINED INITIAL DATA ENDPOINT ====================
+// এই এন্ডপয়েন্টটি সব পাবলিক ডাটা একসাথে পাঠায় (কোল্ড স্টার্টের প্রভাব কমায়)
+app.get('/api/initial-data', async (req, res) => {
+    try {
+        const [settings, categories, slides, products, reviews] = await Promise.all([
+            Settings.findOne(),
+            Category.find({ active: true }).sort({ order: 1 }),
+            Slide.find({ active: true }).sort({ order: 1 }),
+            Product.find().sort({ createdAt: -1 }),
+            Review.find({ status: 'approved' }).sort({ createdAt: -1 }).limit(20)
+        ]);
+
+        res.json({
+            settings: settings || {},
+            categories: categories || [],
+            slides: slides.length ? slides : [
+                { image: 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=1200', title: 'স্মার্ট ওয়াচ', subtitle: 'আধুনিক প্রযুক্তির অভিজ্ঞতা', badge: '৪০% ছাড়' },
+                { image: 'https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf4?w=1200', title: 'ওয়্যারলেস ইয়ারবাড', subtitle: 'ক্রিস্টাল ক্লিয়ার সাউন্ড', badge: 'নতুন অ্যারাইভাল' },
+                { image: 'https://images.unsplash.com/photo-1593640408182-31c70c8268f5?w=1200', title: 'পাওয়ার ব্যাংক', subtitle: '২০০০০mAh দীর্ঘস্থায়ী ব্যাটারি', badge: 'বেস্ট সেলার' }
+            ],
+            products: products || []
+        });
+    } catch (error) {
+        console.error('Initial data error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // ==================== AUTH ROUTES ====================
 
 app.post('/api/admin/login', [
@@ -363,7 +392,7 @@ app.get('/api/admin/verify', authenticateToken, async (req, res) => {
 
 // ==================== CATEGORY ROUTES ====================
 
-// Get all categories (public)
+// Get all categories (public) – এখন /api/initial-data-এ অন্তর্ভুক্ত, তবে পুরনো রুটও রাখা হলো
 app.get('/api/categories', async (req, res) => {
     try {
         const categories = await Category.find({ active: true }).sort({ order: 1 });
@@ -434,7 +463,7 @@ app.delete('/api/admin/categories/:id', authenticateToken, async (req, res) => {
 
 // ==================== PRODUCT ROUTES ====================
 
-// Get all products (public)
+// Get all products (public) – এখন /api/initial-data-এ অন্তর্ভুক্ত, তবে ফিল্টারিংয়ের জন্য পুরনো রুটও রাখা হলো
 app.get('/api/products', async (req, res) => {
     try {
         const { category, search, sort, featured } = req.query;
@@ -485,7 +514,6 @@ app.post('/api/admin/products', authenticateToken, upload.array('images', 10), a
         const productData = JSON.parse(req.body.product);
         let imageUrls = [];
 
-        // যদি ফাইল আপলোড করা হয়, সেগুলো ক্লাউডিনারিতে আপলোড করে URL নিন
         if (req.files && req.files.length > 0) {
             for (const file of req.files) {
                 try {
@@ -495,18 +523,14 @@ app.post('/api/admin/products', authenticateToken, upload.array('images', 10), a
                     console.error('Image upload error:', uploadError);
                 }
             }
-        } 
-        // যদি কোনো ফাইল না থাকে, তাহলে productData.images থেকে URL গুলো ব্যবহার করুন
-        else if (productData.images && Array.isArray(productData.images) && productData.images.length > 0) {
+        } else if (productData.images && Array.isArray(productData.images) && productData.images.length > 0) {
             imageUrls = productData.images;
         }
 
-        // যদি কোনো ছবি না পাওয়া যায়, তবে ত্রুটি দেখান
         if (imageUrls.length === 0) {
             return res.status(400).json({ error: 'At least one image is required' });
         }
 
-        // productData থেকে images প্রপার্টি সরিয়ে নতুন করে যোগ করুন (নিরাপত্তার জন্য)
         delete productData.images;
 
         const product = await Product.create({
@@ -720,7 +744,7 @@ app.delete('/api/admin/orders/:id', authenticateToken, async (req, res) => {
 
 // ==================== REVIEW ROUTES ====================
 
-// Get approved reviews (public)
+// Get approved reviews (public) – এখন /api/initial-data-এ অন্তর্ভুক্ত, তবে পুরনো রুটও রাখা হলো
 app.get('/api/reviews', async (req, res) => {
     try {
         const { featured } = req.query;
@@ -820,7 +844,7 @@ app.delete('/api/admin/reviews/:id', authenticateToken, async (req, res) => {
 
 // ==================== SLIDE ROUTES ====================
 
-// Get active slides (public)
+// Get active slides (public) – এখন /api/initial-data-এ অন্তর্ভুক্ত, তবে পুরনো রুটও রাখা হলো
 app.get('/api/slides', async (req, res) => {
     try {
         const slides = await Slide.find({ active: true }).sort({ order: 1 });
@@ -903,7 +927,7 @@ app.delete('/api/admin/slides/:id', authenticateToken, async (req, res) => {
 
 // ==================== SETTINGS ROUTES ====================
 
-// Get settings (public)
+// Get settings (public) – এখন /api/initial-data-এ অন্তর্ভুক্ত, তবে পুরনো রুটও রাখা হলো
 app.get('/api/settings', async (req, res) => {
     try {
         let settings = await Settings.findOne();
