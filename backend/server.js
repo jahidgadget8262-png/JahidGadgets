@@ -335,7 +335,8 @@ app.get('/api/initial-data', async (req, res) => {
                 { image: 'https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf4?w=1200', title: 'ওয়্যারলেস ইয়ারবাড', subtitle: 'ক্রিস্টাল ক্লিয়ার সাউন্ড', badge: 'নতুন অ্যারাইভাল' },
                 { image: 'https://images.unsplash.com/photo-1593640408182-31c70c8268f5?w=1200', title: 'পাওয়ার ব্যাংক', subtitle: '২০০০০mAh দীর্ঘস্থায়ী ব্যাটারি', badge: 'বেস্ট সেলার' }
             ],
-            products: products || []
+            products: products || [],
+            reviews: reviews || []  // ← এই লাইনটি যুক্ত করা হয়েছে
         });
     } catch (error) {
         console.error('Initial data error:', error);
