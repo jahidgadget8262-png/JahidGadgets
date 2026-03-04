@@ -46,14 +46,17 @@
     <!-- ========== টেইলউইন্ড সিএসএস (প্রিলোড) ========== -->
     <link rel="preload" href="https://cdn.tailwindcss.com" as="script">
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- ========== প্রিলোড API ডাটা (দ্রুত লোডের জন্য) ========== -->
+    <link rel="preload" href="https://jahid-gadgets-backend.onrender.com/api/initial-data" as="fetch" crossorigin="anonymous">
     
     <!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-K55CMQ2H');</script>
-<!-- End Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-K55CMQ2H');</script>
+    <!-- End Google Tag Manager -->
 
     <!-- ========== স্কিমা মার্কআপ (স্ট্রাকচার্ড ডেটা) ========== -->
     <script type="application/ld+json">
@@ -146,34 +149,33 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <meta name="google-site-verification" content="2_v_E-nI2KP6wRybZD2lBMqsPvaPNKpGDUgQWiv91E" />
     
     <!-- Meta Pixel Code -->
-<script>
-!function(f,b,e,v,n,t,s)
-{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-n.queue=[];t=b.createElement(e);t.async=!0;
-t.src=v;s=b.getElementsByTagName(e)[0];
-s.parentNode.insertBefore(t,s)}(window, document,'script',
-'https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '1705708543740057');
-fbq('track', 'PageView');
-</script>
-<noscript><img height="1" width="1" style="display:none"
-src="https://www.facebook.com/tr?id=1705708543740057&ev=PageView&noscript=1"
-/></noscript>
-<!-- End Meta Pixel Code -->
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '1705708543740057');
+    fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=1705708543740057&ev=PageView&noscript=1"
+    /></noscript>
+    <!-- End Meta Pixel Code -->
 
     <!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-H74CCNT0ZD"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H74CCNT0ZD"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-H74CCNT0ZD');
+    </script>
 
-  gtag('config', 'G-H74CCNT0ZD');
-</script>
-
-<link rel="icon" type="image/png" href="images/favicon.png">
+    <link rel="icon" type="image/png" href="images/favicon.png">
 
     <style>
         /* আপনার বিদ্যমান স্টাইল এখানে থাকবে (সেভ করা হয়েছে) */
@@ -1415,7 +1417,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             ? 'http://localhost:5000/api'
             : 'https://jahid-gadgets-backend.onrender.com/api';
 
-        // ==================== ক্যাশ ম্যানেজার ====================
+        // ==================== ক্যাশ ম্যানেজার (TTL ২৪ ঘণ্টা) ====================
         const cache = {
             get(key) {
                 try {
@@ -1431,7 +1433,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     return null;
                 }
             },
-            set(key, data, ttl = 5 * 60 * 1000) { // 5 মিনিট ডিফল্ট
+            set(key, data, ttl = 24 * 60 * 60 * 1000) { // ২৪ ঘণ্টা ডিফল্ট
                 try {
                     const item = {
                         data,
@@ -2163,10 +2165,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     );
                     document.getElementById('reviewForm').reset();
                     
-                    // ২ সেকেন্ড পরে রিভিউ রিলোড (নতুন রিভিউ এডমিন অ্যাপ্রুভ করলেই আসবে)
+                    // ২ সেকেন্ড পরে ক্যাশ রিফ্রেশ করে আবার লোড (নতুন রিভিউ এডমিন অ্যাপ্রুভ করলে দেখাবে)
                     setTimeout(() => {
-                        // শুধু ক্যাশ মুছে দিয়ে আবার লোড করলে নতুন রিভিউ দেখাবে (যদি অ্যাপ্রুভ হয়)
-                        cache.set('initial', null); // ক্যাশ ফোর্স রিফ্রেশ
+                        cache.set('initial', null);
                         loadInitialData();
                     }, 2000);
                 }

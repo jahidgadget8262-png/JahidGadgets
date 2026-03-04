@@ -316,15 +316,14 @@ app.post('/api/admin/products/temp-upload', authenticateToken, upload.array('ima
 });
 
 // ==================== COMBINED INITIAL DATA ENDPOINT ====================
-// এই এন্ডপয়েন্টটি সব পাবলিক ডাটা একসাথে পাঠায় (কোল্ড স্টার্টের প্রভাব কমায়)
 app.get('/api/initial-data', async (req, res) => {
     try {
         const [settings, categories, slides, products, reviews] = await Promise.all([
             Settings.findOne(),
             Category.find({ active: true }).sort({ order: 1 }),
             Slide.find({ active: true }).sort({ order: 1 }),
-            Product.find().sort({ createdAt: -1 }),
-            Review.find({ status: 'approved' }).sort({ createdAt: -1 }).limit(20)
+            Product.find().sort({ createdAt: -1 }).select('id cat name price oldPrice discount desc images stock sold featured'),
+            Review.find({ status: 'approved' }).sort({ createdAt: -1 }).limit(20).select('name address text rating createdAt')
         ]);
 
         res.json({
@@ -336,7 +335,7 @@ app.get('/api/initial-data', async (req, res) => {
                 { image: 'https://images.unsplash.com/photo-1593640408182-31c70c8268f5?w=1200', title: 'পাওয়ার ব্যাংক', subtitle: '২০০০০mAh দীর্ঘস্থায়ী ব্যাটারি', badge: 'বেস্ট সেলার' }
             ],
             products: products || [],
-            reviews: reviews || []  // ← এই লাইনটি যুক্ত করা হয়েছে
+            reviews: reviews || []
         });
     } catch (error) {
         console.error('Initial data error:', error);
@@ -393,7 +392,6 @@ app.get('/api/admin/verify', authenticateToken, async (req, res) => {
 
 // ==================== CATEGORY ROUTES ====================
 
-// Get all categories (public) – এখন /api/initial-data-এ অন্তর্ভুক্ত, তবে পুরনো রুটও রাখা হলো
 app.get('/api/categories', async (req, res) => {
     try {
         const categories = await Category.find({ active: true }).sort({ order: 1 });
@@ -403,7 +401,6 @@ app.get('/api/categories', async (req, res) => {
     }
 });
 
-// Get all categories (admin)
 app.get('/api/admin/categories', authenticateToken, async (req, res) => {
     try {
         const categories = await Category.find().sort({ order: 1 });
@@ -413,7 +410,6 @@ app.get('/api/admin/categories', authenticateToken, async (req, res) => {
     }
 });
 
-// Create category (admin)
 app.post('/api/admin/categories', authenticateToken, async (req, res) => {
     try {
         const { id, name, nameBn, icon, order, active } = req.body;
@@ -433,7 +429,6 @@ app.post('/api/admin/categories', authenticateToken, async (req, res) => {
     }
 });
 
-// Update category (admin)
 app.put('/api/admin/categories/:id', authenticateToken, async (req, res) => {
     try {
         const category = await Category.findOneAndUpdate(
@@ -447,7 +442,6 @@ app.put('/api/admin/categories/:id', authenticateToken, async (req, res) => {
     }
 });
 
-// Delete category (admin)
 app.delete('/api/admin/categories/:id', authenticateToken, async (req, res) => {
     try {
         const products = await Product.findOne({ cat: req.params.id });
@@ -464,7 +458,6 @@ app.delete('/api/admin/categories/:id', authenticateToken, async (req, res) => {
 
 // ==================== PRODUCT ROUTES ====================
 
-// Get all products (public) – এখন /api/initial-data-এ অন্তর্ভুক্ত, তবে ফিল্টারিংয়ের জন্য পুরনো রুটও রাখা হলো
 app.get('/api/products', async (req, res) => {
     try {
         const { category, search, sort, featured } = req.query;
@@ -485,14 +478,13 @@ app.get('/api/products', async (req, res) => {
         if (sort === 'price_desc') sortOption = { price: -1 };
         if (sort === 'name') sortOption = { name: 1 };
 
-        const products = await Product.find(filter).sort(sortOption);
+        const products = await Product.find(filter).sort(sortOption).select('id cat name price oldPrice discount desc images stock sold featured');
         res.json(products);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
 
-// Get single product
 app.get('/api/products/:id', async (req, res) => {
     try {
         const product = await Product.findOne({ id: req.params.id });
@@ -509,7 +501,6 @@ app.get('/api/products/:id', async (req, res) => {
     }
 });
 
-// Create product (admin)
 app.post('/api/admin/products', authenticateToken, upload.array('images', 10), async (req, res) => {
     try {
         const productData = JSON.parse(req.body.product);
@@ -546,7 +537,6 @@ app.post('/api/admin/products', authenticateToken, upload.array('images', 10), a
     }
 });
 
-// Update product (admin)
 app.put('/api/admin/products/:id', authenticateToken, upload.array('images', 10), async (req, res) => {
     try {
         const productId = req.params.id;
@@ -584,7 +574,6 @@ app.put('/api/admin/products/:id', authenticateToken, upload.array('images', 10)
     }
 });
 
-// Delete product (admin)
 app.delete('/api/admin/products/:id', authenticateToken, async (req, res) => {
     try {
         const product = await Product.findOneAndDelete({ id: req.params.id });
@@ -609,12 +598,10 @@ app.delete('/api/admin/products/:id', authenticateToken, async (req, res) => {
 
 // ==================== ORDER ROUTES ====================
 
-// Generate order ID
 function generateOrderId() {
     return 'ORD' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).substring(2, 5).toUpperCase();
 }
 
-// Create order (public)
 app.post('/api/orders', [
     body('customerName').notEmpty(),
     body('customerPhone').matches(/^01[3-9]\d{8}$/),
@@ -662,7 +649,6 @@ app.post('/api/orders', [
     }
 });
 
-// Get all orders (admin)
 app.get('/api/admin/orders', authenticateToken, async (req, res) => {
     try {
         const { status, page = 1, limit = 20, search } = req.query;
@@ -695,7 +681,6 @@ app.get('/api/admin/orders', authenticateToken, async (req, res) => {
     }
 });
 
-// Get single order
 app.get('/api/admin/orders/:id', authenticateToken, async (req, res) => {
     try {
         const order = await Order.findById(req.params.id);
@@ -703,7 +688,6 @@ app.get('/api/admin/orders/:id', authenticateToken, async (req, res) => {
             return res.status(404).json({ error: 'Order not found' });
         }
         
-        // Mark as read when viewed
         await Order.findByIdAndUpdate(req.params.id, { notificationRead: true });
         
         res.json(order);
@@ -712,7 +696,6 @@ app.get('/api/admin/orders/:id', authenticateToken, async (req, res) => {
     }
 });
 
-// Update order (admin)
 app.put('/api/admin/orders/:id', authenticateToken, async (req, res) => {
     try {
         const { status, paymentStatus, notes, trackingCode } = req.body;
@@ -733,7 +716,6 @@ app.put('/api/admin/orders/:id', authenticateToken, async (req, res) => {
     }
 });
 
-// Delete order (admin)
 app.delete('/api/admin/orders/:id', authenticateToken, async (req, res) => {
     try {
         await Order.findByIdAndDelete(req.params.id);
@@ -745,7 +727,6 @@ app.delete('/api/admin/orders/:id', authenticateToken, async (req, res) => {
 
 // ==================== REVIEW ROUTES ====================
 
-// Get approved reviews (public) – এখন /api/initial-data-এ অন্তর্ভুক্ত, তবে পুরনো রুটও রাখা হলো
 app.get('/api/reviews', async (req, res) => {
     try {
         const { featured } = req.query;
@@ -754,14 +735,14 @@ app.get('/api/reviews', async (req, res) => {
         
         const reviews = await Review.find(filter)
             .sort({ createdAt: -1 })
-            .limit(20);
+            .limit(20)
+            .select('name address text rating createdAt');
         res.json(reviews);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
 
-// Create review (public)
 app.post('/api/reviews', [
     body('name').notEmpty(),
     body('text').notEmpty()
@@ -777,7 +758,6 @@ app.post('/api/reviews', [
     }
 });
 
-// Get all reviews (admin)
 app.get('/api/admin/reviews', authenticateToken, async (req, res) => {
     try {
         const { status, page = 1, limit = 20 } = req.query;
@@ -801,7 +781,6 @@ app.get('/api/admin/reviews', authenticateToken, async (req, res) => {
     }
 });
 
-// Get single review (admin)
 app.get('/api/admin/reviews/:id', authenticateToken, async (req, res) => {
     try {
         const review = await Review.findById(req.params.id);
@@ -809,7 +788,6 @@ app.get('/api/admin/reviews/:id', authenticateToken, async (req, res) => {
             return res.status(404).json({ error: 'Review not found' });
         }
         
-        // Mark as read when viewed
         await Review.findByIdAndUpdate(req.params.id, { notificationRead: true });
         
         res.json(review);
@@ -818,7 +796,6 @@ app.get('/api/admin/reviews/:id', authenticateToken, async (req, res) => {
     }
 });
 
-// Update review (admin)
 app.put('/api/admin/reviews/:id', authenticateToken, async (req, res) => {
     try {
         const { status, isFeatured } = req.body;
@@ -833,7 +810,6 @@ app.put('/api/admin/reviews/:id', authenticateToken, async (req, res) => {
     }
 });
 
-// Delete review (admin)
 app.delete('/api/admin/reviews/:id', authenticateToken, async (req, res) => {
     try {
         await Review.findByIdAndDelete(req.params.id);
@@ -845,7 +821,6 @@ app.delete('/api/admin/reviews/:id', authenticateToken, async (req, res) => {
 
 // ==================== SLIDE ROUTES ====================
 
-// Get active slides (public) – এখন /api/initial-data-এ অন্তর্ভুক্ত, তবে পুরনো রুটও রাখা হলো
 app.get('/api/slides', async (req, res) => {
     try {
         const slides = await Slide.find({ active: true }).sort({ order: 1 });
@@ -855,7 +830,6 @@ app.get('/api/slides', async (req, res) => {
     }
 });
 
-// Get all slides (admin)
 app.get('/api/admin/slides', authenticateToken, async (req, res) => {
     try {
         const slides = await Slide.find().sort({ order: 1 });
@@ -865,7 +839,6 @@ app.get('/api/admin/slides', authenticateToken, async (req, res) => {
     }
 });
 
-// Create slide (admin)
 app.post('/api/admin/slides', authenticateToken, upload.single('image'), async (req, res) => {
     try {
         const slideData = JSON.parse(req.body.slide);
@@ -888,7 +861,6 @@ app.post('/api/admin/slides', authenticateToken, upload.single('image'), async (
     }
 });
 
-// Update slide (admin)
 app.put('/api/admin/slides/:id', authenticateToken, upload.single('image'), async (req, res) => {
     try {
         const slideData = req.body.slide ? JSON.parse(req.body.slide) : req.body;
@@ -908,7 +880,6 @@ app.put('/api/admin/slides/:id', authenticateToken, upload.single('image'), asyn
     }
 });
 
-// Delete slide (admin)
 app.delete('/api/admin/slides/:id', authenticateToken, async (req, res) => {
     try {
         const slide = await Slide.findByIdAndDelete(req.params.id);
@@ -928,7 +899,6 @@ app.delete('/api/admin/slides/:id', authenticateToken, async (req, res) => {
 
 // ==================== SETTINGS ROUTES ====================
 
-// Get settings (public) – এখন /api/initial-data-এ অন্তর্ভুক্ত, তবে পুরনো রুটও রাখা হলো
 app.get('/api/settings', async (req, res) => {
     try {
         let settings = await Settings.findOne();
@@ -941,7 +911,6 @@ app.get('/api/settings', async (req, res) => {
     }
 });
 
-// Update settings (admin)
 app.put('/api/admin/settings', authenticateToken, async (req, res) => {
     try {
         let settings = await Settings.findOne();
@@ -958,7 +927,6 @@ app.put('/api/admin/settings', authenticateToken, async (req, res) => {
     }
 });
 
-// Upload logo
 app.post('/api/admin/settings/logo', authenticateToken, upload.single('logo'), async (req, res) => {
     try {
         if (!req.file) {
@@ -1066,7 +1034,6 @@ app.get('/api/admin/stats', authenticateToken, async (req, res) => {
 
 // ==================== NOTIFICATION ROUTES ====================
 
-// Get unread notifications count
 app.get('/api/admin/notifications/unread', authenticateToken, async (req, res) => {
     try {
         const [pendingOrders, pendingReviews] = await Promise.all([
